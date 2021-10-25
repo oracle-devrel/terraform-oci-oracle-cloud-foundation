@@ -1,0 +1,292 @@
+#!/bin/bash
+#
+#
+
+# Reset the iptables to open the firewall ports on the local VM
+# Access to ports is controlled from OCI Security rules
+# Added
+/opt/scripts/reset_iptables.sh
+
+fileName=$(basename $BASH_SOURCE)
+
+function get_logs_dir {
+  response_code=$(curl  --write-out '%{http_code}' --silent --output /dev/null -H "Authorization:Bearer Oracle" http://169.254.169.254/opc/v2/instance/metadata/logs_dir)
+  if [[ "$response_code" -eq 200 ]] ; then
+     logs_dir=$(curl -H "Authorization:Bearer Oracle" http://169.254.169.254/opc/v2/instance/metadata/logs_dir)
+     echo $logs_dir
+  else
+     logs_dir=$(curl -L http://169.254.169.254/opc/v1/instance/metadata/logs_dir)
+     echo $logs_dir
+  fi
+}
+
+logs_dir=`get_logs_dir`
+mkdir -p ${logs_dir}
+log_file="${logs_dir}/bootstrap.log"
+
+function log() {
+    while IFS= read -r line; do
+        DATE=`date '+%Y-%m-%d %H:%M:%S.%N'`
+        echo "<$DATE>  $line"
+    done
+}
+
+function update_fstab() {
+  mountpoint=$1
+  uuid=`sudo lsblk -no UUID $(df -P $mountpoint/lost+found | awk 'END{print $1}')`
+  sudo sed -i -e "\$aUUID=${uuid} $mountpoint ext4 auto,defaults,_netdev,nofail 0 2" /etc/fstab
+}
+
+# Pre-create provisioning log as oracle user so it is owned by oracle user.
+# This is to avoid race-condition if logging happens from a script running as root user first then
+# provisioning log is created and owned by root user. So we pre-create it before any logging happens
+# to provisioning log file.
+sudo su - oracle -c "touch ${logs_dir}/provisioning.log"
+
+# Unzip vmscript first, if any error from mountVolume, check_provisioning_status & troubleshooting
+# scripts will process error accordingly
+echo "Executing unpack vmscript script" | log >> $log_file
+
+python /opt/scripts/unzip_vmscript.py | log >> $log_file
+exit_code=${PIPESTATUS[0]}
+
+if [ $exit_code -ne 0 ]; then
+    echo "Error executing vmscripts unpack.. Exiting provisioning" | log >> $log_file
+    #clean up script
+    /opt/scripts/tidyup.sh
+    exit 1
+fi
+
+echo "Executed vmscripts unpack script with exit code [$exit_code]" | log >> $log_file
+
+echo "Executing mountVolume script" | log >> $log_file
+
+# Call mountVolume.py
+# This file is now part of the image
+
+python /opt/scripts/mountVolume.py | log >> $log_file
+exit_code=${PIPESTATUS[0]}
+
+if [ $exit_code -ne 0 ]; then
+    echo "Error executing volume mounting.. Exiting provisioning" | log >> $log_file
+    #clean up script
+    /opt/scripts/tidyup.sh
+    exit 1
+fi
+
+echo "Executed mountVolume script with exit code [$exit_code]" | log >> $log_file
+
+sudo su - oracle -c "df -h" | log >> $log_file
+
+# JIRA JCS-9938. Add /u01/app & /u01/data to /etc/fstab. We don't have to mount on each reboot
+update_fstab /u01/app
+
+if [ $? -eq 0 ]; then
+  echo "Added entry for /u01/app in /etc/fstab" | log >> $log_file
+else
+  echo "Failed to add /u01/app entry to /etc/fstab. Exiting" | log >> $log_file
+  #clean up script
+  /opt/scripts/tidyup.sh
+  exit 1
+fi
+
+update_fstab /u01/data
+if [ $? -eq 0 ]; then
+  echo "Added entry for /u01/data in /etc/fstab" | log >> $log_file
+else
+  echo "Failed to add /u01/data entry to /etc/fstab. Exiting" | log >> $log_file
+  #clean up script
+  /opt/scripts/tidyup.sh
+  exit 1
+fi
+
+# Call bootstrap.py (part of wls image) to unzip fmiddleware and jdk zips
+# after volumes are set up, unpacks fmw/jdk zips
+
+python /opt/scripts/bootstrap.py | log >> $log_file
+
+# Move jdk to MW volume
+echo "Executing move_jdk script" | log >> $log_file
+
+/opt/scripts/move_jdk.sh
+exit_code=$?
+
+echo "Executed mov_jdk script with exit code [$exit_code]" | log >> $log_file
+
+# Ensure they are owned by oracle user and the shell scripts have execute file permission.
+
+sudo chown -R oracle:oracle /u01
+sudo chmod -R 775 /u01/
+sudo chown -R oracle:oracle /opt
+sudo chmod -R 775 /opt/
+sudo chmod +x /opt/scripts/*.sh
+
+
+# Append to oracle home bashrc so DOMAIN_HOME is configured for oracle user - this is required for migration
+WLS_DOMAIN_NAME=$(sudo su oracle -c 'python /opt/scripts/databag.py wls_domain_name')
+WLS_DOMAIN_DIR=$(sudo su oracle -c 'python /opt/scripts/databag.py domain_dir')
+DOMAIN_HOME=$WLS_DOMAIN_DIR"/"$WLS_DOMAIN_NAME
+
+
+echo "export DOMAIN_HOME=${DOMAIN_HOME}" >> /home/oracle/.bashrc
+
+# vm validators - fail fast scenarios
+
+echo "Executing validator script" | log >> $log_file
+python /opt/scripts/validator.py
+exit_code=$?
+
+if [ $exit_code -ne 0 ]; then
+  echo "VM validators failed. Exiting" | log >> $log_file
+  #clean up script
+  /opt/scripts/tidyup.sh
+  exit 1
+fi
+
+echo "Executed validator script with exit code [$exit_code]" | log >> $log_file
+
+# Continue with initialization and append to the provisioning log both stdout and stderr
+
+#check versions in prod version
+echo "Executing check_versions script" | log >> $log_file
+
+/opt/scripts/check_versions.sh
+exit_code=$?
+
+echo "Executed check_versions script with exit code [$exit_code]" | log >> $log_file
+
+if [ $exit_code -eq 0 ]; then
+    config_script="/opt/scripts/idcs/configure_test_idcs.sh"
+    [[ -x ${config_script} ]] && ${config_script}
+    rm -f ${config_script}
+
+    has_idcs_artifacts_admin_host=0
+    is_admin_instance=$(sudo su oracle -c 'python /opt/scripts/databag.py is_admin_instance')
+    lb_backend_state="False"
+    if [ "$is_admin_instance" = "true" ]; then
+        echo "Executing create_idcs_apps.sh" | log >> $log_file
+        #Save stdout and stderr in variable and print it in case exit code is not zero
+        create_idcs_apps_log=$(su - oracle -c "/opt/scripts/idcs/create_idcs_apps.sh 2>&1")
+        exit_code=$?
+        echo "Executed create_idcs_apps.sh with exit code [$exit_code]" | log >> $log_file
+        [[ $exit_code -ne 0 ]] && echo "$create_idcs_apps_log" | log >> $log_file
+
+        if [ $exit_code -eq 0 ]; then
+            echo "Executing terraform_init.sh" | log >> $log_file
+            su - oracle -c /opt/scripts/terraform_init.sh
+            exit_code=$?
+            echo "Executed terraform_init.sh with exit code [$exit_code]" | log >> $log_file
+        fi
+
+        if [ $exit_code -eq 0 ]; then
+            echo "Executing create_idcs_cloudgate_config_files.sh" | log >> $log_file
+            create_idcs_cloudgate_config_log=$(su - oracle -c "/opt/scripts/idcs/create_idcs_cloudgate_config_files.sh $has_idcs_artifacts_admin_host 2>&1")
+            exit_code=$?
+            echo "Executed create_idcs_cloudgate_config_files.sh with exit code [$exit_code]" | log >> $log_file
+            [[ $exit_code -ne 0 ]] && echo "$create_idcs_cloudgate_config_log" | log >> $log_file
+        fi
+
+        if [ $exit_code -eq 0 ]; then
+            echo "Executing install_cloudgate.sh" | log >> $log_file
+            install_clougate_log=$(/opt/scripts/idcs/install_cloudgate.sh $has_idcs_artifacts_admin_host 2>&1)
+            exit_code=$?
+            echo "Executed install_cloudgate.sh with exit code [$exit_code]" | log >> $log_file
+            [[ $exit_code -ne 0 ]] && echo "$install_clougate_log" | log >> $log_file
+        fi
+    else
+        allow_manual_domain_extension=$(sudo su oracle -c 'python /opt/scripts/databag.py allow_manual_domain_extension')
+
+        if [ $allow_manual_domain_extension  == 'true' ]; then
+            echo "Skipping domain creation as manual extension flag is set" | log >> $log_file
+        else
+            echo "Executing terraform_init.sh" | log >> $log_file
+            su - oracle -c /opt/scripts/terraform_init.sh
+            exit_code=$?
+            echo "Executed terraform_init.sh with exit code [$exit_code]" | log >> $log_file
+        fi
+
+        if [ $exit_code -eq 0 ]; then
+            is_idcs_selected=$(sudo su oracle -c 'python /opt/scripts/databag.py is_idcs_selected')
+            check_domain_idcs_enabled_output=$(sudo su oracle -c 'python /opt/scripts/idcs/check_domain_idcs_enabled.py 2>&1')
+            has_idcs_artifacts_admin_host=$?
+            echo "$check_domain_idcs_enabled_output" | log >> $log_file
+
+            #This scenario is only possible if IDCS was disabled post provisioning through CLI mode. IDCS is not shown in reapply on the UI
+            if [ "$is_idcs_selected" = "false" ] && [ $has_idcs_artifacts_admin_host -eq 0 ]; then
+                echo "IDCS is configured on Admin server, please enable IDCS. Exiting provisioning" | log >> $log_file
+                /opt/scripts/tidyup.sh
+                exit 1
+            fi
+        fi
+
+        if [ $exit_code -eq 0 ]; then
+            echo "Executing create_idcs_cloudgate_config_files.sh" | log >> $log_file
+            create_idcs_cloudgate_config_log=$(su - oracle -c "/opt/scripts/idcs/create_idcs_cloudgate_config_files.sh $has_idcs_artifacts_admin_host 2>&1")
+            exit_code=$?
+            echo "Executed create_idcs_cloudgate_config_files.sh with exit code [$exit_code]" | log >> $log_file
+            [[ $exit_code -ne 0 ]] && echo "$create_idcs_cloudgate_config_log" | log >> $log_file
+        fi
+
+        if [ $exit_code -eq 0 ]; then
+            echo "Executing install_cloudgate.sh" | log >> $log_file
+            install_clougate_log=$(/opt/scripts/idcs/install_cloudgate.sh $has_idcs_artifacts_admin_host 2>&1)
+            exit_code=$?
+            echo "Executed install_cloudgate.sh with exit code [$exit_code]" | log >> $log_file
+            [[ $exit_code -ne 0 ]] && echo "$install_clougate_log" | log >> $log_file
+        fi
+
+        #Create the markers if customer has opted for manual domain extension
+        if [ $allow_manual_domain_extension  == 'true' ]; then
+            python /opt/scripts/markers.py create-success-marker "/u01/domainCreatedMarker" "Skipping domain extension for managed server as it was not requested." "false"
+            python /opt/scripts/markers.py create-success-marker "/u01/managedServerStarted" "Skipping managed server startup as it was not requested." "false"
+
+            WLS_DOMAIN_DIR=$(python /opt/scripts/databag.py domain_dir)
+            WLS_DOMAIN_NAME=$(python /opt/scripts/databag.py wls_domain_name)
+            WLS_DOMAIN_HOME=$WLS_DOMAIN_DIR"/"$WLS_DOMAIN_NAME
+
+            #Create domain dir as it will not exists as domain is not created
+            mkdir -p ${WLS_DOMAIN_HOME}
+            chown -R oracle:oracle /u01
+            touch "${WLS_DOMAIN_HOME}/provCompletedMarker"
+            lb_backend_state="True"
+
+            #LB backend is created in offline state
+            #This is setting it to the correct state based on node
+            add_loadbalancer=$(python /opt/scripts/databag.py add_loadbalancer)
+            if [ ${add_loadbalancer} == 'true' ]; then
+                load_balancer_id=$(python /opt/scripts/databag.py load_balancer_id)
+                resource_prefix=$(python /opt/scripts/databag.py service_name)
+                backend_set_name=${resource_prefix}-lb-backendset
+                ip=$(hostname -i)
+                is_idcs_selected=$(python /opt/scripts/databag.py is_idcs_selected)
+
+                if [ $is_idcs_selected == 'true' ]; then
+                    port=$(python /opt/scripts/databag.py idcs_cloudgate_port)
+                else
+                    port=$(python /opt/scripts/databag.py wls_ms_extern_port)
+                fi
+
+                backend_name=${ip}":"${port}
+
+                echo "Setting loadbalancer backend offline state : ${load_balancer_id}, ${backend_set_name}, ${backend_name} ${lb_backend_state}" | log >> $log_file
+                python /opt/scripts/oci_api_utils.py update_lb_backend_offline_state ${load_balancer_id} ${backend_set_name} ${backend_name} ${lb_backend_state}
+                exit_code=$?
+                if [ $exit_code -ne 0 ]; then
+                    echo "Failed to change the state of the Load balancer backend for this node [$exit_code]" | log >> $log_file
+                fi
+            fi
+        fi
+    fi
+
+    echo "Copying wls.service to systemd.." | log >> $log_file
+    sudo cp /opt/scripts/wls.service /usr/lib/systemd/system
+    echo "Creating symlink for wls.service" | log >> $log_file
+    sudo ln -s '/usr/lib/systemd/system/wls.service' '/etc/systemd/system/multi-user.target.wants/wls.service'
+fi
+
+echo "Executing cleanup script" | log >> $log_file
+
+#clean up script
+/opt/scripts/tidyup.sh
+
+echo "Executed cleanup script" | log >> $log_file
