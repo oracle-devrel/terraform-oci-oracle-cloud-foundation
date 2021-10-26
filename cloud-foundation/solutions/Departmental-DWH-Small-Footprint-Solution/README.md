@@ -40,7 +40,7 @@ If you don't have the required permissions and quota, contact your tenancy admin
 
 # <a name="Deploy-Using-Oracle-Resource-Manager"></a>Deploy Using Oracle Resource Manager
 
-1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation/blob/develop/cloud-foundation/solutions-for-oracle-res-mgr/Departmental%20DWH%20-%20Small%20Footprint%20Solution.zip)
+1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation/blob/develop/cloud-foundation/solutions-for-oracle-res-mgr/Departmental-DWH-Small-Footprint-Solution.zip)
 
     If you aren't already signed in, when prompted, enter the tenancy and user credentials.
 
