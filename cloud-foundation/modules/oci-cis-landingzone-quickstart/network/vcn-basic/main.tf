@@ -79,7 +79,7 @@ resource "oci_core_drg_attachment" "these" {
 ### Subnets
 resource "oci_core_subnet" "these" {
 
-  for_each = {for subnet in local.subnets : "${subnet.display_name}" => subnet if subnet.cidr != ""}
+  for_each = {for subnet in local.subnets : subnet.display_name => subnet if subnet.cidr != ""}
     display_name                = each.value.display_name
     vcn_id                      = each.value.vcn_name != "" ? oci_core_vcn.these[each.value.vcn_name].id : each.value.vcn_id
     availability_domain         = each.value.availability_domain
