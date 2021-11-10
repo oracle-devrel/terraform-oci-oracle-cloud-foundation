@@ -24,16 +24,6 @@ instance_params = { for x in range(!local.is_apply_JRF ? var.numWLSInstances : 0
   source_type = "image"
   source_id   = var.instance_image_ocid
 
-  # Apply this to set the size of the boot volume that's created for this instance.
-  # Otherwise, the default boot volume size of the image is used.
-  # This should only be specified when source_type is set to "image".
-  #boot_volume_size_in_gbs = "60"
-
-  # Apply the following flag only if you wish to preserve the attached boot volume upon destroying this instance
-  # Setting this and destroying the instance will result in a boot volume that should be managed outside of this config.
-  # When changing this value, make sure to run 'terraform apply' so that it takes effect before the resource is destroyed.
-  #preserve_boot_volume = true
-
   metadata = {
 
     service_name                       = var.compute_name_prefix
@@ -95,14 +85,12 @@ instance_params = { for x in range(!local.is_apply_JRF ? var.numWLSInstances : 0
     add_loadbalancer                   = var.add_loadbalancer
     is_lb_private                      = var.is_lb_private
 
-    // App DB Params - ATP DB
     is_atp_app_db    = local.is_atp_app_db
     app_atp_db_id    = var.app_atp_db_id
     app_atp_db_level = var.app_atp_db_level
-    # Whether this is ATP-D or ATP-S?
+ 
     is_app_atp_dedicated = local.is_atp_app_db ? lookup(data.oci_database_autonomous_database.app_atp_db[0], "is_dedicated") : ""
 
-    // For IDCS
     is_idcs_selected                    = var.is_idcs_selected
     idcs_host                           = var.idcs_host
     idcs_port                           = var.idcs_port
@@ -127,8 +115,6 @@ instance_params = { for x in range(!local.is_apply_JRF ? var.numWLSInstances : 0
 
   are_legacy_imds_endpoints_disabled = var.disable_legacy_metadata_endpoint
 
-  #if there is only 1 AD or AD subnets are used, spread VM across FDs,
-  #however for more than one AD spread VMs across ADs  and let system select the FD in the respective ADs
   fault_domain = (length(local.ad_names) == 1 || ! var.use_regional_subnet) ? lookup(data.oci_identity_fault_domains.wls_fault_domains.fault_domains[(x + 1) % local.num_fault_domains], "name") : ""
 
   provisioning_timeout_mins = var.provisioning_timeout_mins
@@ -162,16 +148,6 @@ module "wls-atp-instance" {
 
   source_type = "image"
   source_id   = var.instance_image_ocid
-
-  # Apply this to set the size of the boot volume that's created for this instance.
-  # Otherwise, the default boot volume size of the image is used.
-  # This should only be specified when source_type is set to "image".
-  #boot_volume_size_in_gbs = "60"
-
-  # Apply the following flag only if you wish to preserve the attached boot volume upon destroying this instance
-  # Setting this and destroying the instance will result in a boot volume that should be managed outside of this config.
-  # When changing this value, make sure to run 'terraform apply' so that it takes effect before the resource is destroyed.
-  #preserve_boot_volume = true
 
   metadata = {
 
@@ -211,18 +187,15 @@ module "wls-atp-instance" {
     patching_actions                   = var.wls_version=="11.1.1.7"?var.supported_patching_actions_11g:var.supported_patching_actions
     wls_edition = var.wls_edition
 
-    // DB Password OCID
     db_password_ocid = var.db_password
     db_name = data.oci_database_autonomous_database.atp_db[0].db_name
     db_user = var.db_user
 
-    // RCU params
     rcu_component_list = var.wls_version_to_rcu_component_list_map[var.wls_version]
 
-    //ATP DB Related params
     is_atp_db    = local.is_atp_db
     atp_db_level = var.atp_db_level
-    # Whether this is ATP-D or ATP-S?
+
     is_atp_dedicated = lookup(data.oci_database_autonomous_database.atp_db[0],"is_dedicated")
 
     user_data = data.template_cloudinit_config.config.rendered
@@ -246,14 +219,12 @@ module "wls-atp-instance" {
 
     atp_db_id          = var.atp_db_id
 
-    // App DB Params - ATP DB
     is_atp_app_db    = local.is_atp_app_db
     app_atp_db_id    = var.app_atp_db_id
     app_atp_db_level = var.app_atp_db_level
-    # Whether this is ATP-D or ATP-S?
+
     is_app_atp_dedicated = local.is_atp_app_db ? lookup(data.oci_database_autonomous_database.app_atp_db[0],"is_dedicated") : ""
 
-    // For IDCS
     is_idcs_selected                    = var.is_idcs_selected
     idcs_host                           = var.idcs_host
     idcs_port                           = var.idcs_port
@@ -278,8 +249,6 @@ module "wls-atp-instance" {
 
   are_legacy_imds_endpoints_disabled = var.disable_legacy_metadata_endpoint
   
-  #if there is only 1 AD or AD subnets are used, spread VM across FDs,
-  #however for more than one AD spread VMs across ADs  and let system select the FD in the respective ADs
   fault_domain = (length(local.ad_names)==1 || !var.use_regional_subnet)?lookup(data.oci_identity_fault_domains.wls_fault_domains.fault_domains[(x + 1) % local.num_fault_domains], "name"):""
   provisioning_timeout_mins = var.provisioning_timeout_mins
     }
