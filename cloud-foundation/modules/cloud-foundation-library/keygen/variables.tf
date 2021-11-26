@@ -1,3 +1,7 @@
-variable "display_name" {}
+variable "display_name" {
+    default = "common"
+}
 
-variable "subnet_domain_name" {}
+variable "subnet_domain_name" {
+    default = "subnet_domain"
+}

@@ -1,5 +1,3 @@
-
-# Output the private and public IPs of the instance
 output "InstancePrivateIPs" {
   value = [ for b in oci_core_instance.instance : b.private_ip]
 }
