@@ -14,6 +14,7 @@ variable "instance_params" {
     vnic_display_name = string
     assign_public_ip = string
     hostname_label   = string
+    nsg_ids          = list(string)
 
     ocpus = number
     
@@ -29,5 +30,7 @@ variable "instance_params" {
     provisioning_timeout_mins = string
     
 }))
+
+    default = {}
 
 }
