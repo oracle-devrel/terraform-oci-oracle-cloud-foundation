@@ -15,6 +15,31 @@ To get started, we suggest you take a look at the “Hello, World” example whi
 ## Getting started with the Cloud Foundation Library
 Install Terraform for OCI using these [instructions] in your local environment, but instead of creating a new directory, clone the Cloud Foundation Library and try out the HelloWorld example. It will work on any Oracle always free or free tier account.
 
+## Clone the repository 
+You'll want a local copy of this repo - https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation 
+1. Open Git Bash - If Git is not already installed, it is super simple. Just go to the [Git Download Folder](https://git-scm.com/downloads) and follow the instructions.
+2. Go to the current directory where you want the cloned directory to be added.
+To do this, input cd and add your folder location. You can add the folder location by dragging the folder to Git bash.
+```
+    cd '/home/user/Git_Project'
+```
+3. Go to the page https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation this is the repository that you want to clone
+Click on “Clone or download” and copy the URL.
+4. Use the git clone command along with the copied URL from earlier and press ENTER.
+```
+    $ git clone https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation.git
+    Cloning into 'terraform-oci-oracle-cloud-foundation'...
+    remote: Enumerating objects: 397, done.
+    remote: Counting objects: 100% (397/397), done.
+    remote: Compressing objects: 100% (288/288), done.
+    remote: Total 397 (delta 130), reused 343 (delta 96), pack-reused 0
+    Receiving objects: 100% (397/397), 631.10 KiB | 1.24 MiB/s, done.
+    Resolving deltas: 100% (130/130), done.
+
+    cd terraform-oci-oracle-cloud-foundation/
+    ls
+```
+5. Congratulations!
 
 ### Prerequisites
 - Install Terraform v0.13 or greater: https://www.terraform.io/downloads.html

@@ -1,3 +1,5 @@
+# Copyright © 2021, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 resource "oci_core_instance" "instance" {
 
   for_each = var.instance_params
@@ -15,7 +17,6 @@ resource "oci_core_instance" "instance" {
       display_name     = each.value.vnic_display_name
       assign_public_ip = each.value.assign_public_ip
       hostname_label   = each.value.hostname_label
-      nsg_ids          = each.value.nsg_ids
     }
 
     shape_config {

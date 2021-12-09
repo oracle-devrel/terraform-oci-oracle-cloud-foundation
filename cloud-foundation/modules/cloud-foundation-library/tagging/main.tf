@@ -1,3 +1,6 @@
+# Copyright © 2021, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
 locals {
   tags = flatten([
   for tag in var.tags : [
@@ -20,7 +23,7 @@ resource "oci_identity_tag_namespace" "this" {
   description = each.value.tag_namespace_description
 
   provisioner "local-exec" {
-  command = "sleep 120"
+  command = "sleep 10"
   }
 }
 
@@ -34,6 +37,6 @@ resource "oci_identity_tag" "this" {
   tag_namespace_id = oci_identity_tag_namespace.this[each.value.namespace].id
   
   provisioner "local-exec" {
-  command = "sleep 120"
+  command = "sleep 10"
   }
 }
