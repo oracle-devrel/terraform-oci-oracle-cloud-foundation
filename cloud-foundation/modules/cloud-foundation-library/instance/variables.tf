@@ -1,3 +1,5 @@
+# Copyright © 2021, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 variable "instance_params" {
 
   type = map(object({
@@ -14,7 +16,6 @@ variable "instance_params" {
     vnic_display_name = string
     assign_public_ip = string
     hostname_label   = string
-    nsg_ids          = list(string)
 
     ocpus = number
     
@@ -30,7 +31,5 @@ variable "instance_params" {
     provisioning_timeout_mins = string
     
 }))
-
-    default = {}
 
 }

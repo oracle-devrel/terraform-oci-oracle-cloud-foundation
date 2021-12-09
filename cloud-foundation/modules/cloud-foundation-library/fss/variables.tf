@@ -1,33 +1,28 @@
-// Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
-// Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+# Copyright © 2021, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-variable "compartments_ids" {
-  type = map(string)
-}
-
-variable "vcn_cidr" {
-  type = string
-}
-
-variable "subnet_ids" {
-  type = map(string)
+variable "tenancy_ocid" {
+    type = string
 }
 
 variable "fss_params" {
   type = map(object({
-    ad               = number
-    compartment_name = string
-    name             = string
-    kms_key_name     = string
+    availability_domain = string
+    compartment_id      = string
+    name                = string
+    defined_tags        = map(string)
+    freeform_tags       = map(string)
   }))
 }
 
 variable "mt_params" {
   type = map(object({
-    ad               = number
-    compartment_name = string
+    availability_domain = string
+    compartment_id   = string
     name             = string
-    subnet_name      = string
+    subnet_id        = string
+    defined_tags     = map(string)
+    freeform_tags    = map(string)
   }))
 }
 
@@ -45,6 +40,10 @@ variable "export_params" {
   }))
 }
 
-variable "kms_key_ids" {
-  type = map(string)
-}
+
+
+
+
+
+
+
