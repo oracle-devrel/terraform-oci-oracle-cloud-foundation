@@ -340,21 +340,3 @@ module "wls_lb" {
   public_certificate   = var.add_load_balancer ? module.keygen.CertPem : "${tomap({"cert_pem"=""})}"
   private_key          = var.add_load_balancer ? module.keygen.SSPrivateKey : "${tomap({"private_key_pem"=""})}"
 }
-
-module "provisioners" {
-  source = "./modules/provisioners"
-
-  ssh_private_key = module.keygen.OPCPrivateKey["private_key_pem"]
-  host_ips = coalescelist(
-    compact(module.wls_compute.InstancePublicIPs),
-    compact(module.wls_compute.InstancePrivateIPs),
-    tolist([""])
-  )
-  numWLSInstances               = var.wls_node_count
-  mode                         = var.mode
-  bastion_host_private_key     = module.bastion.privateKey
-  
-  bastion_host = module.bastion.publicIp
-  assign_public_ip             = local.assign_weblogic_public_ip
-
-}
