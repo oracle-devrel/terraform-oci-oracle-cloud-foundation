@@ -1,3 +1,63 @@
-// see https://github.com/oracle-devrel/action-release-zip-maker for docs
 [
-]
+    {
+      "action": "create_zip",
+      "file_name": "terraform-test-latest.zip",
+      "files": [
+        {
+          "src_pattern": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/*.tf",
+          "dst_path": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/.",
+          "exclude": [
+            "main.tf"
+          ]
+        },
+        {
+          "src": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/LICENSE.tf",
+          "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/LICENSE.tf"
+        },
+        {
+          "src": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/schema.yaml",
+          "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/schema.yaml"
+        },
+        {
+            "src": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/README.md",
+            "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/README.md"
+        },
+        {
+            "src": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/CONTRIBUTING.md",
+            "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/CONTRIBUTING.md"
+          },
+          {
+            "src": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/orm/main.tf",
+            "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/main.tf"
+          },
+          {
+            "src": "cloud-foundation/modules/cloud-foundation-library/database/adw",
+            "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/modules/*"
+          },
+          {
+            "src": "cloud-foundation/modules/cloud-foundation-library/oac",
+            "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/modules/*"
+          },
+          {
+            "src": "cloud-foundation/modules/oci-cis-landingzone-quickstart/network/vcn-basic",
+            "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/modules/*"
+          },
+          {
+            "src": "cloud-foundation/modules/oci-cis-landingzone-quickstart/network/vcn-routing",
+            "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/modules/*"
+          },
+          {
+            "src": "cloud-foundation/modules/oci-cis-landingzone-quickstart/network/security",
+            "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/modules/*"
+          },
+          {
+            "src": "loud-foundation/modules/cloud-foundation-library/tagging",
+            "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/modules/*"
+          }
+       ]
+    },
+    {
+      "action": "upload_file",
+      "file_name": "terraform-test-latest.zip"
+    }
+  ]
