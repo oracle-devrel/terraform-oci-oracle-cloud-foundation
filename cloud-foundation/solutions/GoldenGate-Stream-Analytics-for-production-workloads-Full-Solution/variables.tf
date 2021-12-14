@@ -1,39 +1,34 @@
 # Copyright © 2021, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
+# OCI API authentification credentials
 
 terraform {
   required_version = ">= 0.14.0"
 }
 
 variable "tenancy_ocid" {
-  type = string
-  default = ""
-}
-
-variable "region" {
-    type = string
-    default = ""
-}
-
-variable "compartment_id" {
-  type = string
   default = ""
 }
 
 variable "user_ocid" {
-    type = string
-    default = ""
+  default = ""
 }
 
 variable "fingerprint" {
-    type = string
-    default = ""
+  default = ""
 }
 
 variable "private_key_path" {
-    type = string
-    default = ""
+  default = ""
+}
+
+variable "region" {
+  default = ""
+}
+
+variable "compartment_id" {
+  default = ""
 }
 
 # Autonomous Database Configuration Variables
@@ -88,6 +83,7 @@ variable "database_wallet_password" {
   default = ""
 }
 
+
 # Oracle Analytics Cloud Configuration
 
 variable "analytics_instance_feature_set" {
@@ -135,6 +131,7 @@ variable "analytics_instance_network_endpoint_details_whitelisted_ips" {
   default = ["0.0.0.0/0"]
 }
 
+
 # Object Storage Bucket
 
 variable "bucket_name" {
@@ -157,6 +154,7 @@ variable "bucket_events_enabled" {
     default = false
 }
 
+
 # Data Catalog
 
 variable "datacatalog_display_name" {
@@ -164,43 +162,52 @@ variable "datacatalog_display_name" {
     default = "DataCatalogIP"
 }
 
-# ODI - Oracle Cloud Infrastructure Data Integration service
 
-variable "odi_display_name" {
-    type    = string
-    default = "odi_workspace"
+# Compute Configuration
+# More information regarding shapes can be found here:
+# https://docs.oracle.com/en-us/iaas/Content/Compute/References/computeshapes.htm
+# "Web-Tier-and-Bastion" variables
+
+variable "bastion_shape" {
+  default = "VM.Standard2.4"
 }
 
-variable "odi_description" {
-    type    = string
-    default  = "odi_workspace"
+# "Workers" variables
+
+variable "worker1_shape" {
+  default = "VM.Standard2.4"
 }
 
-# Network
-
-variable "service_name" {
-  type        = string
-  default     = "servicename"
-  description = "prefix for stack resources"
+variable "worker2_shape" {
+  default = "VM.Standard2.4"
 }
+
+variable "worker3_shape" {
+  default = "VM.Standard2.4"
+}
+
+
+# "Masters" variables
+
+variable "master1_shape" {
+  default = "VM.Standard2.4"
+}
+
+variable "master2_shape" {
+  default = "VM.Standard2.4"
+}
+
+
+# Network variables
 
 variable "vcn_cidr" {
-  default = "172.0.0.0/16"
-  description = "CIDR for new virtual cloud network"
+  default = "10.0.0.0/16"
 }
-
-variable "vcn_name" {
-  default     = "vcn"
-  description = "Name of new virtual cloud network"
-}
-
 variable "public_subnet_cidr" {
-  default = "172.0.0.128/27"
-  description = "CIDR for bastion subnet"
+  default = "10.0.0.0/24"
 }
-
 variable "private_subnet_cidr" {
-  default = "172.0.0.32/27"
+  default = "10.0.1.0/24"
 }
 
 # don't modify any other variables (below) - it may cause that the solution will not work propertly.
@@ -211,31 +218,7 @@ variable "use_regional_subnet" {
   description = "Indicates use of regional subnets (preferred) instead of AD specific subnets"
 }
 
-variable "subnet_type" {
-  default = "Use Private Subnet"
-}
-
-variable "assign_public_ip" {
-  type = bool
-  default = false
-  description = "Indicates use of private subnets"
-}
-
-variable "anywhere_cidr" {
-  default = "0.0.0.0/0"
-}
-
-variable "public_subnet_name" {
-  default = "pub"
-}
-
-variable "private_subnet_name" {
-  default = "priv"
-}
-
 variable "release" {
   description = "Reference Architecture Release (OCI Architecture Center)"
   default     = "1.0.0"
 }
-
-# End

@@ -69,12 +69,3 @@ module "network-security-groups" {
     for k,v in local.nsgs-lists : k => v if v.compartment_id != "" 
   }
 }
-
-
-#Calling the tagging module
-
-module "tags" {
-  source = "../../../cloud-foundation/modules/cloud-foundation-library/tagging"
-  compartment_id = var.compartment_id 
-  tags = var.tags
-}

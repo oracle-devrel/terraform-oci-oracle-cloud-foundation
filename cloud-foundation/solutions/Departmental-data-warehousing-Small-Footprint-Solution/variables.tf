@@ -162,24 +162,6 @@ variable "private_subnet_cidr" {
   default = "172.0.0.32/27"
 }
 
-# Tagging  #Example of tagging
-variable "tags" {
-default = [
-#   {
-# tag_namespace             = "ArchitectureCenterTagNamespace"
-# tag_namespace_description = "ArchitectureCenterTagNamespace"
-# tag_name                  = ["release"]
-#   },
- ]
-}
-
-
-# for example this "example_defined_tags" example can be mapped to an existing defined_tags
-# variable "example_defined_tags" {
-# type = map
-# default = {"ArchitectureCenterTagNamespace.release" = "1.0.0"}
-# }
-
 # don't modify any other variables (below) - it may cause that the solution will not work propertly.
 
 variable "use_regional_subnet" {
@@ -198,7 +180,7 @@ variable "assign_public_ip" {
   description = "Indicates use of private subnets"
 }
 
-variable anywhere_cidr {
+variable "anywhere_cidr" {
   default = "0.0.0.0/0"
 }
 
@@ -209,4 +191,10 @@ variable "public_subnet_name" {
 variable "private_subnet_name" {
   default = "priv"
 }
+
+variable "release" {
+  description = "Reference Architecture Release (OCI Architecture Center)"
+  default     = "1.0.0"
+}
+
 # End

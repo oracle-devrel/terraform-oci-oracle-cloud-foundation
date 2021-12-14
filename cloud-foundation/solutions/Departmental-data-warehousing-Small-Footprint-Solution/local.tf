@@ -22,6 +22,15 @@ data "oci_core_services" "sgw_services" {
   }
 }
 
+data "oci_identity_region_subscriptions" "home_region_subscriptions" {
+  tenancy_id = var.tenancy_ocid
+
+  filter {
+    name   = "is_home_region"
+    values = [true]
+  }
+}
+
 locals {
 
 # Create Autonomous Data Warehouse
@@ -38,9 +47,7 @@ locals {
       adw_license_model           = var.adw_license_model,
       database_admin_password     = var.database_admin_password,
       database_wallet_password    = var.database_wallet_password,
-      # subnet_ocid               = lookup(module.network-subnets.subnets,"private_subnet").id,
-      # nsg_ids                   = module.network-security-groups.nsgid
-      defined_tags                = {}
+      defined_tags                = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
   },
 }
 
@@ -60,7 +67,7 @@ locals {
       analytics_instance_network_endpoint_details_whitelisted_ips = var.analytics_instance_network_endpoint_details_whitelisted_ips
       analytics_instance_network_endpoint_details_whitelisted_vcns_id = lookup(module.network-vcn.vcns,"${var.service_name}-${var.vcn_name}").id
       whitelisted_ips                            = var.whitelisted_ips
-      defined_tags                               = {},
+      defined_tags                               = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
   }
 }
 
@@ -98,7 +105,7 @@ locals {
             private=false,
             dhcp_options_id="",
             security_list_ids=[module.network-security-lists.security_lists["public_security_list"].id],          
-	          defined_tags  = {}
+            defined_tags  = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
             freeform_tags = {}
           }
           private_subnet = { 
@@ -110,7 +117,7 @@ locals {
             private=true,
             dhcp_options_id="",
             security_list_ids=[module.network-security-lists.security_lists["private_security_list"].id],          
-	          defined_tags  = {}  
+            defined_tags  = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
             freeform_tags = {}
 	        }
         }
@@ -134,7 +141,7 @@ locals {
         network_entity_id = lookup(module.network-vcn.internet_gateways, lookup(module.network-vcn.vcns,"${var.service_name}-${var.vcn_name}").id).id,
         description       = ""
       }],
-      defined_tags  = {}
+      defined_tags  = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
     }
     "${local.service_name_prefix}-routetable" = {
       compartment_id = var.compartment_id,
@@ -151,7 +158,7 @@ locals {
             description       = ""
         }
         ]),
-      defined_tags  = {}
+      defined_tags  = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
     }
   }
 
@@ -161,7 +168,7 @@ locals {
     public_security_list = {
         vcn_id = lookup(module.network-vcn.vcns,"${var.service_name}-${var.vcn_name}").id
         compartment_id = var.compartment_id,
-        defined_tags  = {}
+        defined_tags  = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
         ingress_rules = concat([{
             stateless = false
             protocol  = "6" // tcp
@@ -206,7 +213,7 @@ locals {
     private_security_list = {
         vcn_id = lookup(module.network-vcn.vcns,"${var.service_name}-${var.vcn_name}").id
         compartment_id = var.compartment_id,
-        defined_tags  = {}
+        defined_tags  = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
         ingress_rules = concat([{
             stateless = false
             protocol  = "6"
@@ -236,7 +243,7 @@ locals {
    public-nsgs-list = {
         vcn_id = lookup(module.network-vcn.vcns,"${var.service_name}-${var.vcn_name}").id
         compartment_id = var.compartment_id,
-        defined_tags  = {}
+        defined_tags  = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
         ingress_rules = { ingress1 = {
           is_create    = true,
           description  = "Parameters for customizing Network Security Group(s).",
@@ -269,7 +276,7 @@ locals {
   private-nsgs-list = {
         vcn_id = lookup(module.network-vcn.vcns,"${var.service_name}-${var.vcn_name}").id
         compartment_id = var.compartment_id,
-        defined_tags  = {}
+        defined_tags  = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
         ingress_rules = { ingress2 = {
           is_create    = true,
           description  = "Parameters for customizing Network Security Group(s).",
