@@ -70,7 +70,7 @@ groupings:
       - subnet_type
       - whitelisted_ips
       - analytics_instance_network_endpoint_details_whitelisted_ips
-      - tags
+      - release
 # General Configuration Variables
 variables:
   tenancy_ocid:
@@ -434,12 +434,12 @@ outputs:
   Instructions:
     type: string
     title: Instructions
-  Analytics_URL:
-    type: link
-    title: Analytics URL
   ADW_Service_Console_URL:
     type: link
     title: ADB Service Console URL
+  Analytics_URL:
+    type: link
+    title: Analytics URL
   Buckets:
     type: string
     title: Buckets

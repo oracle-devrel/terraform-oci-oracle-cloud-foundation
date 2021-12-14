@@ -1,4 +1,4 @@
-# Oracle Cloud Foundation Terraform Solution - Departmental data warehousing - business domain analytics
+# Oracle Cloud Foundation Terraform Solution - Deploy GoldenGate Stream Analytics for production workloads - GGSA cluster with Spark and Kafka
 
 ## Table of Contents
 1. [Overview](#overview)
@@ -15,9 +15,11 @@
 
 
 ## <a name="overview"></a>Overview
-This architecture uses Oracle Autonomous Data Warehouse to load and optimize data from multiple flat-file sources into a centralized data warehouse and then uses Oracle Analytics Cloud to analyze the data to provide actionable insights.
+Your data lake stores huge volumes of persisted data with great potential for analytics, but you also want a simple architecture for gaining real-time insights from streaming data from production workloads.
 
-For details of the architecture, see [_Departmental data warehousing - business domain analytics_](https://docs.oracle.com/en/solutions/oci-spreadsheet-analysis/index.html)
+By deploying Oracle GoldenGate Stream Analytics (GGSA), Kafka, and Spark independently in a highly available configuration, you can process and enrich streaming data with the redundancy needed for a production-quality deployment and then output the data to a number of different platforms simultaneously.
+
+For details of the architecture, see [_Deploy GoldenGate Stream Analytics for production workloads_](https://docs.oracle.com/en/solutions/deploy-goldengate-stream-analytics)
 
 ## <a name="deliverables"></a>Deliverables
  This repository encloses one deliverable:
@@ -25,9 +27,14 @@ For details of the architecture, see [_Departmental data warehousing - business 
 - A reference implementation written in Terraform HCL (Hashicorp Language) that provisions fully functional resources in an OCI tenancy.
 
 ## <a name="architecture"></a>Architecture-Diagram
-The diagram below shows services that are deployed:
+The following diagram illustrates the functional architecture:
 
-![](https://docs.oracle.com/en/solutions/oci-spreadsheet-analysis/img/analysis-spreadsheets-architecture.png)
+![](https://docs.oracle.com/en/solutions/deploy-goldengate-stream-analytics/img/goldengate-streamed-data-functional-architecture.png)
+
+
+The following diagram illustrates the architecture topology.
+
+![](https://docs.oracle.com/en/solutions/deploy-goldengate-stream-analytics/img/goldengate-streamed-data-oci-architecture.png)
 
 
 ## <a name="instructions"></a>Executing Instructions
@@ -35,12 +42,12 @@ The diagram below shows services that are deployed:
 ## Prerequisites
 
 - Permission to `manage` the following types of resources in your Oracle Cloud Infrastructure tenancy:  `autonomous-database-family`.
-- Quota to create the following resources: 1 ADW database instance and 1 Oracle Analytics Cloud (OAC) instance, 1 Data Catalog and 1 Data Integration Service.
+- Quota to create the following resources: 1 ADW database instance and 1 Oracle Analytics Cloud (OAC) instance, 1 Data Catalog and 1 Data Catalog.
 If you don't have the required permissions and quota, contact your tenancy administrator. See [Policy Reference](https://docs.cloud.oracle.com/en-us/iaas/Content/Identity/Reference/policyreference.htm), [Service Limits](https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/servicelimits.htm), [Compartment Quotas](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/resourcequotas.htm).
 
 # <a name="Deploy-Using-Oracle-Resource-Manager"></a>Deploy Using Oracle Resource Manager
 
-1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation/releases/download/v1.0.0/Departmental-data-warehousing-Full-Solution-RM.zip)
+1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation/releases/download/v1.0.0/GoldenGate-Stream-Analytics-for-production-workloads-Full-Solution-RM.zip)
 
 
     If you aren't already signed in, when prompted, enter the tenancy and user credentials.
@@ -60,7 +67,7 @@ If you don't have the required permissions and quota, contact your tenancy admin
 Now, you'll want a local copy of this repo. You can make that with the commands:
 
     git clone https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation.git
-    cd terraform-oci-oracle-cloud-foundation/cloud-foundation/solutions/Departmental-data-warehousing-Full-Solution
+    cd terraform-oci-oracle-cloud-foundation/cloud-foundation/solutions/GoldenGate-Stream-Analytics-for-production-workloads-Full-Solution
     ls
 
 ## Deployment
@@ -194,11 +201,15 @@ variable "private_key_path" {
 * **modules(folder)** - ( this folder will be pressent only for the Resource Manager zipped files) Contains folders with subsystems and modules for each section of the project: networking, autonomous database, analytics cloud, etc.
 * **main.tf** - Main Terraform script used for instantiating the Oracle Cloud Infrastructure provider and all subsystems modules
 * **README.md** - This file
+* **CONTRIBUTING.md** - Contributing guidelines, also called Contribution guidelines, the CONTRIBUTING.md file, or software contribution guidelines, is a text file which project managers include in free and open-source software packages or other open media packages for the purpose of describing how others may contribute user-generated content to the project.The file explains how anyone can engage in activities such as formatting code for submission or submitting patches
 * **outputs.tf** - Defines project's outputs that you will see after the code runs successfuly
 * **provider.tf** - The terraform provider that will be used (OCI)
 * **LICENSE** - The Universal Permissive License (UPL), Version 1.0 
 * **local.tf** - Local values can be helpful to avoid repeating the same values or expressions multiple times in a configuration, but if overused they can also make a configuration hard to read by future maintainers by hiding the actual values used.Here is the place where all the resources are defined.
+* **provisioner.tf** - Provisioners can be used to model specific actions on the local machine or on a remote machine in order to prepare servers or other infrastructure objects for service.
+Terraform includes the concept of provisioners as a measure of pragmatism, knowing that there will always be certain behaviors that can't be directly represented in Terraform's declarative model.However, they also add a considerable amount of complexity and uncertainty to Terraform usage. Firstly, Terraform cannot model the actions of provisioners as part of a plan because they can in principle take any action. Secondly, successful use of provisioners requires coordinating many more details than Terraform usage usually requires: direct network access to your servers, issuing Terraform credentials to log in, making sure that all of the necessary external software is installed, etc.
 * **schema.yaml** - Schema documents are recommended for Terraform configurations when using Resource Manager. Including a schema document allows you to extend pages in the Oracle Cloud Infrastructure Console. Facilitate variable entry in the Create Stack page by surfacing SSH key controls and by naming, grouping, dynamically prepopulating values, and more. Define text in the Application Information tab of the stack detail page displayed for a created stack.
+* **subscription.tf** - Get Image Agreement, Accept Terms and Subscribe to the image, placing the image in a particular compartment, Gets the partner image subscription
 * **variables.tf** - Project's global variables
 
 
@@ -401,70 +412,237 @@ variable "datacatalog_display_name" {
 }
 ```
 
-# Oracle Cloud Infrastructure Data Integration service
-This resource provides the Workspace resource in Oracle Cloud Infrastructure Data Integration service.
-Creates a new Data Integration workspace ready for performing data integration tasks.
+# Oracle Cloud Infrastructure File Storage service
+This resource provides the File System resource in Oracle Cloud Infrastructure File Storage service.
+Creates a new file system in the specified compartment and availability domain. Instances can mount file systems in another availability domain, but doing so might increase latency when compared to mounting instances in the same availability domain.
+After you create a file system, you can associate it with a mount target. Instances can then mount the file system by connecting to the mount target's IP address. You can associate a file system with more than one mount target at a time.
 
-* Parameters:
-    * __odi_display_name__ - A user-friendly display name for the workspace. Does not have to be unique, and can be modified. Avoid entering confidential information.
-    * __odi_description__ - A user defined description for the workspace.
-
+In the main.tf file we are calling the FSS module and all the configuration for this solution it's done in the locals.tf file. For this solution we recommand that no parameter should be changed as it will break the solution.
+It will create 4 file systems named MYSQL, KAFKA, SPARL and GGBD and one mount target called GGSMT. All the file systems there own export path for each type of service.
 
 Below is an example:
 ```
-variable "odi_display_name" {
-    type    = string
-    default = "odi_workspace"
+fss_params = {
+  MYSQL = {
+    availability_domain = lookup(data.oci_identity_availability_domains.ADs.availability_domains[0], "name")
+    compartment_id = var.compartment_id
+    name             = "MYSQL"
+    defined_tags  = {}
+    freeform_tags = {}
+  }
+  KAFKA = {
+    availability_domain = lookup(data.oci_identity_availability_domains.ADs.availability_domains[0], "name")
+    compartment_id = var.compartment_id
+    name             = "KAFKA"
+    defined_tags  = {}
+    freeform_tags = {}
+  }
+  SPARK = {
+    availability_domain = lookup(data.oci_identity_availability_domains.ADs.availability_domains[0], "name")
+    compartment_id = var.compartment_id
+    name             = "SPARK"
+    defined_tags  = {}
+    freeform_tags = {}
+  }
+  GGBD = {
+    availability_domain = lookup(data.oci_identity_availability_domains.ADs.availability_domains[0], "name")
+    compartment_id = var.compartment_id
+    name             = "GGBD"
+    defined_tags  = {}
+    freeform_tags = {}
+  }
 }
 
-variable "odi_description" {
-    type    = string
-    default  = "odi_workspace"
+mt_params = {
+  GGSMT = {
+    availability_domain = lookup(data.oci_identity_availability_domains.ADs.availability_domains[0], "name")
+    compartment_id = var.compartment_id
+    name             = "GGSMT"
+    subnet_id      = lookup(module.network-subnets.subnets,"ggsa-ha-priv").id
+    defined_tags  = {}
+    freeform_tags = {}
+  }
+}
+
+export_params = {
+  GGSMT = {
+    export_set_name = "GGSMT"
+    filesystem_name = "MYSQL"
+    path            = "/u02/mysql"
+    export_options = [
+      {
+        source   = "0.0.0.0/0"
+        access   = "READ_WRITE"
+        identity = "NONE"
+        use_port = false
+      }
+    ]
+  }
+  GGSMT2 = {
+    export_set_name = "GGSMT"
+    filesystem_name = "KAFKA"
+    path            = "/u02/kafka"
+    export_options = [
+      {
+        source   = "0.0.0.0/0"
+        access   = "READ_WRITE"
+        identity = "NONE"
+        use_port = false
+      }
+    ]
+  }
+  GGSMT3 = {
+    export_set_name = "GGSMT"
+    filesystem_name = "SPARK"
+    path            = "/u02/spark"
+    export_options = [
+      {
+        source   = "0.0.0.0/0"
+        access   = "READ_WRITE"
+        identity = "NONE"
+        use_port = false
+      }
+    ]
+  }
+  GGSMT4 = {
+    export_set_name = "GGSMT"
+    filesystem_name = "GGBD"
+    path            = "/u02/ggbd"
+    export_options = [
+      {
+        source   = "0.0.0.0/0"
+        access   = "READ_WRITE"
+        identity = "NONE"
+        use_port = false
+      }
+    ]
+  }
+ } 
+```
+
+
+# KeyGen
+Generates a secure private key and encodes it as PEM. This resource is primarily intended for easily bootstrapping throwaway development environments.
+
+In the main.tf file we are calling the keygen module that will create one public and one private key. 
+This keys are neccesary, as the public key will be generated and injected in all the instances, and the private key will be generated and will be used to connect to the bastion server that will provision all the masters and slaves instances.
+Both can be found in the solution folder if you want to use them after the deployment it's done.
+For Resource Manager, the keys can be found in the dashboard under the resource section.
+
+Below is an example:
+```
+module "keygen" {
+  source = "../../../cloud-foundation/modules/cloud-foundation-library/keygen"
+  display_name = "keygen"
+  subnet_domain_name = "keygen"
 }
 ```
+
+
+# Compute
+The compute module will create a production cluster for GGSA in OCI.
+A production cluster should have 1 web-tier compute instance, 2 spark master compute instances, and a variable number of worker instances for Spark slaves and Kafka. Minimum worker instances for running spark slaves and Kafka are 2. The current solution will provision an production cluster with six compute instances configured as follows.
+1. Single compute instance running GGSA Web-tier. Minimal shape is VM 2.4. This web-tier instance will also act as a Bastion Host for the cluster and should be created in a public regional subnet.
+2. Two spark master compute instances running spark master processes. Minimal shape is VM 2.2. Both instances could be of same shape and should be created in a private regional subnet.
+3. Three worker instances running Spark slave, Kafka broker, and Zookeeper processes. Minimal shape is VM 2.2. All three instances could be of same shape and should be created in a private regional subnet.
+
+All instances will use the GGSA image that comes pre-packaged with GGSA, GGBD, Spark, Kafka, MySQL, and Nginx.
+
+To provision a GGSA production cluster you will need to first provision GGSA compute instances using the custom GGSA VM image. The GGSA VM image contains binaries for GGSA, GGBD, Spark, Kafka, MySQL, OSA, Nginx, etc. There is no need for any other software beyond the GGSA image. 
+
+The image packages the following scripts
+* init-kafka-zk.sh – Bash script to initialize Zookeeper and Kafka on worker VMs.
+* init-spark-master.sh – Bash script to initialize Spark master on Spark master VMs.
+* init-spark-slave.sh - Bash script to initialize Spark slave on worker VMs.
+* init-web-tier.sh – Bash script to initialize GGSA web-tier on the Web-tier VM.
+
+Infrastructure resources must be created and scripts must be run in an specific order that can be found in the provisioner.tf file.
+
+We recommand to not modify and paramater  from the local.tf (#create the VM's for the solution section) and provisioner.tf file - it will break the solution and the configuration of the production cluster.
+
+For the moment the variables that can be modified are in the variables.tf file for the instances shapes.
+More information regarding shapes can be found here:
+https://docs.oracle.com/en-us/iaas/Content/Compute/References/computeshapes.htm
+
+Below is an example:
+```
+# Compute Configuration
+# "Web-Tier-and-Bastion" variables
+
+variable "bastion_shape" {
+  default = "VM.Standard2.4"
+}
+
+# "Workers" variables
+
+variable "worker1_shape" {
+  default = "VM.Standard2.4"
+}
+
+variable "worker2_shape" {
+  default = "VM.Standard2.4"
+}
+
+variable "worker3_shape" {
+  default = "VM.Standard2.4"
+}
+
+
+# "Masters" variables
+
+variable "master1_shape" {
+  default = "VM.Standard2.4"
+}
+
+variable "master2_shape" {
+  default = "VM.Standard2.4"
+}
+```
+
+
 # Network
 This resource provides the Vcn resource in Oracle Cloud Infrastructure Core service anso This resource provides the Subnet resource in Oracle Cloud Infrastructure Core service.
 The solution will create 1 VCN in your compartment, 2 subnets ( one public and one private so the analytics cloud instance can be public or private ), 2 route tables for incomming and outoing traffic, 2 Network Security Groups for ingress and egress traffic, 1 internet gateway, 2 route tables for each subnet, dhcp service, NAT Gateway and a Service Gateway.
 
 * Parameters
-    * __service_name__ - The names of all compute and network resources will begin with this prefix. It can only contain letters or numbers and must begin with a letter.
     * __vcn_cidr__ - The list of one or more IPv4 CIDR blocks for the VCN that meet the following criteria:
         The CIDR blocks must be valid.  
         They must not overlap with each other or with the on-premises network CIDR block.
         The number of CIDR blocks must not exceed the limit of CIDR blocks allowed per VCN. It is an error to set both cidrBlock and cidrBlocks. Note: cidr_blocks update must be restricted to one operation at a time (either add/remove or modify one single cidr_block) or the operation will be declined.
-    * __vcn_name__ - A user-friendly name. Does not have to be unique, and it's changeable. Avoid entering confidential information.
     * __public_subnet_cidr__ - The CIDR IP address range of the subnet. The CIDR must maintain the following rules - a. The CIDR block is valid and correctly formatted. b. The new range is within one of the parent VCN ranges. This is the cidr for the public subnet.
     * __private_subnet_cidr__ - The CIDR IP address range of the subnet. The CIDR must maintain the following rules - a. The CIDR block is valid and correctly formatted. b. The new range is within one of the parent VCN ranges. This is the cidr for the private subnet.
 
 
 Below is an example:
 ```
-variable "service_name" {
-  type        = string
-  default     = "servicename"
-  description = "prefix for stack resources"
-}
-
 variable "vcn_cidr" {
-  default = "172.0.0.0/16"
-  description = "CIDR for new virtual cloud network"
+  default = "10.0.0.0/16"
 }
-
-variable "vcn_name" {
-  default     = "vcn"
-  description = "Name of new virtual cloud network"
-}
-
 variable "public_subnet_cidr" {
-  default = "172.0.0.128/27"
-  description = "CIDR for bastion subnet"
+  default = "10.0.0.0/24"
+}
+variable "private_subnet_cidr" {
+  default = "10.0.1.0/24"
 }
 
-variable "private_subnet_cidr" {
-  default = "172.0.0.32/27"
-}
 ```
-Don't modify any other variables in the variable.tf file - it may cause that the solution will not work propertly.
+Don't modify any other variables in the variable.tf file - it may cause that the solution will not work propertly. The use_regional_subnet variable is for the subnets to be regional, not AD specific.
+
+
+## Validate Topology
+
+__Step #1:__ - From browser or via curl, open https://Web-Tier-and-Bastion/osa, to see the login page.
+
+__Step #2:__ - Retrieve the password for osaadmin user from the output of the terraform deployment
+
+__Step #3:__ - Login to OSA UI and import one of the samples
+
+__Step #4:__ - Ensure LocalKafka connection artifact points to zookeepers in system settings
+
+__Step #5:__ - Publish pipeline and view dashboard
+
+__Step #6:__ - Topology is good if dashboard is animated.
+
 
 ## Running the code
 
@@ -486,13 +664,17 @@ $ terraform destroy --auto-approve
 
 [Analytics Cloud Overview](https://docs.oracle.com/en-us/iaas/analytics-cloud/index.html)
 
-[Network Overview](https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/overview.htm)
-
 [Object Storage Overview](https://docs.oracle.com/en-us/iaas/Content/Object/Concepts/objectstorageoverview.htm)
 
 [Data Catalog Overview](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/data-catalog/using/overview.htm)
 
-[Data Integration Overview](https://docs.oracle.com/en-us/iaas/data-integration/using/overview.htm)
+[File Storage service](https://docs.oracle.com/en-us/iaas/Content/File/Concepts/filestorageoverview.htm)
+
+[Certificates](https://docs.oracle.com/en-us/iaas/Content/Compute/Concepts/computeoverview.htm)
+
+[Compute service](https://docs.oracle.com/en-us/iaas/Content/Compute/Concepts/computeoverview.htm)
+
+[Network Overview](https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/overview.htm)
 
 [Tagging Overview](https://docs.oracle.com/en-us/iaas/Content/Tagging/Concepts/taggingoverview.htm)
 
@@ -500,15 +682,19 @@ $ terraform destroy --auto-approve
 
 [Terraform Analytics Cloud Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/analytics_analytics_instance)
 
-[Terraform Vcn resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_vcn)
-
-[Terraform Subnet resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_subnet)
-
 [Terraform Object Storage Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/objectstorage_bucket)
 
 [Terraform Data Catalog Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/datacatalog_catalog)
 
-[Terraform Data Integration Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/dataintegration_workspace)
+[Terraform Oracle Cloud Infrastructure File Storage Service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/file_storage_file_system)
+
+[Terraform Certificates - TLS Provider](https://registry.terraform.io/providers/hashicorp/tls/latest/docs)
+
+[Terraform Oracle Cloud Infrastructure Core Service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_instance)
+
+[Terraform Vcn resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_vcn)
+
+[Terraform Subnet resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_subnet)
 
 [Terraform Tag Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/identity_tag_namespace)
 

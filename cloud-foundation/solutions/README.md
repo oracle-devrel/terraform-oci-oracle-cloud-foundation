@@ -7,4 +7,6 @@ For the moment we have implemented the following solutions:
 - Departmental data warehousing Small Footprint Solution
 - Weblogic Clustered Deployment Solution
 - Hello-WebServer
+- GoldenGate Stream Analytics for production workloads Full Solution
+- GoldenGate Stream Analytics for production workloads Small Footprint Solution
 

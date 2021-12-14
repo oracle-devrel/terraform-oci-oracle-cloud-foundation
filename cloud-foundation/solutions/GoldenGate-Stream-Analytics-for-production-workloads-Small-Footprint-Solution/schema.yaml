@@ -1,0 +1,281 @@
+# Copyright © 2021, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+title: "Deploy GoldenGate Stream Analytics for production workloads"
+stackDescription: "Deploy GoldenGate Stream Analytics for production workloads"
+schemaVersion: 1.1.0
+version: "20211212"
+locale: "en"
+groupings:
+  - title: "General Settings"
+    visible: false
+    variables:
+      - tenancy_ocid
+      - compartment_ocid
+  - title: Required Configuration
+    visible: true  
+    variables:
+      - display_name_prefix
+      - region
+      - compartment_id
+  - title: "Web-Tier-and-Bastion Instance Configuration"
+    variables:
+      - bastion_shape
+  - title: "Workers Instances Configuration"
+    variables:
+      - worker1_shape
+      - worker2_shape
+      - worker3_shape
+  - title: "Masters Instances Configuration"
+    variables:
+      - master1_shape
+      - master2_shape
+  - title: "Network Configuration"
+    variables:
+      - vcn_cidr
+      - public_subnet_cidr
+      - private_subnet_cidr
+      - show_advanced_options
+  - title: "Hidden Variables"
+    visible: false
+    variables:
+      - use_regional_subnet
+      - release
+      - user_ocid
+      - fingerprint
+      - private_key_path
+# General Configuration Variables
+variables:
+  tenancy_ocid:
+    title: Tenancy ID
+    description: The Oracle Cloud Identifier (OCID) for your tenancy.
+    type: string
+    required: true
+    visible: false
+  compartment_id:
+    title: Stack Compartment
+    description: Choose the compartment where all resources will be provisioned.
+    type: oci:identity:compartment:id
+    required: true
+    visible: true
+  compartment_ocid:
+    title: Stack Compartment
+    description: Choose the compartment where all resources will be provisioned.
+    type: oci:identity:compartment:id
+    required: true
+    visible: true
+  region:
+    title: Region
+    description: Select Region where all resources will be created.
+    type: oci:identity:region:name
+    required: true
+    visible: true
+  display_name_prefix:
+    title: Display Name Prefix
+    type: string
+    default: "Deploy GoldenGate Stream Analytics for production workloads"
+    description: Enter the Display name for the solution.
+    required: true
+    visible: true
+# "Web-Tier-and-Bastion Instance Configuration"
+  bastion_shape:
+    title: Provide the shape for the Web-Tier-and-Bastion Instance - Minim shape neede for this solution is VM.Standard2.4
+    description: "Provide the shape for the Web-Tier-and-Bastion Instance"
+    type: enum
+    enum:
+      - VM.Standard2.4
+      - VM.Standard2.8
+      - VM.Standard2.16
+      - VM.Standard2.24
+      - VM.DenseIO2.8
+      - VM.DenseIO2.16
+      - VM.DenseIO2.24
+      - VM.DenseIO2.16
+      - VM.DenseIO2.16
+      - BM.Standard2.52	
+      - BM.Standard.E3.128
+      - BM.Standard.E4.128
+      - BM.Standard.A1.160
+    default: "VM.Standard2.4"
+    required: true
+    visible: true
+# "Workers Instances Configuration"
+  worker1_shape:
+    title: Provide the shape for Worker 1 Instance - Minim shape neede for this solution is VM.Standard2.4
+    description: "Provide the shape for Worker 1 Instance"
+    type: enum
+    enum:
+      - VM.Standard2.4
+      - VM.Standard2.8
+      - VM.Standard2.16
+      - VM.Standard2.24
+      - VM.DenseIO2.8
+      - VM.DenseIO2.16
+      - VM.DenseIO2.24
+      - VM.DenseIO2.16
+      - VM.DenseIO2.16
+      - BM.Standard2.52	
+      - BM.Standard.E3.128
+      - BM.Standard.E4.128
+      - BM.Standard.A1.160
+    default: "VM.Standard2.4"
+    required: true
+    visible: true
+  worker2_shape:
+    title: Provide the shape for Worker 2 Instance - Minim shape neede for this solution is VM.Standard2.4
+    description: "Provide the shape for Worker 2 Instance"
+    type: enum
+    enum:
+      - VM.Standard2.4
+      - VM.Standard2.8
+      - VM.Standard2.16
+      - VM.Standard2.24
+      - VM.DenseIO2.8
+      - VM.DenseIO2.16
+      - VM.DenseIO2.24
+      - VM.DenseIO2.16
+      - VM.DenseIO2.16
+      - BM.Standard2.52	
+      - BM.Standard.E3.128
+      - BM.Standard.E4.128
+      - BM.Standard.A1.160
+    default: "VM.Standard2.4"
+    required: true
+    visible: true
+  worker3_shape:
+    title: Provide the shape for Worker 3 Instance - Minim shape neede for this solution is VM.Standard2.4
+    description: "Provide the shape for Worker 3 Instance"
+    type: enum
+    enum:
+      - VM.Standard2.4
+      - VM.Standard2.8
+      - VM.Standard2.16
+      - VM.Standard2.24
+      - VM.DenseIO2.8
+      - VM.DenseIO2.16
+      - VM.DenseIO2.24
+      - VM.DenseIO2.16
+      - VM.DenseIO2.16
+      - BM.Standard2.52	
+      - BM.Standard.E3.128
+      - BM.Standard.E4.128
+      - BM.Standard.A1.160
+    default: "VM.Standard2.4"
+    required: true
+    visible: true
+# "Masters Instances Configuration"
+  master1_shape:
+    title: Provide the shape for Master 1 Instance - Minim shape neede for this solution is VM.Standard2.4
+    description: "Provide the shape for Master 1 Instance"
+    type: enum
+    enum:
+      - VM.Standard2.4
+      - VM.Standard2.8
+      - VM.Standard2.16
+      - VM.Standard2.24
+      - VM.DenseIO2.8
+      - VM.DenseIO2.16
+      - VM.DenseIO2.24
+      - VM.DenseIO2.16
+      - VM.DenseIO2.16
+      - BM.Standard2.52	
+      - BM.Standard.E3.128
+      - BM.Standard.E4.128
+      - BM.Standard.A1.160
+    default: "VM.Standard2.4"
+    required: true
+    visible: true
+  master2_shape:
+    title: Provide the shape for Master 2 Instance - Minim shape neede for this solution is VM.Standard2.4
+    description: "Provide the shape for Master 2 Instance"
+    type: enum
+    enum:
+      - VM.Standard2.4
+      - VM.Standard2.8
+      - VM.Standard2.16
+      - VM.Standard2.24
+      - VM.DenseIO2.8
+      - VM.DenseIO2.16
+      - VM.DenseIO2.24
+      - VM.DenseIO2.16
+      - VM.DenseIO2.16
+      - BM.Standard2.52	
+      - BM.Standard.E3.128
+      - BM.Standard.E4.128
+      - BM.Standard.A1.160
+    default: "VM.Standard2.4"
+    required: true
+    visible: true
+# Network Configuration
+  vcn_cidr:
+    visible: 
+      and:
+        - show_advanced_options
+    type: string
+    default: "172.0.0.0/16"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: VCN Network CIDR
+    required: true
+    description: The CIDR to assign to the new Virtual Cloud Network (VCN) to create for this service. This field is not required if you want to use an existing VCN. When using VCN peering ensure that the VCNs being peered have non-overlapping CIDR blocks.
+  public_subnet_cidr:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "172.0.0.128/27"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Public Subnet CIDR
+    description: "The CIDR of the new public subnet."
+  private_subnet_cidr:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "172.0.0.32/27"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Private Subnet CIDR
+    description: "The CIDR of the new private subnet."
+  show_advanced_options:
+    title: Show Advanced Options
+    description: Enable advanced options for network.
+    type: boolean
+    default: false
+    visible: true
+outputs:
+  Instructions:
+    type: string
+    title: INSTRUCTIONS
+  OSA_UI:
+    type: string
+    title: OSA_UI
+  Spark_UI:
+    type: string
+    title: Spark_UI
+  compute_linux_instances:
+    type: string
+    title: compute_linux_instances
+  all_instances:
+    type: string
+    title: all_instances
+  all_private_ips:
+    type: string
+    title: all_private_ips
+  fss_filesystems:
+    type: string
+    title: all_private_ips
+  fss_mount_targets:
+    type: string
+    title: all_private_ips
+outputGroups:
+  - title: Application
+    outputs:
+      - INSTRUCTIONS
+      - OSA_UI
+      - Spark_UI
+      - compute_linux_instances
+      - all_instances
+      - all_private_ips
+      - fss_filesystems
+      - fss_mount_targets

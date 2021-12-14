@@ -59,7 +59,7 @@ If you don't have the required permissions and quota, contact your tenancy admin
 Now, you'll want a local copy of this repo. You can make that with the commands:
 
     git clone https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation.git
-    cd terraform-oci-oracle-cloud-foundation/cloud-foundation/solutions/Departmental-data-warehousing-Full-Solution
+    cd terraform-oci-oracle-cloud-foundation/cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution
     ls
 
 ## Deployment
@@ -464,43 +464,6 @@ variable "private_subnet_cidr" {
 }
 ```
 Don't modify any other variables in the variable.tf file - it may cause that the solution will not work propertly.
-
-# Tagging
-Oracle Cloud Infrastructure Tagging allows you to add metadata to resources, which enables you to define keys and values and associate them with resources. You can use the tags to organize and list resources based on your business needs.
-The Tagging service provides two ways for you to add tags to resources. Each approach offers a different type of tag for you to work with:
-    Defined tags - tag administrators manage resource metadata.
-    Free-form tags - unmanaged metadata applied to resources by users.
-At this moment we are not tagging any resources but if you want to use tagging, you have the option to use it, by creating how many tag namespaces you need and inside each tag namespace how many defined tags you need. You need to edit the variables.tf file in the tagging section.
-
-
-* Parameters:
-    * __tags__ varible - tagging identifier. 
-    The tags variable contains the following:
-    * __tag_namespace__ - The name of the tag namespace that you want to create. 
-    * __tag_namespace_description__ - The description of the tag namespace that you have created. 
-    * __tag_name__ - All the tags that you want to be placed in the tag namespace. 
-
-
-Below is an example:
-```
-variable "tags" {
-default = [
-   {
- tag_namespace             = "ArchitectureCenterTagNamespace"
- tag_namespace_description = "ArchitectureCenterTagNamespace"
- tag_name                  = ["release"]
-   },
- ]
-}
-
-for example this "example_defined_tags" example can be mapped to an existing defined_tags
-
-variable "example_defined_tags" {
-type = map
-default = {"ArchitectureCenterTagNamespace.release" = "1.0.0"}
-}
-
-```
 
 ## Running the code
 

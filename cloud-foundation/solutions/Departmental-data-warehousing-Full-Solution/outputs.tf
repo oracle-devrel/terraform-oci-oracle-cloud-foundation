@@ -10,7 +10,7 @@ output "Analytics_URL" {
 }
 
 output "Instructions" {
-  value = "Please use the ADW URL to login by using the user admin and the password that it's provided in the output.Also change the password with one that you desire."
+  value = "Please use the ADW URL to login by using the user admin and the password that you have provided."
 }
 
 output "Buckets" {
