@@ -36,7 +36,7 @@ def handler(ctx, data: io.BytesIO=None):
         csv_result = df.to_csv(index=False)
         return response.Response(ctx, status_code=200, response_data=csv_result, headers={"Content-Type": "text/csv"})
     
-    except (Exception, ValueError) as e:
+    except ValueError as e:
         logger.error(str(e))
         raise
 
