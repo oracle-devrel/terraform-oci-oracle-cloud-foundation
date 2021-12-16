@@ -12,6 +12,7 @@ variable "streaming_params" {
     retention_in_hours = number
     stream_pool_id     = string
     stream_pool_name   = string
+    defined_tags       = map(string)
     }
   ))
 }
@@ -19,6 +20,7 @@ variable "streaming_pool_params" {
   type = map(object({
     compartment_id = string
     name           = string
+    defined_tags   = map(string)
     kafka_settings = list(object({
       auto_create_topics_enable = bool
       log_retention_hours       = number
@@ -50,6 +52,7 @@ variable "service_connector" {
     service_connector_target_bucket                       = string
     service_connector_target_object_name_prefix           = string
     service_connector_description                         = string
+    defined_tags                                          = map(string)
     service_connector_tasks_kind                          = string
     service_connector_tasks_batch_size_in_kbs             = number
     service_connector_tasks_batch_time_in_sec             = number

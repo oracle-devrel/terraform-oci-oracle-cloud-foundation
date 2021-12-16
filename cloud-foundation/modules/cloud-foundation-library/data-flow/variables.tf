@@ -12,6 +12,7 @@ variable "dataflow_params" {
     application_num_executors    = number
     application_spark_version    = string
     application_class_name       = string
+    defined_tags                 = map(string)
     }
   ))
 }

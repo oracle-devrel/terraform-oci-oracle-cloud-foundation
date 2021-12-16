@@ -12,4 +12,5 @@ resource "oci_dataflow_application" "this" {
   num_executors  = each.value.application_num_executors
   spark_version  = each.value.application_spark_version
   class_name     = each.value.application_class_name
+  defined_tags   = each.value.defined_tags
 }
