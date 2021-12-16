@@ -6,6 +6,7 @@ resource "oci_datascience_project" "this" {
   compartment_id = each.value.compartment_id
   description    = each.value.project_description
   display_name   = each.value.project_display_name
+  defined_tags   = each.value.defined_tags
 }
 
 resource "oci_datascience_notebook_session" "this" {
@@ -21,6 +22,7 @@ resource "oci_datascience_notebook_session" "this" {
   project_id = oci_datascience_project.this[each.value.project_name].id
 
   display_name = each.value.notebook_session_display_name
+  defined_tags = each.value.defined_tags
 }
 
 

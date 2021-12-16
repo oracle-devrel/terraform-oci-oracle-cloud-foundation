@@ -5,6 +5,7 @@ resource "oci_streaming_stream_pool" "this" {
   for_each       = var.streaming_pool_params
   compartment_id = each.value.compartment_id
   name           = each.value.name
+  defined_tags   = each.value.defined_tags
   dynamic "kafka_settings" {
     iterator = kafka_settings
     for_each = each.value.kafka_settings
@@ -22,6 +23,7 @@ resource "oci_streaming_stream" "this" {
   partitions         = each.value.partitions
   retention_in_hours = each.value.retention_in_hours
   stream_pool_id     = oci_streaming_stream_pool.this[each.value.stream_pool_name].id
+  defined_tags       = each.value.defined_tags
 }
 
 data "oci_objectstorage_namespace" "user_namespace" {
@@ -53,6 +55,7 @@ resource "oci_sch_service_connector" "service_connector" {
   }
 
   description = each.value.service_connector_description
+  defined_tags = each.value.defined_tags
   tasks {
     kind = each.value.service_connector_tasks_kind
 

@@ -6,6 +6,7 @@ resource "oci_functions_application" "this" {
   compartment_id = each.value.compartment_id
   subnet_ids     = each.value.subnet_ids
   display_name   = each.value.display_name
+  defined_tags   = each.value.defined_tags
 }
 
 
@@ -23,6 +24,7 @@ resource "oci_functions_function" "this" {
   display_name       = each.value.display_name
   image              = each.value.image
   memory_in_mbs      = "256"
+  defined_tags       = each.value.defined_tags
 }
 
 data "oci_functions_functions" "existing" {

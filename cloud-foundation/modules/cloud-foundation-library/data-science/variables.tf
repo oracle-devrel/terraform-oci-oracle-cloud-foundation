@@ -6,6 +6,7 @@ variable "datascience_params" {
     compartment_id       = string
     project_description  = string
     project_display_name = string
+    defined_tags         = map(string)
     }
   ))
 }
@@ -17,6 +18,7 @@ variable "notebook_params" {
     subnet_id                                                      = string
     notebook_session_notebook_session_configuration_details_block_storage_size_in_gbs = number
     notebook_session_display_name = string
+    defined_tags = map(string)
     }
   ))
 }

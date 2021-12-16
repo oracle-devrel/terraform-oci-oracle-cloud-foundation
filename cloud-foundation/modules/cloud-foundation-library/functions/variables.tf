@@ -6,6 +6,7 @@ variable "app_params" {
     compartment_id = string
     subnet_ids     = list(string)
     display_name   = string
+    defined_tags   = map(string)
   }))
 }
 
@@ -14,6 +15,7 @@ variable "fn_params" {
     function_app       = string
     display_name       = string
     image              = string
+    defined_tags       = map(string)
   }))
 }
 

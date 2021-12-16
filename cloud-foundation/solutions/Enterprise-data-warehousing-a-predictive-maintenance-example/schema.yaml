@@ -1,0 +1,570 @@
+# Copyright © 2021, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+title: "Create Oracle Streaming Service, Oracle Service Connector Hub, Oracle Data Flow and Oracle Data Science in Oracle Cloud Infrastructure"
+stackDescription: "Deploy Oracle Streaming Service, Oracle Service Connector Hub, Oracle Data Flow and Oracle Data Science in Oracle Cloud Infrastructure."
+schemaVersion: 1.1.0
+version: "2021216"
+locale: "en"
+groupings:
+  - title: "General Configuration"
+    visible: true
+    variables:
+      - tenancy_ocid
+      - display_name_prefix
+      - region
+      - compartment_id
+      - ocir_repo_name
+      - ocir_user_name
+      - ocir_user_password
+      - show_advanced
+  - title: Bucket Optional Configuration
+    visible:
+      and:
+        - show_advanced
+    variables:
+    - data_bucket_name
+    - data_bucket_access_type
+    - data_bucket_storage_tier
+    - data_bucket_events_enabled
+  - title: Catalog Optional Configuration
+    visible:
+      and:
+        - show_advanced
+    variables:
+    - catalog_display_name
+  - title: Data Science Optional Configuration
+    visible:
+      and:
+        - show_advanced
+    variables:
+    - project_description
+    - project_display_name
+    - notebook_session_display_name
+    - notebook_session_notebook_session_configuration_details_shape
+    - notebook_session_notebook_session_configuration_details_block_storage_size_in_gbs
+    - project_name
+  - title: Stream Optional Configuration
+    visible:
+      and:
+        - show_advanced
+    variables:
+    - stream_pool_name
+    - stream_name
+    - stream_partitions
+    - stream_retention_in_hours
+  - title: Data Flow Optional Configuration
+    visible:
+      and:
+        - show_advanced
+    variables:
+    - dataflow_logs_bucket_name
+    - dataflow_logs_bucket_access_type
+    - dataflow_logs_bucket_storage_tier
+    - dataflow_logs_bucket_events_enabled
+    - application_display_name
+    - application_driver_shape
+    - application_executor_shape
+    - application_file_uri
+    - application_language
+    - application_num_executors
+    - application_spark_version
+    - application_class_name
+    - application_description
+  - title: Service Connector Optional Configuration
+    visible:
+      and:
+        - show_advanced
+    variables:
+    - service_connector_display_name
+    - service_connector_source_kind
+    - service_connector_source_cursor_kind
+    - service_connector_target_kind
+    - service_connector_target_bucket
+    - service_connector_target_batch_rollover_size_in_mbs
+    - service_connector_target_batch_rollover_time_in_ms
+    - service_connector_target_object_name_prefix
+    - service_connector_description
+    - service_connector_tasks_kind
+    - service_connector_tasks_batch_size_in_kbs
+    - service_connector_tasks_batch_time_in_sec
+  - title: "Network Configuration"
+    variables:
+    - service_name
+    - vcn_cidr
+    - public_subnet_cidr
+    - private_subnet_cidr
+    - show_advanced_options
+  - title: "Hidden Variables"
+    visible: false
+    variables:
+    - user_ocid
+    - fingerprint
+    - private_key_path
+    - use_regional_subnet
+    - app_display_name
+    - function_app
+    - fn_display_name
+    - release
+# General Configuration Variables
+variables:
+  tenancy_ocid:
+    title: Tenancy ID
+    description: The Oracle Cloud Identifier (OCID) for your tenancy.
+    type: string
+    required: true
+    visible: false
+  compartment_id:
+    title: Stack Compartment
+    description: Choose the compartment where all resources will be provisioned.
+    type: oci:identity:compartment:id
+    required: true
+    visible: true
+  region:
+    title: Region
+    description: Select Region where all resources will be created.
+    type: oci:identity:region:name
+    required: true
+    visible: true
+  display_name_prefix:
+    title: Display Name Prefix
+    type: string
+    default: "Create Oracle Streaming Service, Oracle Service Connector Hub, Oracle Data Flow and Oracle Data Science in Oracle Cloud Infrastructure"
+    description: Enter the Display name for the solution.
+    required: true
+    visible: true
+  show_advanced:
+    type: boolean
+    title: "Show advanced options?"
+    description: "Shows advanced options, allowing you to modify the default parameters for Streaming, Data Flow, Service Connector Hub, and Data Science"
+    visible: true
+# Object Storage Configuration  
+  data_bucket_name:
+    title: Object Storage Bucket Name
+    description: "Enter a unique name for this object storage bucket. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    maxLength: 30
+    default: "data_bucket"
+    required: true
+    visible: true
+  data_bucket_access_type:
+    title: Object Storage Access Type
+    description: "Select the Access Type of the bucket."
+    type: enum
+    enum:
+      - NoPublicAccess
+      - ObjectReadWithoutList
+      - ObjectRead
+    default: "NoPublicAccess"
+    required: true
+    visible: true
+  data_bucket_storage_tier:
+    title: Object Storage Bucket Name
+    description: "Select the storage Tier of the bucket."
+    type: enum
+    enum:
+      - Standard
+      - Archive
+    default: "Standard"
+    required: true
+    visible: true
+  data_bucket_events_enabled:
+    title: Indicates if bucket events are enabled or not. 
+    description: "Indicates if bucket events are enabled or not "
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true  
+# Data Science Variables
+  project_description:
+    type: string
+    default: "Test_Project"
+    visible: true
+    required: true
+    title: "Project Description for Data Science Project"
+    description: "Project Description for Data Science Project"
+  project_display_name:
+    type: string
+    default: "My Data Science Project"
+    visible: true
+    required: true
+    title: "Project Display Name for Data Science Project"
+    description: "Project Display Name for Data Science Project"
+  notebook_session_display_name:
+    type: string
+    default: "Test Notebook Session"
+    visible: true
+    required: true
+    title: "Notebook Session Display Name for Data Science Project"
+    description: "Notebook Session Display Name for Data Science Project"
+  notebook_session_notebook_session_configuration_details_shape:
+    type: oci:core:instanceshape:name
+    default: VM.Standard2.1
+    visible: true
+    required: true
+    title: "VM Shape for Data Science Project"
+    description: "VM Shape for Data Science Project"
+    dependsOn:
+      compartmentId: compartment_ocid
+  notebook_session_notebook_session_configuration_details_block_storage_size_in_gbs:
+    type: number
+    minimum: 50
+    maximum: 1024
+    multipleOf: 1
+    default: 50
+    visible: true
+    required: true
+    title: "Block Storage Size for Data Science Project"
+    description: "Block Storage Size for Data Science Project"
+  project_name:
+    type: string
+    default: "data_science_project"
+    visible: true
+    required: true
+    title: "Notebook Project Name"
+    description: "Notebook Project Name"
+# Streams Variables
+  stream_pool_name:
+    type: string
+    default: "Test_Stream_Pool"
+    visible: true
+    required: true
+    title: "Stream Pool Name for Streaming"
+    description: "Stream Pool Name for Streaming"
+  stream_name:
+    type: string
+    default: "Test_Stream"
+    visible: true
+    required: true
+    title: "Stream Name for Streaming"
+    description: "Stream Name for Streaming"
+  stream_partitions:
+    type: number
+    minimum: 1
+    maximum: 25
+    multipleOf: 1
+    default: 1
+    visible: true
+    required: true
+    title: "Number of Stream Partitions for Streaming"
+    description: "Number of Stream Partitions for Streaming"
+  stream_retention_in_hours:
+    type: number
+    minimum: 24
+    maximum: 168
+    multipleOf: 1
+    default: 24
+    visible: true
+    required: true
+    title: "Stream Retention in Hours"
+    description: "Stream Retention in Hours"
+# Data Flow variables 
+  dataflow_logs_bucket_name:
+    type: string
+    default: "dataflow-logs"
+    visible: true
+    required: true
+    title: "Log Bucket for Data Flow"
+    description: "Log Bucket for Data Flow"
+  dataflow_logs_bucket_access_type:
+    title: Object Storage Access Type
+    description: "Select the Access Type of the bucket."
+    type: enum
+    enum:
+      - NoPublicAccess
+      - ObjectReadWithoutList
+      - ObjectRead
+    default: "NoPublicAccess"
+    required: true
+    visible: true
+  dataflow_logs_bucket_storage_tier:
+    title: Object Storage Bucket Name
+    description: "Select the storage Tier of the bucket."
+    type: enum
+    enum:
+      - Standard
+      - Archive
+    default: "Standard"
+    required: true
+    visible: true
+  dataflow_logs_bucket_events_enabled:
+    title: Indicates if bucket events are enabled or not. 
+    description: "Indicates if bucket events are enabled or not "
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true  
+  application_display_name:
+    type: string
+    default: "Test data flow app"
+    visible: true
+    required: true
+    title: "Application Display Name for Data Flow"
+    description: "Application Display Name for Data Flow"
+  application_driver_shape:
+    type: oci:core:instanceshape:name
+    default: "VM.Standard2.1"
+    visible: true
+    required: true
+    title: "Application Driver Shape for Data Flow"
+    description: "Application Driver Shape for Data Flow"
+    dependsOn:
+      compartmentId: compartment_ocid
+  application_executor_shape:
+    type: oci:core:instanceshape:name
+    default: "VM.Standard2.1"
+    visible: true
+    required: true
+    title: "Application Executor Shape for Data Flow"
+    description: "Application Executor Shape for Data Flow"
+    dependsOn:
+      compartmentId: compartment_ocid
+  application_file_uri:
+    type: string
+    default: "oci://oow_2019_dataflow_lab@bigdatadatasciencelarge/usercontent/oow-lab-2019-java-etl-1.0-SNAPSHOT.jar"
+    visible: true
+    required: false
+    title: "Application File URI for Data Flow"
+    description: "Application File URI for Data Flow"
+  application_language:
+    type: string
+    default: "Java"
+    visible: true
+    required: true
+    title: "Application Language for Data Flow"
+    description: "Application Language for Data Flow"
+  application_num_executors:
+    type: number
+    minimum: 1
+    maximum: 100 
+    multipleOf: 1
+    default: 1
+    visible: true
+    required: true
+    title: "Number of Executors for Data Flow Application"
+    description: "Number of Executors for Data Flow Application"
+  application_spark_version:
+    type: string
+    default: "2.4.4"
+    visible: true
+    required: true
+    title: "Application Spark Version for Data Flow"
+    description: "Application Spark Version for Data Flow"
+  application_class_name:
+    type: string
+    default: "convert.Convert"
+    visible: true
+    required: true
+    title: "Application Class Name for Data Flow"
+    description: "Application Class Name for Data Flow"
+  application_description:
+    type: string
+    default: "Test Java Application"
+    visible: true
+    required: true
+    title: "Application Description for Data Flow"
+    description: "Application Description for Data Flow"
+# Service Connector Hub Variables
+  service_connector_display_name:
+    type: string
+    default: "Test_Service_Connector"
+    visible: true
+    required: true
+    title: "Service Connector Hub Display Name"
+    description: "Service Connector Hub Display Name"
+#Source Information
+  service_connector_source_kind:
+    type: string
+    default: "streaming"
+    visible: true
+    required: true
+    title: "Source Kind for Service Connector Hub"
+    description: "Source Kind for Service Connector Hub"
+  service_connector_source_cursor_kind:
+    type: string
+    default: "TRIM_HORIZON"
+    visible: true
+    required: true
+    title: "Cursor Kind for Service Connector Hub"
+    description: "Starts consuming from the oldest available message in the stream."
+  service_connector_target_kind:
+    type: string
+    default: "objectStorage" 
+    visible: true
+    required: true
+    title: "Target Kind for Service Connector Hub"
+    description: "Selecting the target of object storage."
+  service_connector_target_bucket:
+    type: string
+    default: "data_bucket"
+    visible: true
+    required: true
+    title: "Bucket Target for Service Connector Hub"
+    description: "Selecting the target of data_bucket."
+  service_connector_target_batch_rollover_size_in_mbs:
+    type: number
+    minimum: 1
+    maximum: 100
+    default: 10
+    visible: true
+    required: true
+    title: "Target Batch Rollover Size in MBs"
+    description: "Setting target batch rollover size in megabytes."
+  service_connector_target_batch_rollover_time_in_ms:
+    type: number
+    minimum: 60000
+    maximum: 420000
+    default: 60000
+    visible: true
+    required: true
+    title: "Target Batch Rollover Time in Milliseconds"
+    description: "Setting the target batch rollover time in milliseconds."
+  service_connector_target_object_name_prefix:
+    type: string
+    default: "data"
+    visible: true
+    required: true
+    title: "Object Name Prefix for Service Connector Hub"
+    description: "Setting object name prefix of data pulled from the Streaming service."
+  service_connector_description:
+    type: string
+    default: "Used to connect streaming to object storage"
+    visible: true
+    required: true
+    title: "Service Connector Hub Description"
+    description: "Describes the use case for the Service Connector Hub."
+  service_connector_tasks_kind:
+    type: string
+    default: "function"
+    visible: true
+    required: true
+    title: "Service Connector Hub Task Kind"
+    description: "The kind of task used between the source and target."
+  service_connector_tasks_batch_size_in_kbs:
+    type: number
+    minimum: 1
+    maximum: 6143
+    default: 5120
+    visible: true
+    required: true
+    title: "Task Batch Size in KBs"
+    description: "Setting task batch sixe in kilobytes."
+  service_connector_tasks_batch_time_in_sec:
+    type: number
+    minimum: 60
+    maximum: 600
+    default: 60
+    visible: true
+    required: true
+    title: "Task Batch Time in Seconds"
+    description: "Setting task batch time in seconds."
+#OCIR Variables
+  ocir_repo_name:
+    type: string
+    required: true
+    visibile: true
+    title: "OCIR repository name"
+    description: "Oracle Cloud Infrastructure Registry repository name"
+  ocir_user_name:
+    type: string
+    required: true
+    visibile: true
+    title: "OCIR username"
+    description: "Oracle Cloud Infrastructure Registry username (your OCI username) - example: oracleidentitycloudservice/username" 
+  ocir_user_password:
+    type: password
+    required: true
+    visibile: true
+    title: "OCIR user password"
+    description: "Oracle Cloud Infrastructure Registry user password (your OCI user authtoken) - example: Q0fn}4DpL8B[WwGbuSYt " 
+# Network Configuration
+  service_name:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "servicename"
+    minLength: 1
+    maxLength: 255
+    pattern: "^[a-zA-Z_]\\w{0,254}$"
+    required: true
+    title: Resource Name Prefix
+    description: The names of all compute and network resources will begin with this prefix. It can only contain letters or numbers and must begin with a letter.
+  vcn_cidr:
+    visible: 
+      and:
+        - show_advanced_options
+    type: string
+    default: "172.0.0.0/16"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: VCN Network CIDR
+    required: true
+    description: The CIDR to assign to the new Virtual Cloud Network (VCN) to create for this service. This field is not required if you want to use an existing VCN. When using VCN peering ensure that the VCNs being peered have non-overlapping CIDR blocks.
+  public_subnet_cidr:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "172.0.0.128/27"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Public Subnet CIDR
+    description: "The CIDR of the new public subnet." 
+  private_subnet_cidr:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "172.0.0.32/27"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Private Subnet CIDR
+    description: "The CIDR of the new private subnet."
+  show_advanced_options:
+    title: Show Advanced Options
+    description: Enable advanced options for network.
+    type: boolean
+    default: false
+    visible: true
+outputs:
+  Buckets:
+    type: string
+    title: Buckets
+  Apps:
+    type: string
+    title: Apps
+  Dataflow:
+    type: string
+    title: Data_Flow
+  Datascience:
+    type: string
+    title: Data_Science
+  Functions:
+    type: string
+    title: Functions
+  Notebook: 
+    type: string
+    title: all_private_ips
+  Streaming_poolID:
+    type: string
+    title: Streaming_Pools
+  Streaming_ID:
+    type: string
+    title: Streaming_IDs
+outputGroups:
+  - title: Outputs
+    outputs:
+      - Buckets
+      - Apps
+      - Dataflow
+      - Datascience
+      - Functions
+      - Notebook
+      - Streaming_poolID
+      - Streaming_ID

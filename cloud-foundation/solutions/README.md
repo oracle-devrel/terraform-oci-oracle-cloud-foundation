@@ -9,4 +9,5 @@ For the moment we have implemented the following solutions:
 - Hello-WebServer
 - GoldenGate Stream Analytics for production workloads Full Solution
 - GoldenGate Stream Analytics for production workloads Small Footprint Solution
+- Enterprise data warehousing a predictive maintenance example
 
