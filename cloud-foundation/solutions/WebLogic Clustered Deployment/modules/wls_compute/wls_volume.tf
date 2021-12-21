@@ -35,7 +35,7 @@ module "middleware_volume_attach" {
   bv_attach_params = {for x in range(!local.is_apply_JRF || local.is_atp_db ? var.numWLSInstances * var.num_volumes: 0) : "${var.compute_name_prefix}-block-volume-attach-${x}" => { 
       display_name    = "${var.compute_name_prefix}-block-volume-attach-${x}"
       attachment_type = "iscsi"
-      instance_id     = local.is_atp_db ? module.wls-atp-instance.InstanceOcids[x / var.num_volumes]:module.wls_no_jrf_instance.InstanceOcids[x / var.num_volumes]
+      instance_id     = module.wls-instances.InstanceOcids[x / var.num_volumes]
       volume_id       = module.middleware-volume.DataVolumeOcids[x / var.num_volumes]
     }
   }
@@ -49,7 +49,7 @@ module "data_volume_attach" {
   bv_attach_params = {for x in range(!local.is_apply_JRF || local.is_atp_db ? var.numWLSInstances * var.num_volumes: 0) : "${var.compute_name_prefix}-block-volume-attach-${x}" => { 
       display_name    = "${var.compute_name_prefix}-block-volume-attach-${x}"
       attachment_type = "iscsi"
-      instance_id     = local.is_atp_db ? module.wls-atp-instance.InstanceOcids[x / var.num_volumes]:module.wls_no_jrf_instance.InstanceOcids[x / var.num_volumes]
+      instance_id     = module.wls-instances.InstanceOcids[x / var.num_volumes]
       volume_id       = module.data-volume.DataVolumeOcids[x / var.num_volumes]
     }
   }
