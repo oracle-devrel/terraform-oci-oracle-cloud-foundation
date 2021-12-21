@@ -330,13 +330,13 @@ variable "wls_availability_domain_name" {
   description = "availablility domain for weblogic vm instances"
 }
 
-variable "lb_subnet_1_availability_domain_name" {
+variable "lb_subnet_availability_domain_name" {
   type        = string
   default = ""
   description = "availablility domain for load balancer"
 }
 
-variable "lb_subnet_2_availability_domain_name" {
+variable "lb_backend_subnet_availability_domain_name" {
   type        = string
   default = ""
   description = "availablility domain for load balancer"
@@ -367,12 +367,6 @@ variable "assign_weblogic_public_ip" {
 variable "wls_subnet_id" {
   default = ""
   description = "OCID for existing subnet for weblogic instances"
-}
-
-variable "bastion_ssh_private_key" {
-  type    = string
-  default = ""
-  description = "Private ssh key for existing bastion instance"
 }
 
 variable "bastion_subnet_id" {
@@ -445,11 +439,6 @@ variable "lb_subnet_backend_name" {
 
 variable "lb_subnet_backend_cidr" {
   default = ""
-}
-
-variable "bastion_subnet_cidr" {
-  default = ""
-  description = "CIDR for bastion subnet"
 }
 
 variable "bastion_subnet_name" {

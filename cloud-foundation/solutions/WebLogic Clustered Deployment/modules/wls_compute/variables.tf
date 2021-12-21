@@ -10,10 +10,6 @@ variable "availability_domain" {}
 
 variable "subnet_ocid" {}
 
-variable "ssh_public_key" {
-  type = string
-}
-
 variable "compute_name_prefix" {
   default = "wls-instance"
 }
@@ -22,12 +18,27 @@ variable "vnic_prefix" {
   default = "wls"
 }
 
-variable "instance_image_ocid" {}
+
+variable "network_compartment_id" {}
+
+variable "service_name_prefix" {}
+
+variable "wls_subnet_id" {}
+
+variable "existing_vcn_id" {
+  default = ""
+}
+
+variable "ssh_public_key" {
+  type = string
+}
 
 variable "numWLSInstances" {
   type    = string
   default = "1"
 }
+
+variable "instance_image_ocid" {}
 
 variable "wls_admin_user" {
   type = string
@@ -142,16 +153,6 @@ variable "db_port" {
   default = "1521"
 }
 
-variable "network_compartment_id" {}
-
-variable "service_name_prefix" {}
-
-variable "wls_subnet_id" {}
-
-variable "existing_vcn_id" {
-  default = ""
-}
-
 /*
 ********************
 ATP DB Config
@@ -176,6 +177,7 @@ variable "wls_edition" {
 variable "mode" {}
 
 variable "tf_script_version" {}
+
 variable "wls_version" {}
 
 variable "wls_14c_jdk_version" {}
@@ -414,7 +416,6 @@ data "template_file" "key_script" {
 
   vars = {
     pubKey     = var.opc_key["public_key_openssh"]
-
     oracleKey  = var.oracle_key["public_key_openssh"]
     oraclePriKey = var.oracle_key["private_key_pem"]
   }
@@ -451,3 +452,8 @@ data "oci_core_shapes" "oci_shapes" {
   }
 }
 
+
+variable nsg_ids {
+  type = list(string)
+  default = []
+}
