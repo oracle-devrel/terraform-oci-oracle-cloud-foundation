@@ -32,7 +32,7 @@
           },
           {
             "src_pattern": "cloud-foundation/modules/cloud-foundation-library/database/adw/**/*",
-            "dst": "modules/adw"
+            "dst_path": "modules/adw"
           },
           {
             "src": "cloud-foundation/modules/cloud-foundation-library/oac",
