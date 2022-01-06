@@ -11,6 +11,7 @@ module "wls-lb" {
     shape          = "flexible"
     compartment_id = var.compartment_ocid
     subnet_ids = var.subnet_ocids
+    network_security_group_ids = var.network_security_group_ids
     maximum_bandwidth_in_mbps = var.lb_max_bandwidth
     minimum_bandwidth_in_mbps = var.lb_min_bandwidth
     display_name  = "${var.service_name_prefix}-lb"
@@ -41,7 +42,7 @@ module "wls-lb-backendset" {
     return_code         = var.return_code
    }
   }
-  lb-params = {empty={shape="", compartment_id="", subnet_ids=[""], maximum_bandwidth_in_mbps="", minimum_bandwidth_in_mbps="",display_name="", is_private="",defined_tags={}, freeform_tags={}}}
+  lb-params = {empty={shape="", compartment_id="", subnet_ids=[""], network_security_group_ids= [""], maximum_bandwidth_in_mbps="", minimum_bandwidth_in_mbps="",display_name="", is_private="",defined_tags={}, freeform_tags={}}}
   lb-listener-https-params = {empty={load_balancer_id = "", name = "", default_backend_set_name = "", port  = "", protocol = "", rule_set_names=[""], idle_timeout_in_seconds="",certificate_name="",verify_peer_certificate=""}}
   lb-backend-params = {empty={load_balancer_id="", backendset_name="",ip_address="",port="",backup="", drain="", offline="", weight=""}}
   SSL_headers-params = {empty={load_balancer_id="", name="", SSLitems=[{item={action="",header="",value=""}}],countSSL=0}}
@@ -64,7 +65,7 @@ module "wls-lb-listener-https" {
     verify_peer_certificate = false
   }
 }
-  lb-params = {empty={shape="", compartment_id="", subnet_ids=[""], maximum_bandwidth_in_mbps="", minimum_bandwidth_in_mbps="",display_name="", is_private="",defined_tags={}, freeform_tags={}}}
+  lb-params = {empty={shape="", compartment_id="", subnet_ids=[""], network_security_group_ids= [""], maximum_bandwidth_in_mbps="", minimum_bandwidth_in_mbps="",display_name="", is_private="",defined_tags={}, freeform_tags={}}}
   lb-backendset-params = {empty={name="", load_balancer_id="", policy="", port="", protocol="",response_body_regex="", url_path="", return_code=""}}
   lb-backend-params = {empty={load_balancer_id="", backendset_name="",ip_address="",port="",backup="", drain="", offline="", weight=""}}
   SSL_headers-params = {empty={load_balancer_id="", name="", SSLitems=[{item={action="",header="",value=""}}],countSSL=0}}
@@ -87,7 +88,7 @@ module "wls-lb-backend" {
 
     }
 }
-  lb-params = {empty={shape="", compartment_id="", subnet_ids=[""], maximum_bandwidth_in_mbps="", minimum_bandwidth_in_mbps="",display_name="", is_private="",defined_tags={}, freeform_tags={}}}
+  lb-params = {empty={shape="", compartment_id="", subnet_ids=[""], network_security_group_ids= [""], maximum_bandwidth_in_mbps="", minimum_bandwidth_in_mbps="",display_name="", is_private="",defined_tags={}, freeform_tags={}}}
   lb-backendset-params = {empty={name="", load_balancer_id="", policy="", port="", protocol="",response_body_regex="", url_path="", return_code=""}}
   lb-listener-https-params = {empty={load_balancer_id = "", name = "", default_backend_set_name = "", port  = "", protocol = "", rule_set_names=[""], idle_timeout_in_seconds="",certificate_name="",verify_peer_certificate=""}}
   SSL_headers-params = {empty={load_balancer_id="", name="", SSLitems=[{item={action="",header="",value=""}}], countSSL=0}}
@@ -114,7 +115,7 @@ module "wls-SSL_headers" {
       countSSL = 2
     }
 }
-  lb-params = {empty={shape="", compartment_id="", subnet_ids=[""], maximum_bandwidth_in_mbps="", minimum_bandwidth_in_mbps="",display_name="", is_private="",defined_tags={}, freeform_tags={}}}
+  lb-params = {empty={shape="", compartment_id="", subnet_ids=[""], network_security_group_ids= [""], maximum_bandwidth_in_mbps="", minimum_bandwidth_in_mbps="",display_name="", is_private="",defined_tags={}, freeform_tags={}}}
   lb-backendset-params = {empty={name="", load_balancer_id="", policy="", port="", protocol="",response_body_regex="", url_path="", return_code=""}}
   lb-listener-https-params = {empty={load_balancer_id = "", name = "", default_backend_set_name = "", port  = "", protocol = "", rule_set_names=[""], idle_timeout_in_seconds="",certificate_name="",verify_peer_certificate=""}}
   lb-backend-params = {empty={load_balancer_id="", backendset_name="",ip_address="",port="",backup="", drain="", offline="", weight=""}}
@@ -134,7 +135,7 @@ module "wls-lb-demo_certificate" {
       private_key        = var.private_key.private_key_pem
     }
 }
-  lb-params = {empty={shape="", compartment_id="", subnet_ids=[""], maximum_bandwidth_in_mbps="", minimum_bandwidth_in_mbps="",display_name="", is_private="",defined_tags={}, freeform_tags={}}}
+  lb-params = {empty={shape="", compartment_id="", subnet_ids=[""], network_security_group_ids= [""], maximum_bandwidth_in_mbps="", minimum_bandwidth_in_mbps="",display_name="", is_private="",defined_tags={}, freeform_tags={}}}
   lb-backendset-params = {empty={name="", load_balancer_id="", policy="", port="", protocol="",response_body_regex="", url_path="", return_code=""}}
   lb-listener-https-params = {empty={load_balancer_id = "", name = "", default_backend_set_name = "", port  = "", protocol = "", rule_set_names=[""], idle_timeout_in_seconds="",certificate_name="",verify_peer_certificate=""}}
   lb-backend-params = {empty={load_balancer_id="", backendset_name="",ip_address="",port="",backup="", drain="", offline="", weight=""}}

@@ -15,7 +15,6 @@ compartment_policy_id = "<compartment_policy_id>"
 wls_subnet_cidr = "<wls_subnet_cidr>"
 lb_subnet_cidr = "<lb_subnet_cidr>" 
 lb_subnet_backend_cidr = "<lb_subnet_backend_cidr>"
-bastion_subnet_cidr = "<bastion_subnet_cidr>"
 
 create_policies = "<true|false>"
 vcn_name ="<vcn_name>"

@@ -100,6 +100,11 @@ variable "private_key" {
   type = map
 }
 
+variable "network_security_group_ids" {
+  type = list(string)
+  default = []
+}
+
 
 
 

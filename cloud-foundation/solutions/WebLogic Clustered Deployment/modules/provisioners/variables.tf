@@ -22,3 +22,8 @@ variable "assign_public_ip" {
   type    = bool
   default = true
 }
+
+variable "bastion_user" {
+  type = string
+  default = "opc"
+}
