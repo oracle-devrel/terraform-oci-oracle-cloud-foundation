@@ -5,54 +5,54 @@
       "files": [
         {
           "src_pattern": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/*.tf",
-          "dst_path": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/.",
+          "dst_path": ".",
           "exclude": [
             "main.tf"
           ]
         },
         {
           "src": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/LICENSE.tf",
-          "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/LICENSE.tf"
+          "dst": "LICENSE.tf"
         },
         {
           "src": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/schema.yaml",
-          "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/schema.yaml"
+          "dst": "schema.yaml"
         },
         {
             "src": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/README.md",
-            "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/README.md"
+            "dst": "README.md"
         },
         {
             "src": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/CONTRIBUTING.md",
-            "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/CONTRIBUTING.md"
+            "dst": "CONTRIBUTING.md"
           },
           {
             "src": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/orm/main.tf",
-            "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/main.tf"
+            "dst": "main.tf"
           },
           {
             "src": "cloud-foundation/modules/cloud-foundation-library/database/adw",
-            "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/modules/*"
+            "dst": "modules/adw"
           },
           {
             "src": "cloud-foundation/modules/cloud-foundation-library/oac",
-            "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/modules/*"
+            "dst": "modules/oac"
           },
           {
             "src": "cloud-foundation/modules/oci-cis-landingzone-quickstart/network/vcn-basic",
-            "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/modules/*"
+            "dst": "modules/vcn-basic"
           },
           {
             "src": "cloud-foundation/modules/oci-cis-landingzone-quickstart/network/vcn-routing",
-            "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/modules/*"
+            "dst": "modules/vcn-routing"
           },
           {
             "src": "cloud-foundation/modules/oci-cis-landingzone-quickstart/network/security",
-            "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/modules/*"
+            "dst": "modules/security"
           },
           {
             "src": "loud-foundation/modules/cloud-foundation-library/tagging",
-            "dst": "cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution/modules/*"
+            "dst": "modules/tagging"
           }
        ]
     },
