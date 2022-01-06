@@ -31,7 +31,7 @@
             "dst": "main.tf"
           },
           {
-            "src_pattern": "cloud-foundation/modules/cloud-foundation-library/database/adw/*",
+            "src_pattern": "cloud-foundation/modules/cloud-foundation-library/database/adw/**/*",
             "dst": "modules/adw"
           },
           {
