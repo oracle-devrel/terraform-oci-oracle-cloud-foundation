@@ -10,4 +10,4 @@ For the moment we have implemented the following solutions:
 - GoldenGate Stream Analytics for production workloads Full Solution
 - GoldenGate Stream Analytics for production workloads Small Footprint Solution
 - Enterprise data warehousing a predictive maintenance example
-
+- Machine learning platform on Autonomous Data Warehouse
