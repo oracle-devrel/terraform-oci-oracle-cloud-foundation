@@ -490,13 +490,13 @@ $ terraform destroy --auto-approve
 
 [Analytics Cloud Overview](https://docs.oracle.com/en-us/iaas/analytics-cloud/index.html)
 
-[Network Overview](https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/overview.htm)
-
 [Object Storage Overview](https://docs.oracle.com/en-us/iaas/Content/Object/Concepts/objectstorageoverview.htm)
 
 [Data Catalog Overview](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/data-catalog/using/overview.htm)
 
 [Data Integration Overview](https://docs.oracle.com/en-us/iaas/data-integration/using/overview.htm)
+
+[Network Overview](https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/overview.htm)
 
 [Tagging Overview](https://docs.oracle.com/en-us/iaas/Content/Tagging/Concepts/taggingoverview.htm)
 
@@ -504,15 +504,15 @@ $ terraform destroy --auto-approve
 
 [Terraform Analytics Cloud Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/analytics_analytics_instance)
 
-[Terraform Vcn resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_vcn)
-
-[Terraform Subnet resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_subnet)
-
 [Terraform Object Storage Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/objectstorage_bucket)
 
 [Terraform Data Catalog Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/datacatalog_catalog)
 
 [Terraform Data Integration Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/dataintegration_workspace)
+
+[Terraform Vcn resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_vcn)
+
+[Terraform Subnet resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_subnet)
 
 [Terraform Tag Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/identity_tag_namespace)
 

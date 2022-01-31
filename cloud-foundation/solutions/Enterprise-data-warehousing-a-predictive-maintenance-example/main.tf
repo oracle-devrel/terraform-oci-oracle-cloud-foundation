@@ -1,4 +1,4 @@
-# Copyright © 2021, Oracle and/or its affiliates.
+# Copyright © 2022, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 # Calling the Object Storage module
@@ -16,6 +16,7 @@ module "os" {
 module "streaming" {
   source = "../../../cloud-foundation/modules/cloud-foundation-library/streaming"
   tenancy_ocid = var.tenancy_ocid
+  depends_on = [module.dynamic_groups, module.policies]
   streaming_params = {
     for k,v in local.streaming_params : k => v if v.compartment_id != "" 
   }
@@ -31,7 +32,7 @@ module "streaming" {
 
 module "functions" {
   source = "../../../cloud-foundation/modules/cloud-foundation-library/functions"
-  depends_on = [null_resource.DecoderPush2OCIR]
+  depends_on = [module.dynamic_groups, module.policies, null_resource.DecoderPush2OCIR]
   app_params = {
     for k,v in local.app_params : k => v if v.compartment_id != "" 
   }
@@ -44,6 +45,7 @@ module "functions" {
 
 module "dataflowapp" {
   source = "../../../cloud-foundation/modules/cloud-foundation-library/data-flow"
+  depends_on = [module.dynamic_groups, module.policies, module.os]
   dataflow_params = {
     for k,v in local.dataflow_params : k => v if v.compartment_id != "" 
   }
@@ -53,6 +55,7 @@ module "dataflowapp" {
 
 module "datascience" {
   source = "../../../cloud-foundation/modules/cloud-foundation-library/data-science"
+  depends_on = [module.dynamic_groups, module.policies]
   datascience_params = {
     for k,v in local.datascience_params : k => v if v.compartment_id != "" 
   }
@@ -110,11 +113,18 @@ module "network-security-groups" {
 
 module "dynamic_groups" {
   source = "../../../cloud-foundation/modules/oci-cis-landingzone-quickstart/iam/iam-dynamic-group"
+  providers = {
+    oci = oci.homeregion
+  }
   dynamic_groups = local.dynamic_groups
 }
 
 module "policies" {
   source = "../../../cloud-foundation/modules/oci-cis-landingzone-quickstart/security/policies"
+  depends_on = [module.dynamic_groups]
+  providers = {
+    oci = oci.homeregion
+  }
   policies = local.policies
 }
 

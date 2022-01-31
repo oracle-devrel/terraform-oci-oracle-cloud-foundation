@@ -573,8 +573,6 @@ $ terraform destroy --auto-approve
 
 [Analytics Cloud Overview](https://docs.oracle.com/en-us/iaas/analytics-cloud/index.html)
 
-[Network Overview](https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/overview.htm)
-
 [Object Storage Overview](https://docs.oracle.com/en-us/iaas/Content/Object/Concepts/objectstorageoverview.htm)
 
 [Data Catalog Overview](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/data-catalog/using/overview.htm)
@@ -585,15 +583,13 @@ $ terraform destroy --auto-approve
 
 [Golden Gate Overview](https://docs.oracle.com/en-us/iaas/goldengate/index.html)
 
+[Network Overview](https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/overview.htm)
+
 [Tagging Overview](https://docs.oracle.com/en-us/iaas/Content/Tagging/Concepts/taggingoverview.htm)
 
 [Terraform Autonomous Databases Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/database_autonomous_database)
 
 [Terraform Analytics Cloud Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/analytics_analytics_instance)
-
-[Terraform Vcn resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_vcn)
-
-[Terraform Subnet resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_subnet)
 
 [Terraform Object Storage Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/objectstorage_bucket)
 
@@ -606,6 +602,10 @@ $ terraform destroy --auto-approve
 [Terraform Data Science Notebook Session Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/datascience_notebook_session)
 
 [Terraform Deployment Golden Gate Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/golden_gate_deployment)
+
+[Terraform Vcn resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_vcn)
+
+[Terraform Subnet resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_subnet)
 
 [Terraform Tag Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/identity_tag_namespace)
 

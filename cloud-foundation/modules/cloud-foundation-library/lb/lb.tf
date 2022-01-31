@@ -1,5 +1,6 @@
-# Copyright © 2021, Oracle and/or its affiliates.
+# Copyright © 2022, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
 resource "oci_load_balancer_load_balancer" "loadbalancer" {
   for_each = {
     for k,v in var.lb-params : k => v if v.display_name != ""

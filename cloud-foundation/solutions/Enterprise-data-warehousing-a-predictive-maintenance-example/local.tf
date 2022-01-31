@@ -1,4 +1,4 @@
-# Copyright © 2021, Oracle and/or its affiliates.
+# Copyright © 2022, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 data "oci_identity_availability_domains" "ADs" {
@@ -110,25 +110,26 @@ service_connector = {
       service_connector_tasks_kind                        = var.service_connector_tasks_kind
       service_connector_tasks_batch_size_in_kbs           = var.service_connector_tasks_batch_size_in_kbs
       service_connector_tasks_batch_time_in_sec           = var.service_connector_tasks_batch_time_in_sec
-      function_id                                         = module.functions.function["DecoderFn"]
+      function_id                                         = lookup(module.functions.functions,"DecoderFn").ocid
   }
 }
 
 # OCI Functions
 app_params = { 
-    DecoderApp = {
+    application = {
       compartment_id    = var.compartment_id,
       subnet_ids        = [lookup(module.network-subnets.subnets,"public-subnet").id]
       display_name      = var.app_display_name,
-      defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+      defined_tags      = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
   }
-}
+}  
+
 fn_params = {
-    DecoderFn = {
-      function_app     = var.function_app,
-      display_name     = var.fn_display_name,
+    function = {
+      function_app     = "application"
+      display_name     = "DecoderFn"
       image            = local.function_image
-      defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+      defined_tags     = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
   }
 }
 
@@ -157,12 +158,13 @@ datascience_params = {
       defined_tags               = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
   }
 }
+
 notebook_params = {
     notebook_session = {
       compartment_id             = var.compartment_id
       notebook_session_notebook_session_configuration_details_shape = var.notebook_session_notebook_session_configuration_details_shape
       subnet_id                  = lookup(module.network-subnets.subnets,"public-subnet").id,
-      project_name               = var.project_name
+      project_name               = "data_science_project"
       notebook_session_notebook_session_configuration_details_block_storage_size_in_gbs = var.notebook_session_notebook_session_configuration_details_block_storage_size_in_gbs
       notebook_session_display_name = var.notebook_session_display_name
       defined_tags               = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }

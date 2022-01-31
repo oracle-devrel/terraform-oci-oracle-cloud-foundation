@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2022, Oracle and/or its affiliates. All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 resource "oci_functions_application" "this" {
@@ -9,15 +9,16 @@ resource "oci_functions_application" "this" {
   defined_tags   = each.value.defined_tags
 }
 
-
 data "oci_functions_applications" "existing" {
   for_each = var.app_params
   compartment_id = each.value.compartment_id
-  id       = oci_functions_application.this[each.value.display_name].id
+  id       = oci_functions_application.this[each.key].id
 }
 
-# Terraform will take 40 minutes after destroying a function due to a known service issue.
-# please refer: https://docs.cloud.oracle.com/iaas/Content/Functions/Tasks/functionsdeleting.htm
+# Deleting a function does not necessarily enable you to immediately delete the subnet and VCN in which the function runs.
+# Expect to wait up to five minutes after the function was last invoked before you can delete the associated network resources.
+# Please refer: https://docs.cloud.oracle.com/iaas/Content/Functions/Tasks/functionsdeleting.htm
+
 resource "oci_functions_function" "this" {
   for_each           = var.fn_params
   application_id     = oci_functions_application.this[each.value.function_app].id
@@ -31,4 +32,3 @@ data "oci_functions_functions" "existing" {
   for_each       = var.fn_params
   application_id = oci_functions_application.this[each.value.function_app].id
 }
-

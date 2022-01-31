@@ -46,7 +46,7 @@ If you don't have the required permissions and quota, contact your tenancy admin
 
 # <a name="Deploy-Using-Oracle-Resource-Manager"></a>Deploy Using Oracle Resource Manager
 
-**Note**: A set of policies and two dynamic groups are created in this Resource Manager stack allowing an administrator to deploy this solution. These are listed in "policies.tf" file and can be used as a reference when fitting this deployment to your specific IAM configuration.
+**Note**: A set of policies and two dynamic groups are created in this Resource Manager stack allowing an administrator to deploy this solution. These are listed in "local.tf" file ( the last lines) and can be used as a reference when fitting this deployment to your specific IAM configuration.
 
 1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation/releases/download/v1.0.0/Enterprise-data-warehousing-a-predictive-maintenance-example-RM.zip)
 
@@ -281,6 +281,7 @@ exit
 * **provider.tf** - The terraform provider that will be used (OCI)
 * **README.md** - This file
 * **schema.yaml** - Schema documents are recommended for Terraform configurations when using Resource Manager. Including a schema document allows you to extend pages in the Oracle Cloud Infrastructure Console. Facilitate variable entry in the Create Stack page by surfacing SSH key controls and by naming, grouping, dynamically prepopulating values, and more. Define text in the Application Information tab of the stack detail page displayed for a created stack.
+* **tags.tf** - A file that will add tags for all the resouces as ArchitectureCenterTagNamespace convention.
 * **variables.tf** - Project's global variables
 
 
@@ -443,12 +444,10 @@ variable "service_connector_tasks_batch_time_in_sec" {
 
 # Functions
 
-This data source provides the list of Functions in Oracle Cloud Infrastructure Functions service. To not break the deployment please don't modify any variables in the functions sections as it's needed to be like this to work for app_display_name, function_app, fn_display_name and ocir_repo_name.
+This data source provides the list of Functions in Oracle Cloud Infrastructure Functions service. To not break the deployment please don't modify any variables in the functions sections as it's needed to be like this to work for ocir_repo_name.
 
 * Parameters:
     * __app_display_name__ - The display name of the function. The display name must be unique within the application containing the function. Avoid entering confidential information.
-    * __function_app__ - The OCID of the application this function belongs to.
-    * __fn_display_name__ - The display name of the function. The display name is unique within the application containing the function.
     * __ocir_repo_name__ - The repo name where you will store the image in the Container Registry.
     * __ocir_user_name__ - The username that will push the image in the Container Registry. The user should be in this format: "oracleidentitycloudservice/username"
     * __ocir_user_password__ - The auth token generated for your user.
@@ -458,14 +457,6 @@ Below is an example:
 ```
 variable "app_display_name" {
   default = "DecoderApp"
-}
-
-variable "function_app" {
-  default = "DecoderApp"
-}
-
-variable "fn_display_name" {
-  default = "DecoderFn"
 }
 
 variable "ocir_repo_name" {
@@ -483,7 +474,7 @@ variable "ocir_user_password" {
 
 # Data Flow
 
-This data source provides the list of Functions in Oracle Cloud Infrastructure Functions service. To not break the deployment please don't modify any variables in the functions sections as it's needed to be like this to work.
+This resource provides the Application resource in Oracle Cloud Infrastructure Data Flow service. Creates an application.
 
 * Parameters:
     * __application_display_name__ - A user-friendly name. It does not have to be unique. Avoid entering confidential information.
@@ -546,8 +537,7 @@ This resource provides the Notebook Session resource in Oracle Cloud Infrastruct
     * __project_display_name__ - A user-friendly display name for the resource. It does not have to be unique and can be modified. Avoid entering confidential information.
     * __notebook_session_display_name__ -  A user-friendly display name for the resource. It does not have to be unique and can be modified. Avoid entering confidential information.
     * __notebook_session_notebook_session_configuration_details_shape__ - The shape used to launch the notebook session compute instance. The list of available shapes in a given compartment can be retrieved using the ListNotebookSessionShapes endpoint.
-    * __notebook_session_notebook_session_configuration_details_block_storage_size_in_gbs__ - 
-    * __project_name__ - A notebook session instance is provided with a block storage volume. This specifies the size of the volume in GBs.
+    * __notebook_session_notebook_session_configuration_details_block_storage_size_in_gbs__ - A notebook session instance is provided with a block storage volume. This specifies the size of the volume in GBs.
 
 Below is an example:
 
@@ -572,9 +562,6 @@ variable "notebook_session_notebook_session_configuration_details_block_storage_
   default = 50
 }
 
-variable "project_name" {
-  default = "data_science_project"
-}
 ```
 
 # Network
@@ -601,7 +588,6 @@ variable "public_subnet_cidr" {
 variable "private_subnet_cidr" {
   default = "10.0.1.0/24"
 }
-
 ```
 Don't modify any other variables in the variable.tf file - it may cause that the solution will not work propertly. The use_regional_subnet variable is for the subnets to be regional, not AD specific. 
 

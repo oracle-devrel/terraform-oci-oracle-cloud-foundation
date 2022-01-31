@@ -1,4 +1,4 @@
-# Copyright © 2021, Oracle and/or its affiliates.
+# Copyright © 2022, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 
@@ -153,14 +153,6 @@ variable "app_display_name" {
   default = "DecoderApp"
 }
 
-variable "function_app" {
-  default = "DecoderApp"
-}
-
-variable "fn_display_name" {
-  default = "DecoderFn"
-}
-
 # Example: decoder 
 
 variable "ocir_repo_name" {
@@ -243,9 +235,6 @@ variable "notebook_session_notebook_session_configuration_details_block_storage_
   default = 50
 }
 
-variable "project_name" {
-  default = "data_science_project"
-}
 
 # Network variables
 
