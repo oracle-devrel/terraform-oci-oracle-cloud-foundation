@@ -125,10 +125,16 @@ module "network-security-groups" {
 
 module "dynamic_groups" {
   source = "../../../cloud-foundation/modules/oci-cis-landingzone-quickstart/iam/iam-dynamic-group"
+  providers = {
+    oci = oci.homeregion
+  }
   dynamic_groups = local.dynamic_groups
 }
 
 module "policies" {
   source = "../../../cloud-foundation/modules/oci-cis-landingzone-quickstart/security/policies"
+  providers = {
+    oci = oci.homeregion
+  }
   policies = local.policies
 }

@@ -254,10 +254,6 @@ variable "service_name" {
 
 # don't modify any other variables (below) - it may cause that the solution will not work propertly.
 
-variable "project_name" {
-  default = "machine_learning_platform"
-}
-
 variable "use_regional_subnet" {
   type = bool
   default = true

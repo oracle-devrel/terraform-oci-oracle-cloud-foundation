@@ -12,3 +12,4 @@ For the moment we have implemented the following solutions:
 - Enterprise data warehousing a predictive maintenance example
 - Machine learning platform on Autonomous Data Warehouse
 - Modern data warehousing a polyglot integration example
+- Cloud data lake house - process enterprise and streaming data for analysis and machine learning

@@ -1,4 +1,4 @@
-# Copyright © 2021, Oracle and/or its affiliates.
+# Copyright © 2022, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 title: "Create Oracle Streaming Service, Oracle Service Connector Hub, Oracle Data Flow and Oracle Data Science in Oracle Cloud Infrastructure"
@@ -43,7 +43,6 @@ groupings:
     - notebook_session_display_name
     - notebook_session_notebook_session_configuration_details_shape
     - notebook_session_notebook_session_configuration_details_block_storage_size_in_gbs
-    - project_name
   - title: Stream Optional Configuration
     visible:
       and:
@@ -103,8 +102,6 @@ groupings:
     - private_key_path
     - use_regional_subnet
     - app_display_name
-    - function_app
-    - fn_display_name
     - release
 # General Configuration Variables
 variables:
@@ -219,13 +216,6 @@ variables:
     required: true
     title: "Block Storage Size for Data Science Project"
     description: "Block Storage Size for Data Science Project"
-  project_name:
-    type: string
-    default: "data_science_project"
-    visible: true
-    required: true
-    title: "Notebook Project Name"
-    description: "Notebook Project Name"
 # Streams Variables
   stream_pool_name:
     type: string
@@ -542,15 +532,15 @@ outputs:
   Dataflow:
     type: string
     title: Data_Flow
-  Datascience:
-    type: string
-    title: Data_Science
   Functions:
     type: string
     title: Functions
+  Datascience:
+    type: string
+    title: Data Science
   Notebook: 
     type: string
-    title: all_private_ips
+    title: Notebook
   Streaming_poolID:
     type: string
     title: Streaming_Pools
@@ -563,8 +553,8 @@ outputGroups:
       - Buckets
       - Apps
       - Dataflow
-      - Datascience
       - Functions
+      - Datascience
       - Notebook
       - Streaming_poolID
       - Streaming_ID

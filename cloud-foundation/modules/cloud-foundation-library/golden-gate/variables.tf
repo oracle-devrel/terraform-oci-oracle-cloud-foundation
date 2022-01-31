@@ -1,5 +1,6 @@
 ## Copyright © 2022, Oracle and/or its affiliates. 
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+
 variable "deployment_params" {
   type = map(object({
     compartment_id          = string

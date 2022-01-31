@@ -1,9 +1,10 @@
-## Copyright © 2021, Oracle and/or its affiliates. 
+## Copyright © 2022, Oracle and/or its affiliates. 
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 variable "tenancy_ocid" {
     type = string
 }
+
 variable "streaming_params" {
   type = map(object({
     name               = string
@@ -16,6 +17,7 @@ variable "streaming_params" {
     }
   ))
 }
+
 variable "streaming_pool_params" {
   type = map(object({
     compartment_id = string

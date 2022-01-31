@@ -82,7 +82,6 @@ groupings:
       - use_regional_subnet
       - whitelisted_ips
       - analytics_instance_network_endpoint_details_whitelisted_ips
-      - project_name
       - release
 # General Configuration Variables
 variables:

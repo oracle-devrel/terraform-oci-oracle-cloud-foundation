@@ -114,12 +114,13 @@ datascience_params = {
       defined_tags               = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
   }
 }
+
 notebook_params = {
     notebook_session = {
       compartment_id             = var.compartment_id
       notebook_session_notebook_session_configuration_details_shape = var.notebook_session_notebook_session_configuration_details_shape
       subnet_id                  = lookup(module.network-subnets.subnets,"public-subnet").id,
-      project_name               = var.project_name
+      project_name               = "machine_learning_platform"
       notebook_session_notebook_session_configuration_details_block_storage_size_in_gbs = var.notebook_session_notebook_session_configuration_details_block_storage_size_in_gbs
       notebook_session_display_name = var.notebook_session_display_name
       defined_tags               = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }

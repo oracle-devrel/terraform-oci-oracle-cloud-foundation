@@ -1,6 +1,14 @@
 # Copyright © 2022, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
+variable "compartment_id" {
+  type = string
+}
+
+variable "drgs" {
+  type = map(string)
+}
+
 variable "cc_group" {
   type = map(object({
     compartment_id   = string
@@ -80,6 +88,18 @@ variable "public_vc_with_provider" {
   }))
 }
 
-variable "drgs" {
-  type = map(string)
+variable "private_vc_with_provider_no_cross_connect_or_cross_connect_group_id" {
+  type = map(object({
+    compartment_id        = string
+    name                  = string
+    type                  = string
+    bw_shape              = string
+    cust_bgp_peering_ip   = string
+    oracle_bgp_peering_ip = string
+    drg                   = string
+    defined_tags          = map(string)
+  }))
 }
+
+
+

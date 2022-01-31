@@ -40,7 +40,8 @@ If you don't have the required permissions and quota, contact your tenancy admin
 
 # <a name="Deploy-Using-Oracle-Resource-Manager"></a>Deploy Using Oracle Resource Manager
 
-1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation/releases/download/v1.0.0/Departmental-data-warehousing-Small-Footprint-Solution-RM.zip)
+1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation/releases/download/v1.0.0/Departmental-data-warehousing-Full-Solution-RM.zip)
+
 
     If you aren't already signed in, when prompted, enter the tenancy and user credentials.
 
@@ -59,7 +60,7 @@ If you don't have the required permissions and quota, contact your tenancy admin
 Now, you'll want a local copy of this repo. You can make that with the commands:
 
     git clone https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation.git
-    cd terraform-oci-oracle-cloud-foundation/cloud-foundation/solutions/Departmental-data-warehousing-Small-Footprint-Solution
+    cd terraform-oci-oracle-cloud-foundation/cloud-foundation/solutions/Departmental-data-warehousing-Full-Solution
     ls
 
 ## Deployment
@@ -191,13 +192,15 @@ variable "private_key_path" {
 
 
 * **modules(folder)** - ( this folder will be pressent only for the Resource Manager zipped files) Contains folders with subsystems and modules for each section of the project: networking, autonomous database, analytics cloud, etc.
-* **main.tf** - Main Terraform script used for instantiating the Oracle Cloud Infrastructure provider and all subsystems modules
-* **README.md** - This file
-* **outputs.tf** - Defines project's outputs that you will see after the code runs successfuly
-* **provider.tf** - The terraform provider that will be used (OCI)
+* **CONTRIBUTING.md** - Contributing guidelines, also called Contribution guidelines, the CONTRIBUTING.md file, or software contribution guidelines, is a text file which project managers include in free and open-source software packages or other open media packages for the purpose of describing how others may contribute user-generated content to the project.The file explains how anyone can engage in activities such as formatting code for submission or submitting patches
 * **LICENSE** - The Universal Permissive License (UPL), Version 1.0 
 * **local.tf** - Local values can be helpful to avoid repeating the same values or expressions multiple times in a configuration, but if overused they can also make a configuration hard to read by future maintainers by hiding the actual values used.Here is the place where all the resources are defined.
+* **main.tf** - Main Terraform script used for instantiating the Oracle Cloud Infrastructure provider and all subsystems modules
+* **outputs.tf** - Defines project's outputs that you will see after the code runs successfuly
+* **provider.tf** - The terraform provider that will be used (OCI)
+* **README.md** - This file
 * **schema.yaml** - Schema documents are recommended for Terraform configurations when using Resource Manager. Including a schema document allows you to extend pages in the Oracle Cloud Infrastructure Console. Facilitate variable entry in the Create Stack page by surfacing SSH key controls and by naming, grouping, dynamically prepopulating values, and more. Define text in the Application Information tab of the stack detail page displayed for a created stack.
+* **tags.tf** - A file that will add tags for all the resouces as ArchitectureCenterTagNamespace convention.
 * **variables.tf** - Project's global variables
 
 
@@ -485,13 +488,13 @@ $ terraform destroy --auto-approve
 
 [Analytics Cloud Overview](https://docs.oracle.com/en-us/iaas/analytics-cloud/index.html)
 
-[Network Overview](https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/overview.htm)
-
 [Object Storage Overview](https://docs.oracle.com/en-us/iaas/Content/Object/Concepts/objectstorageoverview.htm)
 
 [Data Catalog Overview](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/data-catalog/using/overview.htm)
 
 [Data Integration Overview](https://docs.oracle.com/en-us/iaas/data-integration/using/overview.htm)
+
+[Network Overview](https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/overview.htm)
 
 [Tagging Overview](https://docs.oracle.com/en-us/iaas/Content/Tagging/Concepts/taggingoverview.htm)
 
@@ -499,15 +502,15 @@ $ terraform destroy --auto-approve
 
 [Terraform Analytics Cloud Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/analytics_analytics_instance)
 
-[Terraform Vcn resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_vcn)
-
-[Terraform Subnet resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_subnet)
-
 [Terraform Object Storage Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/objectstorage_bucket)
 
 [Terraform Data Catalog Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/datacatalog_catalog)
 
 [Terraform Data Integration Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/dataintegration_workspace)
+
+[Terraform Vcn resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_vcn)
+
+[Terraform Subnet resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_subnet)
 
 [Terraform Tag Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/identity_tag_namespace)
 
