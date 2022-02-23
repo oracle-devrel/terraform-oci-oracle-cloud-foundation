@@ -1,6 +1,3 @@
-# Copyright © 2021, Oracle and/or its affiliates.
-# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
-
 output "BackendsetNames" {
   value = [ for b in oci_load_balancer_backend_set.lb-backendset : b.name]
 }
@@ -19,4 +16,8 @@ output "load_balancer_id" {
 
 output "load_balancer_IP" {
   value = [for b in oci_load_balancer_load_balancer.loadbalancer : b.ip_addresses]
+}
+
+output "CertificatesIds" {
+  value = [ for b in oci_load_balancer_certificate.demo_certificate : b.id]
 }
