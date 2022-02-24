@@ -56,6 +56,10 @@ variable "wls_admin_password" {
   type = string
 }
 
+variable "bootStrapFile" {
+  type    = string
+  default = "./modules/wls_compute/userdata/bootstrap"
+}
 
 variable "instance_shape" {
   type = string
@@ -224,6 +228,11 @@ variable "wls_version_to_rcu_component_list_map" {
 
 variable "log_level" {
   default = "INFO"
+}
+
+variable "rebootFile" {
+  type    = string
+  default = "./modules/wls_compute/userdata/reboot"
 }
 
 variable "num_volumes" {

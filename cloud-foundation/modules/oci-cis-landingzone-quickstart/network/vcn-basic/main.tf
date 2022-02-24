@@ -1,5 +1,5 @@
-# Copyright © 2022, Oracle and/or its affiliates.
-# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+# Copyright (c) 2021 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 locals {
   osn_cidrs = {for x in data.oci_core_services.all_services.services : x.cidr_block => x.id}
@@ -79,7 +79,7 @@ resource "oci_core_drg_attachment" "these" {
 ### Subnets
 resource "oci_core_subnet" "these" {
 
-  for_each = {for subnet in local.subnets : subnet.display_name => subnet if subnet.cidr != ""}
+  for_each = {for subnet in local.subnets : "${subnet.display_name}" => subnet if subnet.cidr != ""}
     display_name                = each.value.display_name
     vcn_id                      = each.value.vcn_name != "" ? oci_core_vcn.these[each.value.vcn_name].id : each.value.vcn_id
     availability_domain         = each.value.availability_domain
