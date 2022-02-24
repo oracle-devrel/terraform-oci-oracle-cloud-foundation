@@ -331,10 +331,7 @@ module "sessions" {
 
 }
 
-/* To be created by the user (configuring a domain for WLS nodes)
-   Ex. of calling a provison module */
-     
-/* module "provisioners" {
+module "provisioners" {
   source = "./modules/provisioners"
 
   ssh_private_key = module.keygen.OPCPrivateKey["private_key_pem"]
@@ -351,4 +348,4 @@ module "sessions" {
   bastion_user = module.sessions.sessions_details["session-0"].bastion_user_name
   assign_public_ip             = local.assign_weblogic_public_ip
 
-}*/
+}

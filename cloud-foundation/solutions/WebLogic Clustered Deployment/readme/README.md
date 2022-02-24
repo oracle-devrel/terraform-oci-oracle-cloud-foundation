@@ -6,7 +6,7 @@ OCI Terraform Provider Configuration on Linux and Windows machine -- https://mos
 Scope
 -------
 
-This solution creates single/multi node WLS cluster with ATP DB as INFRA DB optionally fronted by a load balancer.
+This solution creates single/multi node WLS cluster with ATP DB as INFRA DB optionally fronted by a load balancer. 
 
 Solution architecture
 
@@ -17,18 +17,18 @@ Tenancy Authentication Pre-requisites
 
 The terraform OCI provider supports API Key based authentication and Instance Principal based authentication.
 
-User needs an OCI account in the tenancy. Here are the authentication information required
-for invocation of Terraform scripts.
+User needs an OCI account in the tenancy. Here are the authentication information required 
+for invocation of Terraform scripts. 
 
 **Tenancy OCID** - The global identifier for your account, always shown on the bottom of the web console.
 
 **User OCID** - The identifier of the user account you will be using for Terraform
 
-**Fingerprint** - The fingerprint of the public key added in the above user's API Keys section of the web console.
+**Fingerprint** - The fingerprint of the public key added in the above user's API Keys section of the web console. 
 
-**Private key path** - The path to the private key stored on your computer. The public key portion must be added to the user account above in the API Keys section of the web console.
+**Private key path** - The path to the private key stored on your computer. The public key portion must be added to the user account above in the API Keys section of the web console. 
 
-How to get required keys and ocids -- https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm
+How to get required keys and ocids -- https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm 
 
 Pre-requisites - understanding landing zone information
 --------------------------------------------------------
@@ -41,11 +41,11 @@ Compartments
 Best practice:
 
 Create/Use a compartment for your project.
-
+    
     Create/Use a sub-compartment for Networking resources
     Create/Use a sub-compartment for WebLogic Nodes
     Create/Use a sub-compartment to manage your database
-
+    
 Network Infrastructure
 ----------------------------------
 
@@ -58,6 +58,7 @@ Best practice:
 # Subnets
 
     Create/Use a private regional subnet for WebLogic cluster added in Networking compartment (optionally can be a domain level too if needed and must use DNS for hostnames.)
+    Create/Use a public regional subnet for Bastion Host instance (must use DNS for hostnames)
     Create/Use a public regional subnet for frontend balancer (must use DNS for hostnames)
     Optional - Create/Use a private regional subnet for backend balancer
 
@@ -72,12 +73,12 @@ Use the default route table created with your vcn and add/check the following ro
 
 Default Route Table for <your_vcn_name>
 
-Destination   |  Target Type  | Target   |  Description
+Destination   |  Target Type  | Target   |  Description 
 --------------|---------------|----------|-------------
-  0.0.0.0/0   | Internet Gateway| <your_IG_name> |   <optional_description>
-  All FRA Services In Oracle Services Network | Service  Gateway  |  <your_SGW_name>  |  <optional_description>
+  0.0.0.0/0   | Internet Gateway| <your_IG_name> |   <optional_description> 
+  All FRA Services In Oracle Services Network | Service  Gateway  |  <your_SGW_name>  |  <optional_description>         
 
-# Network Security Group
+# Security Lists
 
 For WebLogic network:
 
@@ -93,19 +94,21 @@ Stateful Ingress |	DNS subnet, UDP |	53 |	JRF-enabled domain and database is on 
 Stateful Ingress |	Weblogic subnet, CIDR |	All 	Used for provisioning
 
 For Load Balancer network:
+ 
+    The subnet must have a security list that enables inbound access to ports 80 and 443.
+    The subnet must have a security list that enables outbound access to the managed server ports (by default, 7003 and 7004) on the subnet that you plan to use for Oracle WebLogic Server.
 
-    The NSG must enable inbound access to ports 80 and 443.
-    The NSG must enable outbound access to the managed server ports (by default, 7003 and 7004) on the subnet that you plan to use for Oracle WebLogic Server.
+For Bastion network:
 
-For Bastion Service:
+    The subnet must have a security list that enables inbound access to the SSH port (22).
+    The subnet must have a security list that enables outbound access to the SSH port (22) on the subnet that you plan to use for Oracle WebLogic Server.
 
-    Session must enable inbound access to the SSH port (22).
-    Session must enable outbound access to the SSH port (22) on the subnet that you plan to use for Oracle WebLogic Server.
+Network security groups are an alternative to security lists. After creating a domain with an existing subnet, you can update the bastion compute instance and assign it to a security group that has the required rules (inbound access to port 22, and so on).
 
 Security
 ----------------------------------
 
-# Create Vault
+# Create Vault 
 
     1. Create key & secret for WLS password
     2. Create key & secret for ATP password
@@ -116,8 +119,8 @@ Security
 
     Matching rules: instance.compartment.id='<your-resources-compartment-id>'
 
-    2. To allow instances to call osms
-
+    2. To allow instances to call osms 
+    
     Matching rules: instance.compartment.id='<your-resources-compartment-id>'
 
 # Grant relevant vault, key, and secret permissions to dynamic group

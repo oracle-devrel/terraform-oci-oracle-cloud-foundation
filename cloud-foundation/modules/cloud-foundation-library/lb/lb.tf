@@ -1,6 +1,3 @@
-# Copyright © 2022, Oracle and/or its affiliates.
-# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
-
 resource "oci_load_balancer_load_balancer" "loadbalancer" {
   for_each = {
     for k,v in var.lb-params : k => v if v.display_name != ""
@@ -9,6 +6,8 @@ resource "oci_load_balancer_load_balancer" "loadbalancer" {
     compartment_id = each.value.compartment_id
 
   subnet_ids = each.value.subnet_ids
+
+  network_security_group_ids = each.value.network_security_group_ids
   
   shape_details {
     #Required
@@ -36,6 +35,21 @@ resource "oci_load_balancer_backend_set" "lb-backendset" {
     response_body_regex = each.value.response_body_regex
     url_path            = each.value.url_path
     return_code         = each.value.return_code
+  }
+
+  dynamic "ssl_configuration" {
+      for_each = [ for b in var.lb-backendset-params : b.certificate_name if b.certificate_name != null ]
+        #Optional
+      content{  
+        certificate_ids = each.value.certificate_ids
+        certificate_name = each.value.certificate_name
+        cipher_suite_name = each.value.cipher_suite_name
+        protocols = each.value.protocols
+        server_order_preference = each.value.server_order_preference
+        trusted_certificate_authority_ids = each.value.trusted_certificate_authority_ids
+        verify_depth = each.value.verify_depth
+        verify_peer_certificate = each.value.verify_peer_certificate
+      }
   }
 
   # Set the session persistence to lb-session-persistence with all default values.
@@ -122,6 +136,8 @@ resource "oci_load_balancer_certificate" "demo_certificate" {
     #Optional
     public_certificate = each.value.public_certificate
     private_key        = each.value.private_key
+    ca_certificate = each.value.ca_certificate
+    passphrase = each.value.passphrase
 
     lifecycle {
       create_before_destroy = true

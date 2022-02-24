@@ -20,11 +20,6 @@ module "wls-lb" {
     freeform_tags = var.freeform_tags
     }
    }
-    lb-backendset-params = {empty={name="", load_balancer_id="", policy="", port="", protocol="",response_body_regex="", url_path="", return_code=""}}
-    lb-listener-https-params = {empty={load_balancer_id = "", name = "", default_backend_set_name = "", port  = "", protocol = "", rule_set_names=[""], idle_timeout_in_seconds="",certificate_name="",verify_peer_certificate=""}}
-    lb-backend-params = {empty={load_balancer_id="", backendset_name="",ip_address="",port="",backup="", drain="", offline="", weight=""}}
-    SSL_headers-params = {empty={load_balancer_id="", name="", SSLitems=[{item={action="",header="",value=""}}],countSSL=0}}
-    demo_certificate-params = {empty={certificate_name = "", load_balancer_id = "", public_certificate = "", private_key = ""}}  
 }
 
 module "wls-lb-backendset" {
@@ -40,13 +35,16 @@ module "wls-lb-backendset" {
     response_body_regex = ".*"
     url_path            = local.health_check_url_path
     return_code         = var.return_code
+    certificate_ids = null
+    certificate_name = null
+    cipher_suite_name = null
+    protocols = null
+    trusted_certificate_authority_ids = null
+    server_order_preference = null
+    verify_depth = null
+    verify_peer_certificate = null
    }
   }
-  lb-params = {empty={shape="", compartment_id="", subnet_ids=[""], network_security_group_ids= [""], maximum_bandwidth_in_mbps="", minimum_bandwidth_in_mbps="",display_name="", is_private="",defined_tags={}, freeform_tags={}}}
-  lb-listener-https-params = {empty={load_balancer_id = "", name = "", default_backend_set_name = "", port  = "", protocol = "", rule_set_names=[""], idle_timeout_in_seconds="",certificate_name="",verify_peer_certificate=""}}
-  lb-backend-params = {empty={load_balancer_id="", backendset_name="",ip_address="",port="",backup="", drain="", offline="", weight=""}}
-  SSL_headers-params = {empty={load_balancer_id="", name="", SSLitems=[{item={action="",header="",value=""}}],countSSL=0}}
-  demo_certificate-params = {empty={certificate_name = "", load_balancer_id = "", public_certificate = "", private_key = ""}}
 }
 
 module "wls-lb-listener-https" {
@@ -65,11 +63,6 @@ module "wls-lb-listener-https" {
     verify_peer_certificate = false
   }
 }
-  lb-params = {empty={shape="", compartment_id="", subnet_ids=[""], network_security_group_ids= [""], maximum_bandwidth_in_mbps="", minimum_bandwidth_in_mbps="",display_name="", is_private="",defined_tags={}, freeform_tags={}}}
-  lb-backendset-params = {empty={name="", load_balancer_id="", policy="", port="", protocol="",response_body_regex="", url_path="", return_code=""}}
-  lb-backend-params = {empty={load_balancer_id="", backendset_name="",ip_address="",port="",backup="", drain="", offline="", weight=""}}
-  SSL_headers-params = {empty={load_balancer_id="", name="", SSLitems=[{item={action="",header="",value=""}}],countSSL=0}}
-  demo_certificate-params = {empty={certificate_name = "", load_balancer_id = "", public_certificate = "", private_key = ""}}
 }
 
 module "wls-lb-backend" {
@@ -88,11 +81,6 @@ module "wls-lb-backend" {
 
     }
 }
-  lb-params = {empty={shape="", compartment_id="", subnet_ids=[""], network_security_group_ids= [""], maximum_bandwidth_in_mbps="", minimum_bandwidth_in_mbps="",display_name="", is_private="",defined_tags={}, freeform_tags={}}}
-  lb-backendset-params = {empty={name="", load_balancer_id="", policy="", port="", protocol="",response_body_regex="", url_path="", return_code=""}}
-  lb-listener-https-params = {empty={load_balancer_id = "", name = "", default_backend_set_name = "", port  = "", protocol = "", rule_set_names=[""], idle_timeout_in_seconds="",certificate_name="",verify_peer_certificate=""}}
-  SSL_headers-params = {empty={load_balancer_id="", name="", SSLitems=[{item={action="",header="",value=""}}], countSSL=0}}
-  demo_certificate-params = {empty={certificate_name = "", load_balancer_id = "", public_certificate = "", private_key = ""}}
 }
 
 module "wls-SSL_headers" {
@@ -115,11 +103,6 @@ module "wls-SSL_headers" {
       countSSL = 2
     }
 }
-  lb-params = {empty={shape="", compartment_id="", subnet_ids=[""], network_security_group_ids= [""], maximum_bandwidth_in_mbps="", minimum_bandwidth_in_mbps="",display_name="", is_private="",defined_tags={}, freeform_tags={}}}
-  lb-backendset-params = {empty={name="", load_balancer_id="", policy="", port="", protocol="",response_body_regex="", url_path="", return_code=""}}
-  lb-listener-https-params = {empty={load_balancer_id = "", name = "", default_backend_set_name = "", port  = "", protocol = "", rule_set_names=[""], idle_timeout_in_seconds="",certificate_name="",verify_peer_certificate=""}}
-  lb-backend-params = {empty={load_balancer_id="", backendset_name="",ip_address="",port="",backup="", drain="", offline="", weight=""}}
-  demo_certificate-params = {empty={certificate_name = "", load_balancer_id = "", public_certificate = "", private_key = ""}}
 }
 
 module "wls-lb-demo_certificate" {
@@ -133,12 +116,10 @@ module "wls-lb-demo_certificate" {
 
       public_certificate = var.public_certificate.cert_pem
       private_key        = var.private_key.private_key_pem
+      ca_certificate     = null
+      passphrase         = null
+      
     }
 }
-  lb-params = {empty={shape="", compartment_id="", subnet_ids=[""], network_security_group_ids= [""], maximum_bandwidth_in_mbps="", minimum_bandwidth_in_mbps="",display_name="", is_private="",defined_tags={}, freeform_tags={}}}
-  lb-backendset-params = {empty={name="", load_balancer_id="", policy="", port="", protocol="",response_body_regex="", url_path="", return_code=""}}
-  lb-listener-https-params = {empty={load_balancer_id = "", name = "", default_backend_set_name = "", port  = "", protocol = "", rule_set_names=[""], idle_timeout_in_seconds="",certificate_name="",verify_peer_certificate=""}}
-  lb-backend-params = {empty={load_balancer_id="", backendset_name="",ip_address="",port="",backup="", drain="", offline="", weight=""}}
-  SSL_headers-params = {empty={load_balancer_id="", name="", SSLitems=[{item={action="",header="",value=""}}],countSSL=0}}
 }
 
