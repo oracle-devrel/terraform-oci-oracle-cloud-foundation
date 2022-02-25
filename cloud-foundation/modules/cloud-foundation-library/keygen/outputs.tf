@@ -1,3 +1,6 @@
+# Copyright © 2022, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
 output "OPCPrivateKey" {
   value = "${tomap({"public_key_openssh" = tls_private_key.opc_key.public_key_openssh, "private_key_pem"=tls_private_key.opc_key.private_key_pem})}"
 }

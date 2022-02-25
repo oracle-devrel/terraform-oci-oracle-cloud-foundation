@@ -1,23 +1,26 @@
+# Copyright (c) 2020 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
 output "InstancePrivateIPs" {
-  value = [ for b in oci_core_instance.instance : b.private_ip]
+  value = [ for b in oci_core_instance.these : b.private_ip]
 }
 
 output "InstancePublicIPs" {
-  value = [ for b in oci_core_instance.instance : b.public_ip]
+  value = [ for b in oci_core_instance.these : b.public_ip]
 }
 
 output "InstanceOcids" {
-  value = [ for b in oci_core_instance.instance : b.id]
+  value = [ for b in oci_core_instance.these : b.id]
 }
 
 output "display_names" {
-  value = [ for b in oci_core_instance.instance : b.display_name]
+  value = [ for b in oci_core_instance.these : b.display_name]
 }
 
 output "InstanceShapes" {
-  value = [ for b in oci_core_instance.instance : b.shape]
+  value = [ for b in oci_core_instance.these : b.shape]
 }
 
 output "AvailabilityDomains" {
-  value = [ for b in oci_core_instance.instance : b.availability_domain]
+  value = [ for b in oci_core_instance.these : b.availability_domain]
 }

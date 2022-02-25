@@ -1,4 +1,8 @@
+# Copyright (c) 2020 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
 variable "dbcs_params" {
+  description = "DBCS object parameters."
   type        = map(object({
     compartment_id          = string
     subnet_id               = string
