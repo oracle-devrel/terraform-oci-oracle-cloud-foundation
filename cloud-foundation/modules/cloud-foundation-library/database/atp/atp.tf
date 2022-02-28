@@ -1,5 +1,7 @@
-resource "oci_database_autonomous_database" "autonomous_database" {
+# Copyright (c) 2020 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
+resource "oci_database_autonomous_database" "this" {
     compartment_id = var.compartment_ocid
     cpu_core_count = var.autonomous_database_cpu_core_count
     db_name = var.autonomous_database_db_name

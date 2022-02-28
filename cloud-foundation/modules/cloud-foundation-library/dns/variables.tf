@@ -2,10 +2,12 @@
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 variable "compartments" {
+  description = "DNS Compartments OCIDs."
   type = map(string)
 }
 
 variable "instances" {
+  description = "Instances OCIDs."
   type = map(any)
 }
 

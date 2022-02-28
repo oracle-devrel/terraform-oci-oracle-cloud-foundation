@@ -1,4 +1,7 @@
-resource "oci_load_balancer_load_balancer" "loadbalancer" {
+# Copyright © 2022, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+resource "oci_load_balancer_load_balancer" "these" {
   for_each = {
     for k,v in var.lb-params : k => v if v.display_name != ""
   } 
@@ -20,7 +23,7 @@ resource "oci_load_balancer_load_balancer" "loadbalancer" {
   freeform_tags = each.value.freeform_tags
 }
 
-resource "oci_load_balancer_backend_set" "lb-backendset" {
+resource "oci_load_balancer_backend_set" "these" {
 
   for_each = {
     for k,v in var.lb-backendset-params : k => v if v.name != ""
@@ -57,7 +60,7 @@ resource "oci_load_balancer_backend_set" "lb-backendset" {
 
 }
 
-resource "oci_load_balancer_listener" "lb-listener-https" {
+resource "oci_load_balancer_listener" "these" {
   for_each = {
     for k,v in var.lb-listener-https-params : k => v if v.name != ""
   }
@@ -79,7 +82,7 @@ resource "oci_load_balancer_listener" "lb-listener-https" {
     }
 }
 
-resource "oci_load_balancer_backend" "lb-backend" {
+resource "oci_load_balancer_backend" "these" {
   for_each = {
     for k,v in var.lb-backend-params : k => v if v.backendset_name != ""
   }
@@ -97,7 +100,7 @@ resource "oci_load_balancer_backend" "lb-backend" {
   }
 }
 
-resource "oci_load_balancer_rule_set" "SSL_headers" {
+resource "oci_load_balancer_rule_set" "these" {
  
   for_each = {
     for k,v in var.SSL_headers-params : k => v if v.name != ""
@@ -123,7 +126,7 @@ resource "oci_load_balancer_rule_set" "SSL_headers" {
     
 }
 
-resource "oci_load_balancer_certificate" "demo_certificate" {
+resource "oci_load_balancer_certificate" "these" {
   
   for_each = {
     for k,v in var.demo_certificate-params : k => v if v.certificate_name != ""

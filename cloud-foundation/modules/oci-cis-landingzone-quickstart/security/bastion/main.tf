@@ -1,3 +1,6 @@
+# Copyright © 2022, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
 resource "oci_bastion_bastion" "these" {
   for_each = var.bastions  
     bastion_type     = "STANDARD"
@@ -8,7 +11,7 @@ resource "oci_bastion_bastion" "these" {
     max_session_ttl_in_seconds   = each.value.max_session_ttl_in_seconds
 }
 
-resource "oci_bastion_session" "session" {
+resource "oci_bastion_session" "these" {
 
    for_each = var.sessions 
 

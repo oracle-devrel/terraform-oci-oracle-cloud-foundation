@@ -1,4 +1,7 @@
-resource "oci_core_instance" "instance" {
+# Copyright (c) 2020 Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+resource "oci_core_instance" "these" {
 
   for_each = var.instance_params
 
@@ -9,16 +12,6 @@ resource "oci_core_instance" "instance" {
 
     defined_tags = each.value.defined_tags
     freeform_tags = each.value.freeform_tags
-
-    /*agent_config {
-      is_management_disabled = false
-      is_monitoring_disabled = false
-
-    plugins_config {
-      desired_state = "ENABLED"
-      name = "Bastion"
-    }
-   }*/
 
     create_vnic_details {
       subnet_id        = each.value.subnet_id
@@ -50,7 +43,6 @@ resource "oci_core_instance" "instance" {
       create = "${each.value.provisioning_timeout_mins}m"
     }
 
-    #prevent any metadata changes to destroy instance
     lifecycle {
       ignore_changes = [metadata, shape, shape_config]
     }

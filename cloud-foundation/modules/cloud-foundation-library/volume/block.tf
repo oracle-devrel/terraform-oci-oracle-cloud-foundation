@@ -1,5 +1,7 @@
+# Copyright © 2022, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-resource "oci_core_volume" "block" {
+resource "oci_core_volume" "these" {
   for_each = {
     for k,v in var.bv_params : k => v if v.compartment_id != ""
   } 
@@ -11,7 +13,7 @@ resource "oci_core_volume" "block" {
       freeform_tags       = each.value.freeform_tags
 }
 
-resource "oci_core_volume_attachment" "block-volume-attach" {
+resource "oci_core_volume_attachment" "these" {
     for_each = {
       for k,v in var.bv_attach_params : k => v if v.display_name != ""
   } 

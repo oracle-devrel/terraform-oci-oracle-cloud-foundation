@@ -1,7 +1,7 @@
 # Copyright © 2022, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-resource "oci_dns_zone" "this" {
+resource "oci_dns_zone" "these" {
   for_each       = var.zone_params
   compartment_id = var.compartments[each.value.compartment_name]
   name           = each.value.zone_name
@@ -15,7 +15,7 @@ resource "oci_dns_zone" "this" {
   }
 }
 
-data "oci_load_balancer_load_balancers" "existing" {
+data "oci_load_balancer_load_balancers" "these" {
   for_each       = var.load_balancer_params
   compartment_id = each.value.comp_id
   filter          {
@@ -24,7 +24,7 @@ data "oci_load_balancer_load_balancers" "existing" {
   }
 }
 
-resource "oci_dns_rrset" "this" {
+resource "oci_dns_rrset" "these" {
     for_each = var.dns_records_params
     domain = each.value.domain
     rtype = each.value.rtype
@@ -42,7 +42,7 @@ resource "oci_dns_rrset" "this" {
   }
 }
 
-resource "oci_dns_resolver_endpoint" "test_resolver_endpoint" {
+resource "oci_dns_resolver_endpoint" "these" {
 
     is_forwarding = var.dns_resolver_endpoints.key.is_forwarding
     is_listening = var.dns_resolver_endpoints.key.is_listening
@@ -55,7 +55,7 @@ resource "oci_dns_resolver_endpoint" "test_resolver_endpoint" {
 
 
 
-resource "oci_dns_resolver" "dns_resolver" {
+resource "oci_dns_resolver" "these" {
  
   resolver_id = var.dns_resolver_rules.key.resolver_id
   scope = var.dns_resolver_rules.key.scope
