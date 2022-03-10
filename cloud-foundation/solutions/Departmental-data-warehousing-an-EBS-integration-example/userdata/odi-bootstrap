@@ -1,0 +1,11 @@
+#cloud-config
+
+write_files:
+  
+runcmd:
+  # Enable and bring up vnc
+  - echo "welcome1" | vncpasswd -f > /home/opc/.vnc/passwd
+  - chmod 0600 /home/opc/.vnc/passwd  
+  - sudo systemctl enable vncodi.service
+  - sudo systemctl start vncodi.service
+  

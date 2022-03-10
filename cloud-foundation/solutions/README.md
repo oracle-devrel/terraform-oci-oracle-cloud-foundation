@@ -13,3 +13,4 @@ For the moment we have implemented the following solutions:
 - Machine learning platform on Autonomous Data Warehouse
 - Modern data warehousing a polyglot integration example
 - Cloud data lake house - process enterprise and streaming data for analysis and machine learning
+- Departmental data warehousing an EBS integration example

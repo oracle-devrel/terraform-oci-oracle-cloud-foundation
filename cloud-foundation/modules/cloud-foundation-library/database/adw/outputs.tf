@@ -4,3 +4,10 @@
 output "ADW_Service_Console_URL" {
   value = join(", ", [for x in oci_database_autonomous_database.adw : x.service_console_url])
 }
+
+output "adw" {
+  value = {
+   for adw in oci_database_autonomous_database.adw:
+    adw.display_name => adw.id
+  }
+}
