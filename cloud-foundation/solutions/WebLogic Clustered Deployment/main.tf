@@ -330,22 +330,3 @@ module "sessions" {
   }
 
 }
-
-module "provisioners" {
-  source = "./modules/provisioners"
-
-  ssh_private_key = module.keygen.OPCPrivateKey["private_key_pem"]
-  host_ips = coalescelist(
-    compact(module.wls_compute.InstancePublicIPs),
-    compact(module.wls_compute.InstancePrivateIPs),
-    tolist([""])
-  )
-  numWLSInstances               = var.wls_node_count
-  mode                         = var.mode
-  bastion_host_private_key     = module.keygen.OPCPrivateKey["private_key_pem"]
- 
-  bastion_host = "host.bastion.${var.region}.oci.oraclecloud.com"
-  bastion_user = module.sessions.sessions_details["session-0"].bastion_user_name
-  assign_public_ip             = local.assign_weblogic_public_ip
-
-}
