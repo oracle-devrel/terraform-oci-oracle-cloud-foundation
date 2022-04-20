@@ -73,6 +73,8 @@ instance_params = { for x in range(var.numWLSInstances) : "${local.host_label}-$
     # Whether this is ATP-D or ATP-S?
     is_atp_dedicated = var.is_atp_db ? lookup(data.oci_database_autonomous_database.atp_db[0],"is_dedicated") : ""
 
+
+    user_data                          = data.template_cloudinit_config.config.rendered
     mode                               = var.mode
     wls_version                        = var.wls_version
     wls_14c_jdk_version                = var.wls_14c_jdk_version

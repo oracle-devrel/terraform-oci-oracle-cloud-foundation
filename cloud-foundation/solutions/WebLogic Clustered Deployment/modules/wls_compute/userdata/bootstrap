@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+#
+
+# Reset the iptables to open the firewall ports on the local VM
+# Access to ports is controlled from OCI Security rules
+# Added
+
+echo "Add your WLS Script"
