@@ -56,6 +56,11 @@ variable "wls_admin_password" {
   type = string
 }
 
+variable "bootStrapFile" {
+  type    = string
+  default = "./modules/wls_compute/userdata/bootstrap"
+}
+
 variable "instance_shape" {
   type = string
 }
@@ -223,6 +228,11 @@ variable "wls_version_to_rcu_component_list_map" {
 
 variable "log_level" {
   default = "INFO"
+}
+
+variable "rebootFile" {
+  type    = string
+  default = "./modules/wls_compute/userdata/reboot"
 }
 
 variable "num_volumes" {
@@ -401,6 +411,15 @@ data "oci_database_autonomous_database" "atp_db" {
   autonomous_database_id = var.atp_db_id
 }
 
+data "template_file" "key_script" {
+  template = file("./modules/wls_compute/templates/keys.tpl")
+
+  vars = {
+    pubKey     = var.opc_key["public_key_openssh"]
+    oracleKey  = var.oracle_key["public_key_openssh"]
+    oraclePriKey = var.oracle_key["private_key_pem"]
+  }
+}
 
 data "oci_core_subnet" "wls_subnet" {
   count = var.wls_subnet_id == "" ? 0 : 1

@@ -1,5 +1,3 @@
-#Foundation
-
 module "network-vcn" {
 
   source = "../../../cloud-foundation/modules/oci-cis-landingzone-quickstart/network/vcn-basic"
@@ -118,8 +116,6 @@ module "network-nsgs" {
   source = "../../../cloud-foundation/modules/oci-cis-landingzone-quickstart/network/security"
   compartment_id = var.compartment_ocid 
   ports_not_allowed_from_anywhere_cidr = [3390,4500]
-
-  #nsgs lists map
   nsgs = local.create_nsgs
 
 }
@@ -178,8 +174,6 @@ module "bastions" {
   sessions = {}
 }
 
-#Deployment
-
 module "database-atp" {
 
   source = "../../../cloud-foundation/modules/cloud-foundation-library/database/atp"
@@ -195,12 +189,30 @@ module "database-atp" {
   autonomous_database_data_storage_size_in_tbs = var.autonomous_database_data_storage_size_in_tbs
 }
 
-module "keygen" {
+module "OPCkey" {
+  source = "../../../cloud-foundation/modules/cloud-foundation-library/keygen"
+}
+
+module "Oraclekey" {
+  source = "../../../cloud-foundation/modules/cloud-foundation-library/keygen"
+}
+
+module "SSCertkey" {
 
   source = "../../../cloud-foundation/modules/cloud-foundation-library/keygen"
   
   display_name = var.add_load_balancer ? "${local.service_name_prefix}-${local.lb_subnet_name}" : ""
   subnet_domain_name = var.add_load_balancer ? lookup(module.network-subnets.subnets,"${local.service_name_prefix}-${local.lb_subnet_name}").subnet_domain_name : ""
+  organization = "Demo"
+  organizational_unit = "FOR TESTING ONLY"
+  allowed_uses = [
+    "digital_signature",
+    "cert_signing",
+    "crl_signing",
+    "server_auth",
+    "key_encipherment",
+  ]
+
 }
 
 module "wls_compute" {
@@ -272,8 +284,8 @@ module "wls_compute" {
   wls_14c_jdk_version = var.wls_14c_jdk_version
 
   assign_public_ip = local.assign_weblogic_public_ip
-  opc_key          = module.keygen.OPCPrivateKey
-  oracle_key       = module.keygen.OraclePrivateKey
+  opc_key          = module.OPCkey.private_key
+  oracle_key       = module.Oraclekey.private_key
   defined_tags     = local.defined_tags
   freeform_tags    = local.freeform_tags
 
@@ -309,8 +321,8 @@ module "wls_lb" {
   lb_max_bandwidth     = var.lb_max_bandwidth
   lb_min_bandwidth     = var.lb_min_bandwidth
   service_name_prefix  = local.service_name_prefix
-  public_certificate   = var.add_load_balancer ? module.keygen.CertPem : "${tomap({"cert_pem"=""})}"
-  private_key          = var.add_load_balancer ? module.keygen.SSPrivateKey : "${tomap({"private_key_pem"=""})}"
+  public_certificate   = var.add_load_balancer ? module.SSCertkey.CertPem : "${tomap({"cert_pem"=""})}"
+  private_key          = var.add_load_balancer ? module.SSCertkey.private_key : "${tomap({"private_key_pem"=""})}"
 }
 
 module "sessions" {
@@ -320,7 +332,7 @@ module "sessions" {
     sessions = {for x in range(var.wls_node_count) : "session-${x}" => { 
       session_type = "PORT_FORWARDING",
       bastion_id = lookup(module.bastions.bastions_details,"${local.service_name_prefix}Instance").id,
-      ssh_public_key = module.keygen.OPCPrivateKey["public_key_openssh"],
+      ssh_public_key = module.OPCkey.private_key["public_key_openssh"],
       private_instance_id = module.wls_compute.InstanceOcids["${x}"],
       private_ip_address = module.wls_compute.InstancePrivateIPs["${x}"],
       user_name = "opc",
