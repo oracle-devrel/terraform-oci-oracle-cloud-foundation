@@ -43,3 +43,5 @@ resource "local_file" "public_key" {
     file_permission = "0600"
 }
 
+
+
