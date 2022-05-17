@@ -8,3 +8,35 @@ variable "datacatalog_params" {
     defined_tags         = map(string)
   }))
 }
+
+# variable "datacatalog_data_asset_params" {
+#   type = map(object({
+#     datacatalog_name = string
+#     data_asset_display_name = string
+#     data_asset_type_key = string
+#     data_asset_description = string
+#     data_asset_properties = list(object({
+#         name  = string
+#         value = string
+#     }))
+#   }))
+# }
+
+# variable "datacatalog_connection_params" {
+#   type = map(object({
+#     datacatalog_name = string
+#     connection_data_asset_key = string
+#     connection_display_name = string
+#     connection_properties = list(object({
+#         name  = string
+#         value = string
+#     }))
+#     connection_type_key = string
+#     connection_description = string 
+#     connection_enc_properties = list(object({
+#         name  = string
+#         value = string
+#     }))
+#     connection_is_default = string
+#   }))
+# }

@@ -1,5 +1,5 @@
-# Copyright (c) 2021 Oracle and/or its affiliates.
-# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+# Copyright © 2022, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 output "vcns" {
   description = "The VCNs, indexed by display_name."
@@ -25,4 +25,11 @@ output "service_gateways" {
 output "all_services" {
   description = "All services"
   value       = data.oci_core_services.all_services
+}
+
+output "subnets_ids" {
+  value = {
+    for subnet in oci_core_subnet.these :
+    subnet.display_name => subnet.id
+  }
 }

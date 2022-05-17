@@ -36,8 +36,6 @@ module "datacatalog" {
 
 module "keygen" {
   source = "../../../cloud-foundation/modules/cloud-foundation-library/keygen"
-  display_name = "keygen"
-  subnet_domain_name = "keygen"
 }
 
 
@@ -113,7 +111,8 @@ module "network-security-groups" {
 module "dynamic_groups" {
   source = "../../../cloud-foundation/modules/oci-cis-landingzone-quickstart/iam/iam-dynamic-group"
   providers = {
-    oci = oci.homeregion
+    oci = oci
+    oci.homeregion = oci.homeregion
   }
   dynamic_groups = local.dynamic_groups
 }
@@ -122,7 +121,8 @@ module "policies" {
   source = "../../../cloud-foundation/modules/oci-cis-landingzone-quickstart/security/policies"
   depends_on = [module.dynamic_groups]
   providers = {
-    oci = oci.homeregion
+    oci = oci
+    oci.homeregion = oci.homeregion
   }
   policies = local.policies
 }

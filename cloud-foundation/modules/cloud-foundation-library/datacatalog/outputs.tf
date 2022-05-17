@@ -8,3 +8,23 @@ output "datacatalog" {
   }
 }
 
+# output "datacatalog_data_asset" {
+#   value = {
+#     for datacatalog_data_asset in oci_datacatalog_data_asset.this:
+#       datacatalog_data_asset.display_name => datacatalog_data_asset.display_name
+#   }
+# }
+
+# output "datacatalog_connection" {
+#   value = {
+#     for datacatalog_connection in oci_datacatalog_connection.this:
+#       datacatalog_connection.display_name => datacatalog_connection.display_name
+#   }
+# }
+
+# output "datacatalog_id" {
+#   value = {
+#    for dc in oci_datacatalog_catalog.this:
+#     dc.display_name => dc.id
+#   }
+# }
