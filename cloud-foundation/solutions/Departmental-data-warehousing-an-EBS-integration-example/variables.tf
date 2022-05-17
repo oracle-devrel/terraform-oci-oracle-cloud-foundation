@@ -51,7 +51,7 @@ variable "adw_size_in_tbs" {
 
 variable "adw_db_name" {
     type = string
-    default = "ADWipn"
+    default = "ADWipnEBS"
 }
 
 variable "adw_db_workload" {
@@ -104,12 +104,12 @@ variable "analytics_instance_license_type" {
 
 variable "analytics_instance_hostname" {
     type    = string
-    default = "AnalyicSD"
+    default = "AnalyicSDEBS"
 }
 
 variable "analytics_instance_idcs_access_token" {
     type    = string
-    default = "copy-paste your token instead"
+    default = "" # copy-paste your token instead
 }
 
 variable "analytics_instance_capacity_capacity_type" {
