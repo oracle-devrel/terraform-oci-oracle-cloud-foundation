@@ -42,3 +42,4 @@ resource "local_file" "public_key" {
     filename = "public_key.pem"
     file_permission = "0600"
 }
+
