@@ -43,4 +43,5 @@ output "private_VNC" {
 
 output "ssh_private_key" {
   value = module.keygen.OPCPrivateKey["private_key_pem"]
+  sensitive = true
 }
