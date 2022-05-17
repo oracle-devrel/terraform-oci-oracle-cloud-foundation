@@ -21,3 +21,10 @@ output "buckets" {
   description = "Buckets informations."
   value       = length(oci_objectstorage_bucket.os) > 0 ? oci_objectstorage_bucket.os[*] : null
 }
+
+output "bucket_id" {
+  value = {
+    for bucket in oci_objectstorage_bucket.os :
+    bucket.name => bucket.bucket_id
+  }
+}

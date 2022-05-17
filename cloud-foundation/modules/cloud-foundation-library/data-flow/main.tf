@@ -14,3 +14,4 @@ resource "oci_dataflow_application" "this" {
   class_name     = each.value.application_class_name
   defined_tags   = each.value.defined_tags
 }
+
