@@ -50,7 +50,7 @@ variable "adw_size_in_tbs" {
 
 variable "adw_db_name" {
     type = string
-    default = "ADWipa"
+    default = "ADWipaPoly"
 }
 
 variable "adw_db_workload" {
@@ -102,7 +102,7 @@ variable "analytics_instance_license_type" {
 
 variable "analytics_instance_hostname" {
     type    = string
-    default = "AnalyticsX"
+    default = "AnalyticsXPoly"
 }
 
 variable "analytics_instance_idcs_access_token" {
