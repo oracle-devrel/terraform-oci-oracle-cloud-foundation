@@ -64,8 +64,6 @@ module "fss" {
 
 module "keygen" {
   source = "../../../cloud-foundation/modules/cloud-foundation-library/keygen"
-  display_name = "keygen"
-  subnet_domain_name = "keygen"
 }
 
 
@@ -80,6 +78,10 @@ module "compute" {
   }
 }
 
+resource "time_sleep" "wait_2_mins" {
+  depends_on = [module.compute]
+  create_duration = "2m"
+}
 
 #Calling the network modules that are required for this solution
 

@@ -3,20 +3,20 @@
 
 
 locals {
-  MountTargetIP = module.fss.mount_targets["GGSMT"]
+  MountTargetIP     = module.fss.mount_targets["GGSMT"]
   WebTierandBastion = module.compute.all_public_ips["Web-Tier-and-Bastion"]
-  Master1 = module.compute.all_private_ips["ggsa-ha-master1"]
-  Master2 = module.compute.all_private_ips["ggsa-ha-master2"]
-  Worker1 = module.compute.all_private_ips["ggsa-ha-worker1"]
-  Worker2 = module.compute.all_private_ips["ggsa-ha-worker2"]
-  Worker3 = module.compute.all_private_ips["ggsa-ha-worker3"]
+  Master1           = module.compute.all_private_ips["ggsa-ha-master1"]
+  Master2           = module.compute.all_private_ips["ggsa-ha-master2"]
+  Worker1           = module.compute.all_private_ips["ggsa-ha-worker1"]
+  Worker2           = module.compute.all_private_ips["ggsa-ha-worker2"]
+  Worker3           = module.compute.all_private_ips["ggsa-ha-worker3"]
 }
 
 
 # Workers provisioner
 
 resource "null_resource" "Worker1-init-kafka-zk" {
-  depends_on = [module.compute, module.fss]
+  depends_on = [module.compute, module.fss, module.keygen, time_sleep.wait_2_mins]
   provisioner "remote-exec" {
     connection {
       type                = "ssh"
@@ -34,12 +34,12 @@ resource "null_resource" "Worker1-init-kafka-zk" {
       "echo Connected on Worker1! ",
       "bash $OSA_HOME/osa-base/bin/init-kafka-zk.sh 1 ${local.MountTargetIP} ${local.Worker1} ${local.Worker2} ${local.Worker3}",
       "bash $OSA_HOME/osa-base/bin/init-spark-slave.sh ${local.MountTargetIP} ${local.Master1} ${local.Master2}",
-        ]
-  }  
+    ]
+  }
 }
 
 resource "null_resource" "Worker2-init-kafka-zk" {
-  depends_on = [module.compute, module.fss]
+  depends_on = [module.compute, module.fss, module.keygen, time_sleep.wait_2_mins]
   provisioner "remote-exec" {
     connection {
       type                = "ssh"
@@ -57,12 +57,12 @@ resource "null_resource" "Worker2-init-kafka-zk" {
       "echo Connected on Worker2! ",
       "bash $OSA_HOME/osa-base/bin/init-kafka-zk.sh 2 ${local.MountTargetIP} ${local.Worker1} ${local.Worker2} ${local.Worker3}",
       "bash $OSA_HOME/osa-base/bin/init-spark-slave.sh ${local.MountTargetIP} ${local.Master1} ${local.Master2}",
-        ]
-  }  
+    ]
+  }
 }
 
 resource "null_resource" "Worker3-init-kafka-zk" {
-  depends_on = [module.compute, module.fss]
+  depends_on = [module.compute, module.fss, module.keygen, time_sleep.wait_2_mins]
   provisioner "remote-exec" {
     connection {
       type                = "ssh"
@@ -80,8 +80,8 @@ resource "null_resource" "Worker3-init-kafka-zk" {
       "echo Connected on Worker3! ",
       "bash $OSA_HOME/osa-base/bin/init-kafka-zk.sh 3 ${local.MountTargetIP} ${local.Worker1} ${local.Worker2} ${local.Worker3}",
       "bash $OSA_HOME/osa-base/bin/init-spark-slave.sh ${local.MountTargetIP} ${local.Master1} ${local.Master2}",
-        ]
-  }  
+    ]
+  }
 }
 
 
@@ -105,9 +105,9 @@ resource "null_resource" "Master1-init-spark-master" {
     inline = [
       "echo Connected on Master1! ",
       "bash /u01/app/osa/osa-base/bin/init-spark-master.sh ${local.MountTargetIP} ${local.Worker1} ${local.Worker2} ${local.Worker3}",
-        ]
+    ]
     on_failure = continue
-  }  
+  }
 }
 
 resource "null_resource" "Master2-init-spark-master" {
@@ -128,9 +128,9 @@ resource "null_resource" "Master2-init-spark-master" {
     inline = [
       "echo Connected on Master2! ",
       "bash $OSA_HOME/osa-base/bin/init-spark-master.sh ${local.MountTargetIP} ${local.Worker1} ${local.Worker2} ${local.Worker3} ",
-        ]
+    ]
     on_failure = continue
-  }  
+  }
 }
 
 
@@ -138,15 +138,15 @@ resource "null_resource" "Master2-init-spark-master" {
 
 resource "null_resource" "WebTierandBastion-init-web-tier" {
   depends_on = [null_resource.Master1-init-spark-master, null_resource.Master2-init-spark-master]
-   provisioner "remote-exec" {
+  provisioner "remote-exec" {
     connection {
-      agent               = false
-      timeout             = "30m"
-      host                = local.WebTierandBastion
-      user                = "opc"
-      bastion_user        = "opc"
-      private_key         = module.keygen.OPCPrivateKey["private_key_pem"]
-      bastion_host        = local.WebTierandBastion
+      agent        = false
+      timeout      = "30m"
+      host         = local.WebTierandBastion
+      user         = "opc"
+      bastion_user = "opc"
+      private_key  = module.keygen.OPCPrivateKey["private_key_pem"]
+      bastion_host = local.WebTierandBastion
     }
 
     inline = [
@@ -160,3 +160,4 @@ resource "null_resource" "WebTierandBastion-init-web-tier" {
     ]
   }
 }
+

@@ -2,15 +2,16 @@
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 terraform {
-  required_providers {
+   required_version = ">= 0.14.0"
+   required_providers {
     oci = {
+      source  = "oracle/oci"
       version = ">= 4.37.0"
-      source = "hashicorp/oci"
     }
   }
 }
 
-provider "oci" {
+provider oci {
   tenancy_ocid         = var.tenancy_ocid
   user_ocid            = var.user_ocid
   fingerprint          = var.fingerprint
@@ -18,8 +19,8 @@ provider "oci" {
   region               = var.region
   disable_auto_retries = false
 }
-
-provider "oci" {
+ 
+provider oci {
   alias                = "homeregion"
   tenancy_ocid         = var.tenancy_ocid
   user_ocid            = var.user_ocid

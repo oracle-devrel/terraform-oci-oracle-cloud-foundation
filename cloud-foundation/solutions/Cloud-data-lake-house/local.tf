@@ -131,7 +131,7 @@ datascience_params = {
       project_description        = var.project_description
       project_display_name       = var.project_display_name
       defined_tags               = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
-  }
+    }
 }
 
 notebook_params = {
@@ -181,6 +181,7 @@ streaming_params = {
       defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
   }
 }
+
 streaming_pool_params = {
     Test_Stream_Pool = {
       compartment_id = var.compartment_id
