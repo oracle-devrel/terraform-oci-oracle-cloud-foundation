@@ -136,7 +136,7 @@ variable "analytics_instance_network_endpoint_details_whitelisted_ips" {
 
 variable "bucket_name" {
     type    = string
-    default = "BucketOne"
+    default = "BucketOneGGSAF"
 }
 
 variable "bucket_access_type" {
