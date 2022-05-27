@@ -3,7 +3,7 @@
 
 variable "register_external_container_db" {
   type = map(object({
-    compartment_id                           = string
+    compartment_id                  = string
     external_container_display_name = string
   }))
 }

@@ -2,7 +2,7 @@
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 resource "null_resource" "remote-exec" {
-  
+
   provisioner "remote-exec" {
 
     connection {

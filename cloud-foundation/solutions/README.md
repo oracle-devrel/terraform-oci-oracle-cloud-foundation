@@ -14,3 +14,7 @@ For the moment we have implemented the following solutions:
 - Modern data warehousing a polyglot integration example
 - Cloud data lake house - process enterprise and streaming data for analysis and machine learning
 - Departmental data warehousing an EBS integration example
+- ATP Deployment
+- OCI-Observability-Solution-Level1
+- Hybrid-Configurations-monitoring-on-prem-DBs-from-the-cloud
+- S3_tfstate_backend_cloud_foundation_automation

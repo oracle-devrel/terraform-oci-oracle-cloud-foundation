@@ -11,6 +11,21 @@ terraform {
   }
 }
 
+# Example of terraform s3 backend in OCI
+terraform {
+  backend "s3" {
+    bucket   = "statefiles"
+    key      = "solutions/Remote_tfstate_file_S3_backend_and_github_actions_automations.tfstate"
+    region   = "us-ashburn-1"
+    endpoint = "https://oradbclouducm.compat.objectstorage.us-ashburn-1.oraclecloud.com"
+    shared_credentials_file     = "~/.aws/credentials"
+    skip_region_validation      = true
+    skip_credentials_validation = true
+    skip_metadata_api_check     = true
+    force_path_style            = true
+  }
+}
+
 provider "oci" {
   tenancy_ocid         = var.tenancy_ocid
   user_ocid            = var.user_ocid
