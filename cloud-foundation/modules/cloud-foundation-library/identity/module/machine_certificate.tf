@@ -25,7 +25,7 @@ resource "oci_identity_dynamic_group" "Certificate_Authority" {
     count = var.enable_ca ? 1 : 0
     compartment_id = var.tenancy_ocid
     description = "all CAs in ${oci_identity_compartment.security[0].name} compartment"
-    matching_rule = "All{resource.type='certificateauthority', instance.compartment.id='oci_identity_compartment.security[0].id'}" # TODO: scope to security compartment
+    matching_rule = "All{resource.type='certificateauthority', instance.compartment.id='oci_identity_compartment.security[0].id'}"
     name = "${oci_identity_compartment.security[0].name}-certificate-authority"
 }
 
