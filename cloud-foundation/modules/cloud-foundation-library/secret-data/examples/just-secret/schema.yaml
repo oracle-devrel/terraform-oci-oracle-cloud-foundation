@@ -49,9 +49,7 @@ variables:
 
   secret_compartment:
     type: oci:identity:compartment:id
-    visible: load_from_secrets
   secret:
     type: oci:kms:secret:id
-    visible: load_from_secrets
     dependsOn:
       compartmentId: secret_compartment
