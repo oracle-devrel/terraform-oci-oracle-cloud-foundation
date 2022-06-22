@@ -26,6 +26,7 @@ module "string-secret" {
     source = "../../module"
 
     compartment = var.tenancy_ocid
+    # since vault and key are not specified, they will be created for this module
 
     secrets = {
         "mySecret" = {

@@ -12,7 +12,7 @@ variable "load_from_secrets" {
 variable "secret_ocids"{
     type = map(string)
     default = {}
-    description = "a map of objects where key is used for output reference. the ocid inside should refer to a secret's ocid"
+    description = "a map of strings where key is used for output reference. the ocid inside should refer to a secret's ocid"
 }
 
 
@@ -49,6 +49,8 @@ output "key" {
     value = data.oci_vault_secret.this.key_id
     description = "the ocid of the key that encrypted this secret"
 }
+
+# TODO: should we also return the compartment the secret was created in?
 
 # logic
 
