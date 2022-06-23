@@ -1,0 +1,43 @@
+title: "Empty Identity Stack"
+description: "This example stack shows the minimum configuration needed for the identity module"
+schemaVersion: 1.1.0
+version: "20190404" 
+
+
+locale: en
+
+variableGroups:
+  - title: "RM controlled Vars"
+    visible: false
+    variables:
+      - tenancy_ocid
+      - region
+      - current_user_ocid
+      - fingerprint
+      - private_key_path
+
+
+variables:
+  #"RM controlled Vars"
+  tenancy_ocid:
+    type: string
+    title: Tenancy ID
+    description: OCID of the tenancy
+    required: true
+
+  region:
+    type: oci:identity:region:name
+    title: Region
+    description: region to create resources
+    required: true
+
+  current_user_ocid:
+    type: string
+
+  fingerprint:
+    type: string
+    default: " "
+
+  private_key_path:
+    type: string
+    default: " "
