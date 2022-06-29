@@ -1,5 +1,5 @@
-title: "Basic Identity Stack"
-description: "This example stack shows a basic configuration for the identity module"
+title: "Devops Identity Stack"
+description: "This example stack shows the configuration needed to enable devops for the identity module"
 schemaVersion: 1.1.0
 version: "20190404" 
 
