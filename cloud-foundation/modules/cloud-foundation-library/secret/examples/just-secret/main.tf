@@ -22,7 +22,7 @@ variable "key" {
 
 module "string-secret" {
     # pick a source type - github url with path and git tag is recommended for production code. local path is used for sub-module development and customization
-    # source = https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation//cloud-foundation/modules/cloud-foundation-library/secret/module?ref=v1.2.0
+    # source = "https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation//cloud-foundation/modules/cloud-foundation-library/secret/module?ref=v1.2.0"
     source = "../../module"
 
     compartment = var.tenancy_ocid
@@ -39,7 +39,7 @@ module "string-secret" {
 
 module "list-secrets" {
     # pick a source type - github url with path and git tag is recommended for production code. local path is used for sub-module development and customization
-    # source = https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation//cloud-foundation/modules/cloud-foundation-library/secret/module?ref=v1.2.0
+    # source = "https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation//cloud-foundation/modules/cloud-foundation-library/secret/module?ref=v1.2.0"
     source = "../../module"
 
     compartment = var.tenancy_ocid
