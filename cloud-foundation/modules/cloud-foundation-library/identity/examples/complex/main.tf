@@ -15,7 +15,7 @@
 
 module "core-identity" {
     # pick a source type - github url with path and git tag is recommended for production code. local path is used for sub-module development and customization
-    # source = "https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation//cloud-foundation/modules/cloud-foundation-library/identity/module?ref=v1.2.0"
+    # source = "github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation//cloud-foundation/modules/cloud-foundation-library/identity/module?ref=<input latest git tag>"
     source = "../../module"
 
     # tenancy level groups and policies
@@ -38,7 +38,7 @@ module "core-identity" {
 
 module "dept1-identity" {
     # pick a source type - github url with path and git tag is recommended for production code. local path is used for sub-module development and customization
-    # source = "https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation//cloud-foundation/modules/cloud-foundation-library/identity/module?ref=v1.2.0"
+    # source = "github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation//cloud-foundation/modules/cloud-foundation-library/identity/module?ref=<input latest git tag>"
     source = "../../module"
 
 
@@ -55,7 +55,7 @@ module "dept1-identity" {
 }
 module "dept1-app2" {
     # pick a source type - github url with path and git tag is recommended for production code. local path is used for sub-module development and customization
-    # source = "https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation//cloud-foundation/modules/cloud-foundation-library/identity/module?ref=v1.2.0"
+    # source = "github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation//cloud-foundation/modules/cloud-foundation-library/identity/module?ref=<input latest git tag>"
     source = "../../module"
 
     # compartment structure 
@@ -72,7 +72,7 @@ module "dept1-app2" {
 
 module "dept2-identity" {
     # pick a source type - github url with path and git tag is recommended for production code. local path is used for sub-module development and customization
-    # source = "https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation//cloud-foundation/modules/cloud-foundation-library/identity/module?ref=v1.2.0"
+    # source = "github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation//cloud-foundation/modules/cloud-foundation-library/identity/module?ref=<input latest git tag>"
     source = "../../module"
 
 
