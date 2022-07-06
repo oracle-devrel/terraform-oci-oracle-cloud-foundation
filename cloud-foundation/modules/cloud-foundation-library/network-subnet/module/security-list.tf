@@ -97,8 +97,8 @@ resource "oci_core_security_list" "this" {
   dynamic "egress_security_rules" {
     for_each = var.all_outbound_traffic ? { "create" = true } : {}
     content {
-      destination = "0.0.0.0/0"
       protocol    = "all"
+      destination = "0.0.0.0/0"
       description = "allow all types of outbound traffic anywhere"
     }
   }
@@ -119,9 +119,9 @@ resource "oci_core_security_list" "this" {
   dynamic "egress_security_rules" {
     for_each = var.icmp_egress_service ? { "create" = true } : {}
     content {
+      protocol    = "1"
       destination_type = "SERVICE_CIDR_BLOCK"
       destination = data.oci_core_services.this[0].services[0].cidr_block
-      protocol    = "1"
       description = "allow all outbound icmp traffic to oracle services network"
     }
   }
@@ -129,8 +129,8 @@ resource "oci_core_security_list" "this" {
   dynamic "egress_security_rules" {
     for_each = toset(var.icmp_egress_cidrs)
     content {
-      destination = egress_security_rules.value
       protocol    = "1"
+      destination = egress_security_rules.value
       description = "allow all outbound icmp traffic to given cidr"
     }
   }
@@ -180,8 +180,8 @@ resource "oci_core_security_list" "this" {
   dynamic "ingress_security_rules" {
     for_each = toset(var.icmp_ingress_cidrs)
     content {
-      destination = ingress_security_rules.value
       protocol    = "1"
+      source = ingress_security_rules.value
       description = "allow all inbound icmp traffic from given cidr"
     }
   }
