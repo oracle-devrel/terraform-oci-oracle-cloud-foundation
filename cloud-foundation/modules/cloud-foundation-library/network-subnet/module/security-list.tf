@@ -188,7 +188,7 @@ resource "oci_core_security_list" "this" {
 
 dynamic "ingress_security_rules" {
     //allow traffic to the Oracle Services Network via SGW
-    for_each = var.service_gateway ? { "create" = true } : {}
+    for_each = var.service_gateway && !var.internet_access ? { "create" = true } : {}
     content {
       protocol = "6"
       source_type = "SERVICE_CIDR_BLOCK"
