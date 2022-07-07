@@ -130,7 +130,7 @@ resource "oci_core_security_list" "this" {
     for_each = toset(var.tcp_all_ports_egress_cidrs)
     content {
       protocol = "6"
-      source = egress_security_rules.value
+      destination = egress_security_rules.value
     }
   }
 
