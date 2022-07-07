@@ -48,6 +48,11 @@ variable "custom_tcp_ingress_rules" {
   default = {}
   description = "creates stateful tcp security list rules to a range of destination ports from any port with a specific source cidr"
 }
+variable "tcp_all_ports_ingress_cidrs" {
+  type = list(string)
+  default = []
+  description = "used to create stateful tcp security list rules to all destination ports from the given list of source cidrs"
+}
 
 variable "custom_tcp_egress_rules" {
   type = map(object({
@@ -58,6 +63,11 @@ variable "custom_tcp_egress_rules" {
   
   default = {}
   description = "creates statefull tcp security list rules from a range of destination ports to any port with a specific destination cidr"
+}
+variable "tcp_all_ports_egress_cidrs" {
+  type = list(string)
+  default = []
+  description = "used to creste stateful rcp security list rules from all destination ports to the given list of source cidrs"
 }
 
 /* expected defined values
@@ -115,6 +125,15 @@ resource "oci_core_security_list" "this" {
       }
     }
   }
+  dynamic "egress_security_rules" {
+    //allows tcp traffic from all ports
+    for_each = toset(var.tcp_all_ports_egress_cidrs)
+    content {
+      protocol = "6"
+      source = egress_security_rules.value
+    }
+  }
+
 
   dynamic "egress_security_rules" {
     for_each = var.icmp_egress_service ? { "create" = true } : {}
@@ -214,16 +233,20 @@ dynamic "ingress_security_rules" {
     content {
       protocol = "6"
       source   = ingress_security_rules.value.source_cidr
-      tcp_options {
-        min = ingress_security_rules.value.min
-        max = ingress_security_rules.value.max
+
+      tcp_options { # TODO: should we add explicit destination port range object
+          min = ingress_security_rules.value.min
+          max = ingress_security_rules.value.max
       }
     }
   }
-
-# TODO allow app traffic
-# CM tcp/8081
-
-# lb tcp/443
+  dynamic "ingress_security_rules" {
+    //allows tcp traffic to all ports
+    for_each = toset(var.tcp_all_ports_ingress_cidrs)
+    content {
+      protocol = "6"
+      source = ingress_security_rules.value
+    }
+  }
 
 }
