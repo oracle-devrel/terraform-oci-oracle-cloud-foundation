@@ -173,6 +173,7 @@ resource "oci_core_security_list" "this" {
       source   = ingress_security_rules.value # might be more readable to use an iterator
       icmp_options {
         type = "3"
+        code = null #no code reverts to -1
       }
     }
   }
