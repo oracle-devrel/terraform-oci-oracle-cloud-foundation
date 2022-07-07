@@ -71,7 +71,7 @@ resource "oci_core_route_table" "this" {
   display_name = "${local.prefix}RT"
 
   dynamic "route_rules" {
-    for_each = var.service_gateway && !var.internet_access ? { "create" = true } : {}
+    for_each = var.service_gateway && var.internet_access != "full" ? { "create" = true } : {}
     content {
       network_entity_id = data.oci_core_service_gateways.this[0].service_gateways[0].id
 
