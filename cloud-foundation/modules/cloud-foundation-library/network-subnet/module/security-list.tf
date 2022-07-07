@@ -135,6 +135,16 @@ resource "oci_core_security_list" "this" {
     }
   }
 
+  dynamic "egress_security_rules" {
+    //allow traffic to the Oracle Services Network via SGW
+    for_each = var.service_gateway && var.internet_access != "full" ? { "create" = true } : {}
+    content {
+      protocol = "6"
+      destination_type = "SERVICE_CIDR_BLOCK"
+      destination   = data.oci_core_services.this[0].services[0].cidr_block
+    }
+  }
+
 
 
 # Ingress Rules
