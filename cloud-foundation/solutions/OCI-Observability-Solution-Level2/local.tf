@@ -46,6 +46,7 @@ locals {
   service_name_prefix               = replace(var.service_name, "/[^a-zA-Z0-9]/", "")
   autonomous_database_id            = module.adw.adw[var.adw_db_name]
 
+
 # Create Autonomous Data Warehouse
   adw_params = { 
     adw = {
@@ -60,10 +61,12 @@ locals {
       adw_license_model           = var.adw_license_model,
       database_admin_password     = var.database_admin_password,
       database_wallet_password    = var.database_wallet_password,
+      subnet_id                   = lookup(module.network-subnets.subnets,"private-subnet").id
+      nsg_ids                     = [lookup(module.network-security-groups.nsgs,"private-nsgs-list").id]
+      data_safe_status            = var.adw_data_safe_status,
       defined_tags                = {}
   },
 }
-
 
 # Create Object Storage Buckets
   bucket_params = { 
@@ -73,6 +76,14 @@ locals {
       access_type      = var.logging_logs_access_type,
       storage_tier     = var.logging_logs_storage_tier,
       events_enabled   = var.logging_logs_events_enabled,
+      defined_tags     = {}
+  },
+    sch_logs = {
+      compartment_id   = var.compartment_id,
+      name             = var.sch_logs_bucket_name,
+      access_type      = var.sch_logs_access_type,
+      storage_tier     = var.sch_logs_storage_tier,
+      events_enabled   = var.sch_logs_events_enabled,
       defined_tags     = {}
   }
 }
@@ -273,6 +284,91 @@ events_params = {
   }
 }
 
+# Log Analytics
+
+log_analytics_log_group_params = {
+  log_analytics_log_group = {
+    compartment_id  = var.compartment_id
+    display_name    = "log_analytics_iopanait"
+  }
+}
+
+
+# Service Connector Hub
+
+srv_connector_params = {
+  audit-logs-sch = {
+    display_name              = "audit-logs-sch"
+    compartment_id            = var.compartment_id
+    srv_connector_source_kind = "logging"
+    state                     = "ACTIVE"
+    log_sources_params = [
+      {
+        compartment_id = var.compartment_id
+        log_group_name = lookup(module.oci_logging.log_groups,"logging_logs_group")
+        is_audit       = true
+        log_name       = lookup(module.oci_logging.logs,"logging_logs_bucket-object-storage")
+      },
+    ]
+    source_stream_name             = null
+    srv_connector_target_kind      = "objectstorage"
+    obj_batch_rollover_size_in_mbs = 100
+    obj_batch_rollover_time_in_ms  = 420000
+    obj_target_bucket              = var.sch_logs_bucket_name
+    object_name_prefix             = "sch-AuditLogs"
+    compartment_id                 = var.compartment_id
+    function_name                  = null
+    target_log_group               = null
+    mon_target_metric              = null
+    mon_target_metric_namespace    = null
+    target_stream_name             = null
+    target_topic_name              = null
+    enable_formatted_messaging     = false
+    tasks                          = []
+  },
+  audit-to-log-analytics = {
+    display_name              = "audit-logging-to-loganalytics"
+    compartment_id            = var.compartment_id
+    srv_connector_source_kind = "logging"
+    state                     = "ACTIVE"
+    log_sources_params = [
+      {
+        compartment_id = var.compartment_id
+        log_group_name = lookup(module.oci_logging.log_groups,"logging_logs_group")
+        is_audit       = true
+        log_name       = lookup(module.oci_logging.logs,"logging_logs_bucket-object-storage")
+      },
+    ]
+    source_stream_name             = null
+    srv_connector_target_kind      = "loggingAnalytics"
+    obj_batch_rollover_size_in_mbs = null
+    obj_batch_rollover_time_in_ms  = null
+    obj_target_bucket              = null
+    object_name_prefix             = null
+    compartment_id                 = var.compartment_id
+    function_name                  = null
+    target_log_group               = lookup(module.oci_log_analytics.log_analytics_log_group,"log_analytics_iopanait"),
+    mon_target_metric              = null
+    mon_target_metric_namespace    = null
+    target_stream_name             = null
+    target_topic_name              = null
+    enable_formatted_messaging     = false
+    tasks                          = []
+  },
+}
+
+# Data Safe Monitoring DB ADW
+oci_data_safe_private_endpoint_params = {
+  data_safe_endpoint = {
+    compartment_id  = var.compartment_id
+    display_name    = "data_safe_endpoint"
+    description     = "data_safe_endpoint"
+    vcn_id          = lookup(module.network-vcn.vcns,"vcn").id
+    subnet_id       = lookup(module.network-subnets.subnets,"private-subnet").id
+    nsg_ids         = [lookup(module.network-security-groups.nsgs,"private-nsgs-list").id]
+    defined_tags    = {}
+  }
+}
 
 ## Creates the VCN "vcn with the CIDR BLOCK 10.0.0.0/16"
   vcns-lists = {
@@ -344,7 +440,7 @@ events_params = {
         network_entity_id = lookup(module.network-vcn.internet_gateways, lookup(module.network-vcn.vcns,"vcn").id).id,
         description       = ""
       }],
-      defined_tags = {}
+            defined_tags = {}
     }
   }
 
@@ -557,24 +653,40 @@ events_params = {
         description = "odi_dynamic_group"
         compartment_id = var.tenancy_ocid
         matching_rule = "ALL {instance.compartment.id = '${var.compartment_id}'}"
-      },   
+      },
+      "${local.service_name_prefix}-loganalytics_dynamic_group_name" = {
+        compartment_id = var.tenancy_ocid
+        description    = "Logging Analytics Management Agent Dynamic group"
+        matching_rule = "All {resource.type = 'managementagent', resource.compartment.id = '${var.compartment_id}'}"
+      }
   }
 
   policies = { 
-    "${local.service_name_prefix}-ODIPolicies" = { 
+    "${local.service_name_prefix}-monitoring" = { 
       compartment_id = var.compartment_id,
-      description    = "odi_policy",
+      description    = "monitoring",
       statements     =  [
     "allow dynamic-group ${local.service_name_prefix}-DynamicGroup to inspect autonomous-database-family in compartment id ${var.compartment_id}",
     "allow dynamic-group ${local.service_name_prefix}-DynamicGroup to read autonomous-database-family in compartment id ${var.compartment_id}",
     "allow any-user to manage objects in compartment id ${var.compartment_id} where all {request.principal.type='serviceconnector',target.bucket.name= 'Logging_Logs_bucket',request.principal.compartment.id= '${var.compartment_id}'}",
-    "allow dynamic-group ${local.service_name_prefix}-DynamicGroup to inspect compartments in compartment id ${var.compartment_id}"]  
+    "allow dynamic-group ${local.service_name_prefix}-DynamicGroup to inspect compartments in compartment id ${var.compartment_id}",
+    "allow service loganalytics to READ loganalytics-features-family in compartment id ${var.compartment_id}",
+    "allow group Administrators to READ compartments in compartment id ${var.compartment_id}",
+    "allow group Administrators to MANAGE loganalytics-features-family in compartment id ${var.compartment_id}",
+    "allow group Administrators to MANAGE loganalytics-resources-family in compartment id ${var.compartment_id}",
+    "allow group Administrators to MANAGE management-dashboard-family in compartment id ${var.compartment_id}",
+    "allow group Administrators to READ metrics IN compartment id ${var.compartment_id}",
+    "allow group Administrators TO MANAGE management-agents IN compartment id ${var.compartment_id}",
+    "allow group Administrators to MANAGE management-agent-install-keys IN compartment id ${var.compartment_id}",
+    "allow group Administrators to READ users IN compartment id ${var.compartment_id}",
+    "allow any-user to {LOG_ANALYTICS_LOG_GROUP_UPLOAD_LOGS} in compartment id ${var.compartment_id} where all {request.principal.type='serviceconnector', target.loganalytics-log-group.id='log_analytics_iopanait)', request.principal.compartment.id='${var.compartment_id}'}",
+    "allow dynamic-group ${local.service_name_prefix}-loganalytics_dynamic_group_name to MANAGE management-agents IN compartment id ${var.compartment_id}",
+    "allow dynamic-group ${local.service_name_prefix}-loganalytics_dynamic_group_name to USE METRICS IN compartment id ${var.compartment_id}",
+    "allow dynamic-group ${local.service_name_prefix}-loganalytics_dynamic_group_name to {LOG_ANALYTICS_LOG_GROUP_UPLOAD_LOGS} in compartment id ${var.compartment_id}",
+    "allow dynamic-group ${local.service_name_prefix}-loganalytics_dynamic_group_name to USE loganalytics-collection-warning in compartment id ${var.compartment_id}"]  
     },
   }
 
-
-
 # End
-
 
 }

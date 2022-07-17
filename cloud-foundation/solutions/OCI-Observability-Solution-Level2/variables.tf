@@ -89,7 +89,7 @@ variable "adw_size_in_tbs" {
 
 variable "adw_db_name" {
     type = string
-    default = "ADWoipna"
+    default = "ADWoipnm"
 }
 
 variable "adw_db_workload" {
@@ -127,6 +127,10 @@ variable "database_wallet_password" {
   default = "Par0laMea123"
 }
 
+variable "adw_data_safe_status" {
+  type = string
+  default = "REGISTERED"
+}
 
 # Object Storage Bucket
 
@@ -146,6 +150,26 @@ variable "logging_logs_storage_tier" {
 }
   
 variable "logging_logs_events_enabled" {
+    type    = bool
+    default = false
+}
+
+variable "sch_logs_bucket_name" {
+    type    = string
+    default = "Sch_Logs_bucket"
+}
+
+variable "sch_logs_access_type" {
+    type    = string
+    default  = "NoPublicAccess"
+}
+
+variable "sch_logs_storage_tier" {
+    type    = string
+    default = "Standard"
+}
+  
+variable "sch_logs_events_enabled" {
     type    = bool
     default = false
 }
@@ -175,7 +199,7 @@ variable "private_subnet_cidr" {
 
 variable "service_name" {
   type        = string
-  default     = "monitoringlevel1"
+  default     = "monitoringlevel2"
   description = "A prefix for policies and dynamic groups names - scope: to be unique names not duplicates"
 }
 
