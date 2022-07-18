@@ -31,20 +31,12 @@ data "oci_identity_region_subscriptions" "home_region_subscriptions" {
   }
 }
 
-resource "null_resource" "enable-monitoring" {
-depends_on = [module.adw]
-provisioner "local-exec" {
-  when    = create
-  command = "ansible-playbook db_monitoring_create.yaml -e managed_database_group_name=${var.managed_database_group_name} -e compartment_id=${var.compartment_id} -e autonomous_database_id=${local.autonomous_database_id}"
-  } 
-}
-
 
 locals {
   ad_names                          = compact(data.template_file.ad_names.*.rendered)
   public_subnet_availability_domain = local.ad_names[0]
   service_name_prefix               = replace(var.service_name, "/[^a-zA-Z0-9]/", "")
-  autonomous_database_id            = module.adw.adw[var.adw_db_name]
+  
 
 # Create Autonomous Data Warehouse
   adw_params = { 
@@ -344,7 +336,7 @@ events_params = {
         network_entity_id = lookup(module.network-vcn.internet_gateways, lookup(module.network-vcn.vcns,"vcn").id).id,
         description       = ""
       }],
-      defined_tags = {}
+            defined_tags = {}
     }
   }
 
@@ -572,9 +564,6 @@ events_params = {
     },
   }
 
-
-
 # End
-
 
 }

@@ -6,73 +6,34 @@ terraform {
   required_version = ">= 0.14.0"
 }
 
-# variable "tenancy_ocid" {
-#   type = string
-#   default = ""
-# }
-
-# variable "region" {
-#     type = string
-#     default = ""
-# }
-
-# variable "compartment_id" {
-#   type = string
-#   default = ""
-# }
-
-# variable "user_ocid" {
-#     type = string
-#     default = ""
-# }
-
-# variable "fingerprint" {
-#     type = string
-#     default = ""
-# }
-
-# variable "private_key_path" {
-#     type = string
-#     default = ""
-# }
-
-
-######################
-
-
 variable "tenancy_ocid" {
-    type = string
-    default = "ocid1.tenancy.oc1..aaaaaaaaj4ccqe763dizkrcdbs5x7ufvmmojd24mb6utvkymyo4xwxyv3gfa"
-    # default = "ocid1.tenancy.oc1..aaaaaaaaiyavtwbz4kyu7g7b6wglllccbflmjx2lzk5nwpbme44mv54xu7dq"
+  type = string
+  default = ""
 }
 
 variable "region" {
     type = string
-    # default = "uk-london-1"
-    default = "us-ashburn-1"
+    default = ""
 }
 
 variable "compartment_id" {
-  type    = string
-  default = "ocid1.compartment.oc1..aaaaaaaaza2vwcluoxu5dropj4o5p6aypze6o6ivnq63ijazn44gliiwzjaa"
-  # default = "ocid1.compartment.oc1..aaaaaaaa26xyyc4x5dxevv7anxyfafbzmdqth2jutrid4kvdf5ddroogiq3a"
+  type = string
+  default = ""
 }
 
 variable "user_ocid" {
     type = string
-    default = "ocid1.user.oc1..aaaaaaaa4bjez27pyslznrrk5g24yiev24ld3ketha6tqj36f34lbbaddhiq"
-    # default = "ocid1.user.oc1..aaaaaaaavbcyanmhbemhantfgvhl3deus6pqooqi5aadxttah3rx5lce7kza"
+    default = ""
 }
 
 variable "fingerprint" {
     type = string
-    default = "12:1d:7d:18:6d:a7:e3:fc:17:4c:30:a9:44:65:7d:00"
-    # default = "12:1d:7d:18:6d:a7:e3:fc:17:4c:30:a9:44:65:7d:00"
+    default = ""
 }
 
 variable "private_key_path" {
     type = string
-    default = "/root/.oci/oci_api_key.pem"
+    default = ""
 }
 
 # Autonomous Database Configuration Variables
@@ -89,7 +50,7 @@ variable "adw_size_in_tbs" {
 
 variable "adw_db_name" {
     type = string
-    default = "ADWoipna"
+    default = "ADWoipn"
 }
 
 variable "adw_db_workload" {
@@ -119,12 +80,12 @@ variable "adw_license_model" {
 
 variable "database_admin_password" {
   type = string
-  default = "Par0laMea123"
+  default = ""
 }
 
 variable "database_wallet_password" {
   type = string
-  default = "Par0laMea123"
+  default = ""
 }
 
 
@@ -150,13 +111,6 @@ variable "logging_logs_events_enabled" {
     default = false
 }
 
-# Variable for the database management service - managed group - required for the ansible module
-
-variable "managed_database_group_name" {
-  type    = string
-  default = "My_manage_Group"
-}
-
 # Networking variables
 
 # VCN and subnet Variables
@@ -175,7 +129,7 @@ variable "private_subnet_cidr" {
 
 variable "service_name" {
   type        = string
-  default     = "monitoringlevel1"
+  default     = "ServiceName1"
   description = "A prefix for policies and dynamic groups names - scope: to be unique names not duplicates"
 }
 
@@ -185,6 +139,11 @@ variable "use_regional_subnet" {
   type = bool
   default = true
   description = "Indicates use of regional subnets (preferred) instead of AD specific subnets"
+}
+
+variable "release" {
+  description = "Reference Architecture Release (OCI Architecture Center)"
+  default     = "1.0.0"
 }
 
 # # End
