@@ -80,6 +80,11 @@ output "service_gateway" {
   description = "ocid of created SGW"
 }
 
+output "service_cidr" {
+  value = var.create_service_gateway ? data.oci_core_services.all_oci_services[0].services[0].cidr_block : null
+  description = "the service cidr used by the service gateway"
+}
+
 output "nat_gateway" {
   value = var.create_nat_gateway ? oci_core_nat_gateway.this[0].id : null
   description = "ocid of created NGW"

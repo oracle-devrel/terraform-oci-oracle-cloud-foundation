@@ -31,11 +31,12 @@ variable "subnet_dns_label" {
 var.compartment - ocid
 var.vcn - ocid
 var.service_gateway - bool
-data.oci_core_service_gateways.this[0].service_gateways[0].services[0].service_id
+local.service_gateway
+local.service_cidr
+
 
 var.internet_access - string (full, nat, none)
-data.oci_core_nat_gateways.this[0].id
-data.oci_core_internet_gateways.this[0].id
+local.network_gateway
 
 */
 
@@ -73,10 +74,10 @@ resource "oci_core_route_table" "this" {
   dynamic "route_rules" {
     for_each = var.service_gateway && var.internet_access != "full" ? { "create" = true } : {}
     content {
-      network_entity_id = data.oci_core_service_gateways.this[0].service_gateways[0].id
+      network_entity_id = local.service_gateway
 
       description      = "Allow Service Gateway routing"
-      destination      = data.oci_core_services.this[0].services[0].cidr_block
+      destination      = local.service_cidr
       destination_type = "SERVICE_CIDR_BLOCK"
     }
   }
@@ -85,7 +86,7 @@ resource "oci_core_route_table" "this" {
     for_each = var.internet_access == "nat" ? { "create" = true } : {}
     content {
 
-      network_entity_id = data.oci_core_nat_gateways.this[0].nat_gateways[0].id
+      network_entity_id = local.network_gateway
       description       = "Allow Nat Gateway routing for egress internet traffic"
       destination       = "0.0.0.0/0"
       destination_type  = "CIDR_BLOCK"
@@ -95,7 +96,7 @@ resource "oci_core_route_table" "this" {
     for_each = var.internet_access == "full" ? { "create" = true } : {}
     content {
 
-      network_entity_id = data.oci_core_internet_gateways.this[0].gateways[0].id
+      network_entity_id = local.network_gateway
       description       = "Allow Internet Gateway routing"
       destination       = "0.0.0.0/0"
       destination_type  = "CIDR_BLOCK"

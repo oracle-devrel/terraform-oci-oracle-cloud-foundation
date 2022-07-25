@@ -77,6 +77,7 @@ local.prefix - string
 data.oci_core_vcn.this.cidr_blocks
 
 var.service_gateway
+local.service_cidr
 */
 
 # outputs 
@@ -140,7 +141,7 @@ resource "oci_core_security_list" "this" {
     content {
       protocol    = "1"
       destination_type = "SERVICE_CIDR_BLOCK"
-      destination = data.oci_core_services.this[0].services[0].cidr_block
+      destination = local.service_cidr
       description = "allow all outbound icmp traffic to oracle services network"
     }
   }
@@ -160,7 +161,7 @@ resource "oci_core_security_list" "this" {
     content {
       protocol = "6"
       destination_type = "SERVICE_CIDR_BLOCK"
-      destination   = data.oci_core_services.this[0].services[0].cidr_block
+      destination   = local.service_cidr
     }
   }
 
@@ -222,7 +223,7 @@ dynamic "ingress_security_rules" {
     content {
       protocol = "6"
       source_type = "SERVICE_CIDR_BLOCK"
-      source   = data.oci_core_services.this[0].services[0].cidr_block
+      source   = local.service_cidr
     }
   }
 
