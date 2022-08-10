@@ -74,7 +74,7 @@ variable "tcp_all_ports_egress_cidrs" {
 var.compartment - ocid
 var.vcn - ocid
 local.prefix - string
-data.oci_core_vcn.this.cidr_blocks
+local.cidr_blocks
 
 var.service_gateway
 local.service_cidr
@@ -197,7 +197,7 @@ resource "oci_core_security_list" "this" {
 
   dynamic "ingress_security_rules" {
     //allow type 3 ICMP from all VCN CIDRs
-    for_each = var.standard_icmp ? toset(data.oci_core_vcn.this.cidr_blocks) : toset([])
+    for_each = var.standard_icmp ? toset(local.cidr_blocks) : toset([])
     content {
       protocol = "1"
       source   = ingress_security_rules.value # might be more readable to use an iterator
