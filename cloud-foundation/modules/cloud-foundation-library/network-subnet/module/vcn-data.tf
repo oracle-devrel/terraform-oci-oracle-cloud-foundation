@@ -48,7 +48,7 @@ variable "internet_access" {
 variable "network_gateway_id" {
   type = string 
   default = null 
-  description = "optional variable to designate a network (nat or internet) gateway. If null, but internet_access is full or nat, it will attempt to find the appropriate gateway via datasource"
+  description = "optional variable to designate a network (nat or internet) gateway. Required for full or nat access"
 }
 
 
@@ -56,7 +56,7 @@ variable "network_gateway_id" {
 # outputs
 
 locals {
-    cidr_blocks = local.vcn_cidrs
+    cidr_blocks = var.vcn_cidrs
 
     service_gateway = var.service_gateway_id
 
