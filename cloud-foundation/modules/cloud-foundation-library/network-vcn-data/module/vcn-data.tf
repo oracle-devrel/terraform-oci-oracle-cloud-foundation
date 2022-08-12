@@ -32,7 +32,7 @@ variable "internet_gateway" {
 # outputs
 
 output "vcn" {
-  value = oci_core_vcn.this.id
+  value = data.oci_core_vcn.this.id
   description = "ocid of created vcn"
 }
 
@@ -41,12 +41,12 @@ output "cidrs" {
 }
 
 output "service_gateway" {
-  value = var.service_gateway ? data.oci_core_service_gateway.this[0].id : null
+  value = var.service_gateway ? data.oci_core_service_gateways.this[0].id : null
   description = "ocid of created SGW"
 }
 
 output "service_cidr" {
-  value = var.service_gateway ? data.oci_core_services.all_oci_services[0].services[0].cidr_block : null
+  value = var.service_gateway ? data.oci_core_services.this[0].services[0].cidr_block : null
   description = "the service cidr used by the service gateway"
 }
 
@@ -65,14 +65,14 @@ output "internet_gateway" {
 
 
 data "oci_core_vcn" "this" {
-  vcn_id = var.vcn
+  vcn_id = var.vcn_id
 }
 
 data "oci_core_service_gateways" "this" {
     count = var.service_gateway ? 1 : 0
 
     compartment_id = data.oci_core_vcn.this.compartment_id
-    vcn_id = var.vcn
+    vcn_id = var.vcn_id
 }
 # service gateway does not contain name of service cidr block, so we need to extract from services datasource
 data "oci_core_services" "this" {
@@ -90,14 +90,14 @@ data "oci_core_nat_gateways" "this" {
     count = var.nat_gateway ? 1 : 0
 
     compartment_id = data.oci_core_vcn.this.compartment_id
-    vcn_id = var.vcn
+    vcn_id = var.vcn_id
 }
 
 data "oci_core_internet_gateways" "this" {
     count = var.internet_gateway ? 1 : 0
 
     compartment_id = data.oci_core_vcn.this.compartment_id
-    vcn_id = var.vcn
+    vcn_id = var.vcn_id
 }
 
 
