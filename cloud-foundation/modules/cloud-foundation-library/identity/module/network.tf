@@ -76,7 +76,9 @@ resource "oci_identity_policy" "network" {
       ]),
       # network users in network compartment
       formatlist("allow group ${oci_identity_group.network_service[0].name} to %s in compartment ${oci_identity_compartment.network[0].name}", [
-        "read virtual-network-family", "use subnets", "use network-security-groups", "use vnics", "use load-balancers"
+        "use virtual-network-family",
+        # File Storage Service
+        "manage export-sets", "use mount-targets", "use file-systems"
       ]),
     )
 }
