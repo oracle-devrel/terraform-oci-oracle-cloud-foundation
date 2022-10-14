@@ -73,6 +73,31 @@ variable "tcp_all_ports_egress_cidrs" {
   description = "used to creste stateful rcp security list rules from all destination ports to the given list of source cidrs"
 }
 
+
+
+
+variable "custom_udp_ingress_rules" {
+    type = map(object({
+        source_cidr   = string,
+        min = number,
+        max = number,
+  }))
+   default = {}
+  description = "creates stateful udp security list rules to a range of destination ports from any port with a specific source cidr"
+}
+
+variable "custom_udp_egress_rules" {
+    type = map(object({
+        source_cidr   = string,
+        min = number,
+        max = number,
+  }))
+   default = {}
+  description = "creates stateful udp security list rules from a range of destination ports to any port with a specific destination cidr"
+}
+
+
+
 /* expected defined values
 var.compartment - ocid
 var.vcn - ocid
@@ -168,6 +193,19 @@ resource "oci_core_security_list" "this" {
     }
   }
 
+  dynamic "egress_security_rules" {
+    //allow custom udp traffic to specific ports from any port in a specific cidr range
+    for_each = var.custom_udp_egress_rules
+    content {
+      protocol = "17"
+      destination   = egress_security_rules.value.dest_cidr
+      udp_options {
+          min = egress_security_rules.value.min
+          max = egress_security_rules.value.max
+      }
+    }
+  }
+
 
 
 # Ingress Rules
@@ -250,6 +288,20 @@ dynamic "ingress_security_rules" {
     content {
       protocol = "6"
       source = ingress_security_rules.value
+    }
+  }
+
+  dynamic "ingress_security_rules" {
+    // allows udp traffic to specific ports from any port in a specific cidr range
+    for_each = var.custom_udp_ingress_rules
+    content{
+      protocol = "17"
+      source = ingress_security_rules.value.source_cidr 
+
+      udp_options {
+        min = ingress_security_rules.value.min 
+        max = ingress_security_rules.value.max 
+      }
     }
   }
 
