@@ -88,7 +88,7 @@ variable "custom_udp_ingress_rules" {
 
 variable "custom_udp_egress_rules" {
     type = map(object({
-        source_cidr   = string,
+        dest_cidr   = string,
         min = number,
         max = number,
   }))
