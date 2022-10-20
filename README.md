@@ -124,3 +124,5 @@ If you enhance a module or build a new module and you would like to share your w
 ## License
 The Cloud Foundation Library is released under the Universal Permissive License (UPL), Version 1.0. and so there are very few limitations on what you can do - please check the [LICENSE](LICENSE) file for full details.
 
+ORACLE AND ITS AFFILIATES DO NOT PROVIDE ANY WARRANTY WHATSOEVER, EXPRESS OR IMPLIED, FOR ANY SOFTWARE, MATERIAL OR CONTENT OF ANY KIND
+
