@@ -16,5 +16,6 @@ For the moment we have implemented the following solutions:
 - Departmental data warehousing an EBS integration example
 - ATP Deployment
 - OCI-Observability-Solution-Level1
-- Hybrid-Configurations-monitoring-on-prem-DBs-from-the-cloud
+- OCI-Observability-Solution-Level2
+- OCI-Observability-Hybrid-Configurations-monitoring-on-prem-DBs-from-the-cloud
 - S3_tfstate_backend_cloud_foundation_automation
