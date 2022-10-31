@@ -1,5 +1,9 @@
-title: "Empty Identity Stack"
-description: "This example stack shows the minimum configuration needed for the identity module"
+# Copyright © 2022, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+
+title: "Basic Identity Stack"
+description: "This example stack shows a basic configuration for the identity module"
 schemaVersion: 1.1.0
 version: "20190404" 
 

@@ -43,7 +43,7 @@ This module is a child module and can't be run directly. It needs a parent modul
 github url with path and git tag is recommended for production code. local path is used for sub-module development and customization
 - github url - make sure to update the version tag to latest stable git tag version for initial deployment. If already deployed and you want to update the version, you need to validate that the new child module version works with your codebase and doesn't create dangerous resource changes, deletions, or creations
 ```
-    source = https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation//cloud-foundation/modules/cloud-foundation-library/secret/module?ref=v1.2.0  
+    source = "github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation//cloud-foundation/modules/cloud-foundation-library/secret/module?ref=<input latest git tag>"
 ```
 - local path - this should be used if you are customizing the module. The actual path will need to be updated to where your child module resides relative to your parent module.
 ```
@@ -82,3 +82,5 @@ We welcome your feedback. To post feedback, submit feature ideas or report bugs,
 
 ## <a name="known-issues"></a>Known Issues
 **At the moment, there are no known issues**
+
+ORACLE AND ITS AFFILIATES DO NOT PROVIDE ANY WARRANTY WHATSOEVER, EXPRESS OR IMPLIED, FOR ANY SOFTWARE, MATERIAL OR CONTENT OF ANY KIND

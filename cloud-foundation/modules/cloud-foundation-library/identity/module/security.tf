@@ -1,3 +1,5 @@
+# Copyright © 2022, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 
 # inputs
@@ -90,7 +92,8 @@ resource "oci_identity_policy" "security" {
       ]),
       # security users in security compartment
       formatlist("allow group ${oci_identity_group.security_service[0].name} to %s in compartment ${oci_identity_compartment.security[0].name}", [
-        "read vss-family", "use bastion", "manage bastion-session", "read vaults", "inspect keys", "manage instance-images",
+        "read vss-family", "use bastion", "manage bastion-session", "use vaults", "inspect keys", 
+        "manage secrets", "manage secret-versions", "manage instance-images",
       ]),
     )
 }

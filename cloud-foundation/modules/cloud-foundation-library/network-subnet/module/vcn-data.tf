@@ -1,11 +1,9 @@
+# Copyright © 2022, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 
 # inputs
-variable "vcn" {
-    type = string 
-    description = "The OCID of an existing vcn to create the subnet in"
-  
-}
+
 variable "compartment" {
   type = string 
   description = "ocid of the compartment to create resources in."
@@ -16,62 +14,60 @@ variable "prefix" {
     description = "the prefix to append to each resource's name"
 }
 
+variable "vcn" {
+    type = string 
+    description = "The OCID of an existing vcn to create the subnet in"
+  
+}
+variable "vcn_cidrs" {
+  type = list(string)
+  description = "A list of cidr blocks to enable ICMP security rules to. Typically the list of cidr blocks from the vcn"
+}
+
+
 variable "service_gateway" {
  type = bool 
     default = true
     description = "if true(default), creates routes and SL rule to the Oracle Services Network via the VCNs SGW. Assumes 1 SGW in the vcn"
 }
+variable "service_gateway_id" {
+  type = string 
+  default = null 
+  description = "optional variable to designate service gateway. Required if service gateway is true"
+}
+variable "service_cidr" {
+  type = string 
+  default = null 
+  description = "optional variable used when the service gateway id is declared. This is the service cidr used by the service gateway"
+}
+
+
 variable "internet_access" {
     type = string
     default = "none"
     description = "Defines the level of internet access to give the subment. Valid values(gateway): full(IGW), nat(NGW), none"
 }
+variable "network_gateway_id" {
+  type = string 
+  default = null 
+  description = "optional variable to designate a network (nat or internet) gateway. Required for full or nat access"
+}
+
+
 
 # outputs
 
 locals {
-    cidr_blocks = data.oci_core_vcn.this.cidr_blocks
+    cidr_blocks = var.vcn_cidrs
 
-    
+    service_gateway = var.service_gateway_id
+
+    service_cidr =  var.service_cidr
+
+    network_gateway =  var.network_gateway_id
+
 }
 
 # logic
-
-data "oci_core_vcn" "this" {
-  vcn_id = var.vcn
-}
-
-data "oci_core_service_gateways" "this" {
-    count = var.service_gateway ? 1 : 0
-
-    compartment_id = data.oci_core_vcn.this.compartment_id
-    vcn_id = var.vcn
-}
-# service gateway does not contain name of service cidr block, so we need to extract from services datasource
-data "oci_core_services" "this" {
-    count = var.service_gateway ? 1 : 0
-
-  filter {
-    name   = "name"
-    values = [data.oci_core_service_gateways.this[0].service_gateways[0].services[0].service_name]
-    regex  = true
-  }
-  
-}
-
-
-data "oci_core_nat_gateways" "this" {
-    count = var.internet_access == "nat" ? 1 : 0
-
-    compartment_id = data.oci_core_vcn.this.compartment_id
-    vcn_id = var.vcn
-}
-
-data "oci_core_internet_gateways" "this" {
-    count = var.internet_access == "full" ? 1 : 0
-
-    compartment_id = data.oci_core_vcn.this.compartment_id
-    vcn_id = var.vcn
-}
 
 # resource or mixed module blocks

@@ -42,4 +42,20 @@ module "identity" {
     create_security_persona = true
 
 
+    # devops
+    enable_devops = true 
+
+    enable_build_pipelines = true 
+    enable_mirrored_repos = true 
+    enable_external_repos = true 
+    enable_managed_builds = true 
+    enable_artifact_delivery = true 
+    enable_trigger_deployment = true 
+    enable_ADM = true 
+
+    enable_deploy_pipelines = true 
+    target_environment_compute = true 
+    target_environment_functions = true 
+    target_environment_OKE = true 
+
 }

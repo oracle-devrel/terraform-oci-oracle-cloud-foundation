@@ -2,8 +2,8 @@
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 
-title: "Simple Secret Stack"
-description: "This example stack shows the minimum configuration needed for the secret module. Assumes an existing vault and AES key"
+title: "Devops Identity Stack"
+description: "This example stack shows the configuration needed to enable devops for the identity module"
 schemaVersion: 1.1.0
 version: "20190404" 
 
