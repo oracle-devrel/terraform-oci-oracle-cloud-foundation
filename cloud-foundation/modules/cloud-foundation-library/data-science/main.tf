@@ -23,6 +23,9 @@ resource "oci_datascience_notebook_session" "this" {
 
   display_name = each.value.notebook_session_display_name
   defined_tags = each.value.defined_tags
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 
