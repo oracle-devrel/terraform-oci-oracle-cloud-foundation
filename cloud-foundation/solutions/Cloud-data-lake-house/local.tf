@@ -151,19 +151,19 @@ notebook_params = {
 deployment_params = {
   deployment1 = {
     compartment_id          = var.compartment_id
-    cpu_core_count          = var.goden_gate_cpu_core_count
-    deployment_type         = var.goden_gate_deployment_type
+    cpu_core_count          = var.golden_gate_cpu_core_count
+    deployment_type         = var.golden_gate_deployment_type
     subnet_id               = lookup(module.network-subnets.subnets,"public-subnet").id,
     license_model           = var.golden_gate_license_model
-    display_name            = var.goden_gate_display_name
-    is_auto_scaling_enabled = var.goden_gate_is_auto_scaling_enabled
+    display_name            = var.golden_gate_display_name
+    is_auto_scaling_enabled = var.golden_gate_is_auto_scaling_enabled
     defined_tags            = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 
     ogg_data = [
       {
-        admin_password  = var.goden_gate_admin_password
-        admin_username  = var.goden_gate_admin_username
-        deployment_name = var.goden_gate_deployment_name
+        admin_password  = var.golden_gate_admin_password
+        admin_username  = var.golden_gate_admin_username
+        deployment_name = var.golden_gate_deployment_name
     }]
   }
 }

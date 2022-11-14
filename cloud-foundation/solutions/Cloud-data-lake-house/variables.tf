@@ -118,7 +118,7 @@ variable "analytics_instance_capacity_capacity_type" {
 
 variable "analytics_instance_capacity_value" {
     type    = number
-    default = 1
+    default = 2
 }
 
 variable "analytics_instance_network_endpoint_details_network_endpoint_type" {
@@ -226,11 +226,11 @@ variable "notebook_session_notebook_session_configuration_details_block_storage_
 
 # OCI Golden Gate
 
-variable "goden_gate_cpu_core_count" {
+variable "golden_gate_cpu_core_count" {
   default = 2
 }
 
-variable "goden_gate_deployment_type" {
+variable "golden_gate_deployment_type" {
   default = "OGG"
 }
 
@@ -238,23 +238,23 @@ variable "golden_gate_license_model" {
   default = "LICENSE_INCLUDED"
 }
 
-variable "goden_gate_display_name" {
+variable "golden_gate_display_name" {
   default = "ogg_deployment"
 }
 
-variable "goden_gate_is_auto_scaling_enabled" {
+variable "golden_gate_is_auto_scaling_enabled" {
   default = false
 }
 
-variable "goden_gate_admin_password" {
+variable "golden_gate_admin_password" {
   default = "Oracle-1234567"
 }
 
-variable "goden_gate_admin_username" {
+variable "golden_gate_admin_username" {
   default = "ogg"
 }
 
-variable "goden_gate_deployment_name" {
+variable "golden_gate_deployment_name" {
   default = "ogg_deployment"
 }
 
@@ -382,7 +382,7 @@ variable "ai_anomaly_detection_data_asset_display_name" {
 # Big Data Service Variables
 
 variable "big_data_cluster_admin_password" {
-  default = "SW5pdDAxQA=="     # Password has to be Base64 encoded, e.g.: echo Init01$$ | base64
+  default = "QWR3RGJPUkNMMTIzNCM="   # Password has to be Base64 encoded, e.g.: echo AdwDbORCL1234# | base64
 }
 
 variable "big_data_cluster_public_key" {
@@ -443,10 +443,15 @@ variable "big_data_worker_node_number_of_nodes" {
 }
 
 
-# Compute Configuration
+# Compute Configuration for GGSA solution
 # More information regarding shapes can be found here:
 # https://docs.oracle.com/en-us/iaas/Content/Compute/References/computeshapes.htm
-# "Web-Tier-and-Bastion" variables
+# NOTE:
+# If you deploy the solution in a Region inside OCI that has only 1 Availability Domain, instead of 3, 
+# you will need to modify the default values from local.tf file in this sections:
+# ( Create the VM's for the solution ) for each of the 6 instances - needs to modify availability_domain = 2
+# or availability_domain = 3 to availability_domain = 1
+
 
 variable "bastion_shape" {
   default = "VM.Standard2.4"
@@ -481,6 +486,14 @@ variable "master2_shape" {
 # Networking variables
 
 # FastConnect Variables
+# If you don't need fastconnect in your tenancy, or it's not supported this type of
+# fastconnect ( private victual circuit provider no corss connect or cross connect group)
+# then you can comment/delete this section for fast connect
+# Also comment/delete the fast connect section from the following files:
+# - main.tf (module "fastconnect" { section)
+# - local.tf (## FASTCONNECT CONFIGURATION: section)
+# - outputs.tf (output "fastconnect" section )
+
 
 variable "private_fastconnect_name" {
   default = "private_vc_with_provider_no_cross_connect_or_cross_connect_group_id"

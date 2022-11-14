@@ -160,7 +160,7 @@ variable "region" {
 
 variable "compartment_id" {
   type = string
-  default = "" (the compartment used for deploying the solution - ex: compartment1)
+  default = "" (the compartment OCID used for deploying the solution - ex: ocid1.compartment.oc1..aaaaaa...)
 }
 
 variable "user_ocid" {
@@ -325,7 +325,7 @@ variable "analytics_instance_capacity_capacity_type" {
 
 variable "analytics_instance_capacity_value" {
     type    = number
-    default = 1
+    default = 2
 }
 
 variable "analytics_instance_network_endpoint_details_network_endpoint_type" {
@@ -480,23 +480,23 @@ variable "notebook_session_notebook_session_configuration_details_block_storage_
 This resource provides the Deployment resource in Oracle Cloud Infrastructure Golden Gate service.
 
 * Parameters:
-    * __goden_gate_cpu_core_count__ - The Minimum number of OCPUs to be made available for this Deployment.
-    * __goden_gate_deployment_type__ - The type of deployment, the value determines the exact 'type' of service executed in the Deployment. NOTE: Use of the value OGG is maintained for backward compatibility purposes. Its use is discouraged in favor of the equivalent DATABASE_ORACLE value.
+    * __golden_gate_cpu_core_count__ - The Minimum number of OCPUs to be made available for this Deployment.
+    * __golden_gate_deployment_type__ - The type of deployment, the value determines the exact 'type' of service executed in the Deployment. NOTE: Use of the value OGG is maintained for backward compatibility purposes. Its use is discouraged in favor of the equivalent DATABASE_ORACLE value.
     * __golden_gate_license_model__ - The Oracle license model that applies to a Deployment.
-    * __goden_gate_display_name__ - An object's Display Name.
-    * __goden_gate_is_auto_scaling_enabled__ - Indicates if auto scaling is enabled for the Deployment's CPU core count.
-    * __goden_gate_admin_password__ - The password associated with the GoldenGate deployment console username. The password must be 8 to 30 characters long and must contain at least 1 uppercase, 1 lowercase, 1 numeric, and 1 special character. Special characters such as ‘$’, ‘^’, or ‘?’ are not allowed.
-    * __goden_gate_admin_username__ - The GoldenGate deployment console username.
-    * __goden_gate_deployment_name__ - The name given to the GoldenGate service deployment. The name must be 1 to 32 characters long, must contain only alphanumeric characters and must start with a letter.
+    * __golden_gate_display_name__ - An object's Display Name.
+    * __golden_gate_is_auto_scaling_enabled__ - Indicates if auto scaling is enabled for the Deployment's CPU core count.
+    * __golden_gate_admin_password__ - The password associated with the GoldenGate deployment console username. The password must be 8 to 30 characters long and must contain at least 1 uppercase, 1 lowercase, 1 numeric, and 1 special character. Special characters such as ‘$’, ‘^’, or ‘?’ are not allowed.
+    * __golden_gate_admin_username__ - The GoldenGate deployment console username.
+    * __golden_gate_deployment_name__ - The name given to the GoldenGate service deployment. The name must be 1 to 32 characters long, must contain only alphanumeric characters and must start with a letter.
 
 Below is an example:
 
 ```
-variable "goden_gate_cpu_core_count" {
+variable "golden_gate_cpu_core_count" {
   default = 2
 }
 
-variable "goden_gate_deployment_type" {
+variable "golden_gate_deployment_type" {
   default = "OGG"
 }
 
@@ -504,23 +504,23 @@ variable "golden_gate_license_model" {
   default = "LICENSE_INCLUDED"
 }
 
-variable "goden_gate_display_name" {
+variable "golden_gate_display_name" {
   default = "ogg_deployment"
 }
 
-variable "goden_gate_is_auto_scaling_enabled" {
+variable "golden_gate_is_auto_scaling_enabled" {
   default = false
 }
 
-variable "goden_gate_admin_password" {
+variable "golden_gate_admin_password" {
   default = "Oracle-1234567"
 }
 
-variable "goden_gate_admin_username" {
+variable "golden_gate_admin_username" {
   default = "ogg"
 }
 
-variable "goden_gate_deployment_name" {
+variable "golden_gate_deployment_name" {
   default = "ogg_deployment"
 }
 ```
@@ -829,7 +829,7 @@ ai_anomaly_detection_model_params = {
 This resource provides the Bds Instance resource in Oracle Cloud Infrastructure Big Data Service service. Creates a Big Data Service cluster.
 
 * Parameters
-    * __big_data_cluster_admin_password__ - (Required) Base-64 encoded password for the cluster (and Cloudera Manager) admin user. e.g.: echo Init01$$ | base64
+    * __big_data_cluster_admin_password__ - (Required) Base-64 encoded password for the cluster (and Cloudera Manager) admin user. e.g.: echo AdwDbORCL1234# | base64
     * __big_data_cluster_public_key__ -  (Required) The SSH public key used to authenticate the cluster connection.
     * __big_data_cluster_version__ - (Required) Version of the Hadoop distribution. ODH1 is the new version with Ambari Server - no autoscalling working at the moment. "CDH6" // old version - Cloudera Manager version with autoscalling working.
     * __big_data_display_name__ - (Required) (Updatable) Name of the Big Data Service cluster.
@@ -850,7 +850,7 @@ Below is an example:
 ```
 
 variable "big_data_cluster_admin_password" {
-  default = "SW5pdDAxQA=="     # Password has to be Base64 encoded, e.g.: echo Init01$$ | base64
+  default = "QWR3RGJPUkNMMTIzNCM="   # Password has to be Base64 encoded, e.g.: echo AdwDbORCL1234# | base64
 }
 
 variable "big_data_cluster_public_key" {
@@ -1098,6 +1098,9 @@ variable "master2_shape" {
   default = "VM.Standard2.4"
 }
 ```
+* NOTE:
+If you deploy the solution in a Region inside OCI that has only 1 Availability Domain, instead of 3, you will need to modify the default values from local.tf file in this sections:
+Create the VM's for the solution ) for each of the 6 instances - needs to modify availability_domain = 2 or availability_domain = 3 to availability_domain = 1
 
 # Dynamic Routing Gateways (DRGs)
 This resource provides the Drg resource in Oracle Cloud Infrastructure Core service. The DRG will be attached to the VCN so that a fastconnect can be provisioned and be used.
@@ -1163,6 +1166,12 @@ variable "private_fastconnect_drg" {
   default = "mgmt_drg"
 }
 ```
+* Note: 
+If you don't need fastconnect in your tenancy, or it's not supported this type of fastconnect ( private victual circuit provider no corss connect or cross connect group) then you can comment/delete this section for fast connect
+Also comment/delete the fast connect section from the following files:
+- main.tf (module "fastconnect" { section)
+- local.tf (## FASTCONNECT CONFIGURATION: section)
+- outputs.tf (output "fastconnect" section )
 
 # Network
 This resource provides the Vcn resource in Oracle Cloud Infrastructure Core service anso This resource provides the Subnet resource in Oracle Cloud Infrastructure Core service.
