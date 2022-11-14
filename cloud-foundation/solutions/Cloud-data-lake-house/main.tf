@@ -279,8 +279,7 @@ module "network-security-groups" {
 module "dynamic_groups" {
   source = "../../../cloud-foundation/modules/oci-cis-landingzone-quickstart/iam/iam-dynamic-group"
   providers = {
-    oci = oci
-    oci.homeregion = oci.homeregion
+    oci = oci.homeregion
   }
   dynamic_groups = local.dynamic_groups
 }
@@ -289,8 +288,7 @@ module "policies" {
   source = "../../../cloud-foundation/modules/oci-cis-landingzone-quickstart/security/policies"
   depends_on = [module.dynamic_groups]
   providers = {
-    oci = oci
-    oci.homeregion = oci.homeregion
+    oci = oci.homeregion
   }
   policies   = local.policies
 }
