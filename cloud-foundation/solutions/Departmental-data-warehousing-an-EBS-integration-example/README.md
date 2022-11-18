@@ -180,7 +180,7 @@ variable "region" {
 
 variable "compartment_id" {
   type = string
-  default = "" (the compartment used for deploying the solution - ex: compartment1)
+  default = "" (the compartment OCID used for deploying the solution - ex: ocid1.compartment.oc1..aaaaaa...)
 }
 
 variable "user_ocid" {
@@ -285,12 +285,12 @@ variable "adw_license_model" {
 
 variable "database_admin_password" {
   type = string
-  default = "<enter-password-here>"
+  default = "<enter-password-here>" # Example password: Par0laMea123
 }
 
 variable "database_wallet_password" {
   type = string
-  default = "<enter-password-here>"
+  default = "<enter-password-here>" # Example password: Par0laMea123
 }
 ```
 
@@ -331,7 +331,7 @@ variable "analytics_instance_license_type" {
 
 variable "analytics_instance_hostname" {
     type    = string
-    default = "AnalyicSD"
+    default = "AnalyicSDEBS"
 }
 
 variable "analytics_instance_idcs_access_token" {
@@ -346,7 +346,7 @@ variable "analytics_instance_capacity_capacity_type" {
 
 variable "analytics_instance_capacity_value" {
     type    = number
-    default = 1
+    default = 2
 }
 
 variable "analytics_instance_network_endpoint_details_network_endpoint_type" {
@@ -400,135 +400,21 @@ module "keygen" {
 
 
 # Compute ODI VM and Bastion
-The compute module will create two VM's - one for a bastion that can be used to ssh or vnc to the ODI VM and the ODI VM itself. 
-For the Bastion VM the shape and the linux images needs to be provided.
-Here is the list of all the OCID images for each region.
+The compute module will create two VM's - one for a bastion that can be used to ssh or vnc to the ODI VM as a proxy server ( port forwarding ) and the ODI VM itself. You will need to install a VNC viewer on your local PC if you want to use port forwarding to the ODI Instance.
+The Bastion it's deployed in the public subnet and the ODI Instance it's in the private subnet.
+For the Bastion VM we are using the Oracle-Linux-Cloud-Developer-8.4-2021.08.27-0 image as it comes with all the neccesary software installed and for the ODI Instance we are using ODI Marketplace V12.2.1.4.221007. 
 
-``` 
-linux_images = {
-  ap-melbourne-1  = {
-    centos6 = "ocid1.image.oc1.ap-melbourne-1.aaaaaaaas4synyw646enlkqbgunmevfw3npohtccrpam6iqvtljesbtsqdoa"
-    centos7 = "ocid1.image.oc1.ap-melbourne-1.aaaaaaaa3wpbl3xl6jfgk3gat3gnesw7wvafzvbxl2zybh3zclr3lahllilq"
-    oel6    = "ocid1.image.oc1.ap-melbourne-1.aaaaaaaat52asmaafbfz6vdkgmopvbkwsucokrwqmxgdr5qjcwu6zutvic7a"
-    oel7    = "ocid1.image.oc1.ap-melbourne-1.aaaaaaaavpiybmiqoxcohpiih2gasjgqpsiyz4ggylyhhitmrmf3j2ycucrq"
-  }
-  ap-mumbai-1     = {
-    centos6 = "ocid1.image.oc1.ap-mumbai-1.aaaaaaaaorpgj2wcaaawpi3sdisrsz7ahhx6k7yq27bzrcun6ohehvsp5kuq"
-    centos7 = "ocid1.image.oc1.ap-mumbai-1.aaaaaaaafr2lbi3vkymk2os3t3xqg2xp42xfqll7x73rv3j4msfuwwrbxmta"
-    oel6    = "ocid1.image.oc1.ap-mumbai-1.aaaaaaaahkxsdgr2piceahkowh7jmimywdvfe4wdc3ujizzrgmdpuansjlva"
-    oel7    = "ocid1.image.oc1.ap-mumbai-1.aaaaaaaarrsp6bazleeeghz6jcifatswozlqkoffzwxzbt2ilj2f65ngqi6a"
-  }
-  ap-osaka-1      = {
-    centos6 = "ocid1.image.oc1.ap-osaka-1.aaaaaaaausl3ucj5slnzpjr6zc5hulnd7637eqakcscl45zc673fz3repgnq"
-    centos7 = "ocid1.image.oc1.ap-osaka-1.aaaaaaaaws7jyd6nfsd6negf5ojd27m3v7xosspil7mkcnf3wfcbf3w3iq6a"
-    oel6    = "ocid1.image.oc1.ap-osaka-1.aaaaaaaajoqvhi7dd776bch4uspb2xuzzhaoobrt6xh45rs3o4mv3ya4e5tq"
-    oel7    = "ocid1.image.oc1.ap-osaka-1.aaaaaaaafa5rhs2n3dyuncddh5oynk6gisvotvcvch3e6xwplji7phwtbqqa"
-  }
-  ap-seoul-1     = {
-    centos6 = "ocid1.image.oc1.ap-seoul-1.aaaaaaaajfn2tg23h6bspxhn3xlby6f6tsksagemmoaycoylxa5ivbf2prhq"
-    centos7 = "ocid1.image.oc1.ap-seoul-1.aaaaaaaajsolmhhy7xjgfscxb4vpyet6k2sop6wdtwmn3dkc3fy7eyt3m24a"
-    oel6    = "ocid1.image.oc1.ap-seoul-1.aaaaaaaa4rk36ectfyj2psdo3xcatz4z3x7ctber6l74vohqkbyfwoxdz3iq"
-    oel7    = "ocid1.image.oc1.ap-seoul-1.aaaaaaaadrnhec6655uedkshgcklewzikoqcwr65sevbu27z7vzagniihfha"
-  }
-  ap-sydney-1    = {
-    centos6 = "ocid1.image.oc1.ap-sydney-1.aaaaaaaaeevmpmgwugan2qljntoteqihc6ygfycwxui3nigeob7snaikuaiq"
-    centos7 = "ocid1.image.oc1.ap-sydney-1.aaaaaaaayblorjjncrno3r5wh73lzmpu4ioro72oymd4eeu2hu4fsscumqha"
-    oel6    = "ocid1.image.oc1.ap-sydney-1.aaaaaaaav4ooak5wysyydz4aezicqstgx3jxmjanjpdj7jonla3tk3npgzda"
-    oel7    = "ocid1.image.oc1.ap-sydney-1.aaaaaaaaplq4fjdnoooudaqwgzaidh6r3lp3xdhqulx454jivy33t53hokga"
-  }
-  ap-tokyo-1     = {
-    centos6 = "ocid1.image.oc1.ap-tokyo-1.aaaaaaaai2umweqozk36atwr4cxaicukqjomfbueojr74fdbxe74fi75egca"
-    centos7 = "ocid1.image.oc1.ap-tokyo-1.aaaaaaaarkipypzhscxniq3uqr2jqc55maelnt7vgjikemck3k5vl5iabzrq"
-    oel6    = "ocid1.image.oc1.ap-tokyo-1.aaaaaaaadnxbyomirzk3rsp4ctmoi65n4dso3olkyf4pfdymslouoq5jcjha"
-    oel7    = "ocid1.image.oc1.ap-tokyo-1.aaaaaaaa5mpgmnwqwacey5gvczawugmo3ldgrjqnleckmnsokrqytcfkzspa"
-  }
-  ca-montreal-1  = {
-    centos6 = "ocid1.image.oc1.ca-montreal-1.aaaaaaaafwemmq6tz6zwxfz7bvlwb6iyi7y2hzzu2mv54ngrldh6hhnyxama"
-    centos7 = "ocid1.image.oc1.ca-montreal-1.aaaaaaaajxxgx4af4rcudk2avldhbebctl7e5v445ycs35wk6boneut423nq"
-    oel6    = "ocid1.image.oc1.ca-montreal-1.aaaaaaaasm46wajq5kmztlbzqclqohpj3nevbi4ep2zi627xbr4uudnxxpma"
-    oel7    = "ocid1.image.oc1.ca-montreal-1.aaaaaaaaevu23evecil3r23q5illjliinkpyvtkbdq5nsxmcfqypvlewytra"
-  }
-  ca-toronto-1   = {
-    centos6 = "ocid1.image.oc1.ca-toronto-1.aaaaaaaan2fmhw2mcc7nidx6dimfzrkzdln4ckirpfyvcdp4xldnwkrlq43q"
-    centos7 = "ocid1.image.oc1.ca-toronto-1.aaaaaaaabqsazpmiu5xq23pxxw3c4r6ko5rjfewk4mqkm7tgtsq4uc2exxoa"
-    oel6    = "ocid1.image.oc1.ca-toronto-1.aaaaaaaayqaoapktxol6igmw26oi73pdypvwtvzxjc73i5ly4sqj3ghwaafa"
-    oel7    = "ocid1.image.oc1.ca-toronto-1.aaaaaaaai25l5mqlzvhjzxvb5n4ullqu333bmalyyg3ki53vt24yn6ld7pra"
-  }
-  eu-amsterdam-1 = {
-    centos6 = "ocid1.image.oc1.eu-amsterdam-1.aaaaaaaa4xufymkiho5dlscdbtvsru5b22knjoxcnnflgo6xloqqodfx2tda"
-    centos7 = "ocid1.image.oc1.eu-amsterdam-1.aaaaaaaat32fvq5hsmbljrvy77gr2xel7i3l3oc6g3bcnnd6mimzz5jqa7ka"
-    oel6    = "ocid1.image.oc1.eu-amsterdam-1.aaaaaaaacymg54gaxda5hwmf4tdaaxcmnmrfemiziweukau3c2gjqqzf77ga"
-    oel7    = "ocid1.image.oc1.eu-amsterdam-1.aaaaaaaayd4knq4bdh23zqgatgjhoajiz3mx4fy3oy62e5f45ll7trwak5ga"
-  }
-  eu-frankfurt-1 = {
-    centos6 = "ocid1.image.oc1.eu-frankfurt-1.aaaaaaaaf6ej4bn4wzvlocyybqn65x7osycxvobtjkcn7ya4urcsa6ql6rhq"
-    centos7 = "ocid1.image.oc1.eu-frankfurt-1.aaaaaaaahkaj2rzfdpruxajpy77gohgczstwhygsimohss2plkfslbbh4xfa"
-    oel6    = "ocid1.image.oc1.eu-frankfurt-1.aaaaaaaawrdkszzb56yo4nb4k42txyp2yvwusgsbraztcua2b5ebsk5iz7lq"
-    oel7    = "ocid1.image.oc1.eu-frankfurt-1.aaaaaaaa4cmgko5la45jui5cuju7byv6dgnfnjbxhwqxaei3q4zjwlliptuq"
-  }
-  eu-zurich-1    = {
-    centos6 = "ocid1.image.oc1.eu-zurich-1.aaaaaaaagmybtgdr33vlsaa245sulxmqvasf5pgoppbfkx2qtoonfd6pbwnq"
-    centos7 = "ocid1.image.oc1.eu-zurich-1.aaaaaaaaedzqaa6w2b675og5go54nw2tmfoonqnk2kabhcdcuygbpy7habga"
-    oel6    = "ocid1.image.oc1.eu-zurich-1.aaaaaaaafdub2llzurrq6ti2xff6po2x6ibm3aaabjhesgug6ceo73etquaq"
-    oel7    = "ocid1.image.oc1.eu-zurich-1.aaaaaaaa4nwf5h6nl3u5cdauemg352itja6izecs7ol73z6jftsg4agpdsma"
-  }
-  me-jeddah-1    = {
-    centos6 = "ocid1.image.oc1.me-jeddah-1.aaaaaaaac37rqyxwrl4lw2zcxkrplmkybkgykco2zzw4wbjjzbgzoj4emzxa"
-    centos7 = "ocid1.image.oc1.me-jeddah-1.aaaaaaaa2hphaidibmfn6bomi756tjtb3ncakzroubrdrh4oteiexkgqzqxa"
-    oel6    = "ocid1.image.oc1.me-jeddah-1.aaaaaaaa6ypmt4rwxpi2w3b5jvrzxsw6egopg3ckzhsddbbwjrdri4hyiara"
-    oel7    = "ocid1.image.oc1.me-jeddah-1.aaaaaaaazrvioeng7va7w4qsuqny4jtxbvnxlf5hu7g2twn6rcwdu35u4riq"
-  }
-  sa-saopaulo-1   = {
-    centos6 = "ocid1.image.oc1.sa-saopaulo-1.aaaaaaaaat6zylwbmjc3nt3opxgr54vjuolezmxmdlkhumdkrnfzjmcalena"
-    centos7 = "ocid1.image.oc1.sa-saopaulo-1.aaaaaaaa4jgkrkwd5d6ktzu43mjhri4el2p3gc7hzkkt26uhawjf6xe2s5ra"
-    oel6    = "ocid1.image.oc1.sa-saopaulo-1.aaaaaaaaw265lcnl4fottvdoid56arojwyxl57mihcl6g5p5dwwk457ufa6q"
-    oel7    = "ocid1.image.oc1.sa-saopaulo-1.aaaaaaaalfracz4kuew4yxvgydpnbitip6qsreaz7kpxlkr4p67ravvi4jnq"
-  }
-  uk-gov-london-1 = {
-    centos6 = "ocid1.image.oc4.uk-gov-london-1.aaaaaaaa3jm7g2knbd42qbmahxcitawva56svefikpjrlfqjdeiir4vhxdmq"
-    centos7 = "ocid1.image.oc4.uk-gov-london-1.aaaaaaaavzplbvr4myylufwebu6556stwm44rhg5b7hzyljyghkzxkrpnntq"
-    oel6    = "ocid1.image.oc4.uk-gov-london-1.aaaaaaaamcvr7kawh4i3sdrlok2kqkfetk573utdq5u4ighhe55r46ddmusq"
-    oel7    = "ocid1.image.oc4.uk-gov-london-1.aaaaaaaaslh4pip7u6iopbpxujy2twi7diqrs6kfvqfhkl27esdadkqa76mq"
-  }
-  uk-london-1     = {
-    centos6 = "ocid1.image.oc1.uk-london-1.aaaaaaaalaq6axfs4t4qibzlbo6mq2ejbij6rnhrdv43ic53yuu6nsziabdq"
-    centos7 = "ocid1.image.oc1.uk-london-1.aaaaaaaalblgx62jnubrhfdt4kawbev4r3r2rord253r5h6b4vdsgvz7uhnq"
-    oel6    = "ocid1.image.oc1.uk-london-1.aaaaaaaapir5bvtsdq6inbebytzb362kkd5tx2iz3qg7i2k4b2vbnejan6uq"
-    oel7    = "ocid1.image.oc1.uk-london-1.aaaaaaaa2uwbd457cd2gtviihmxw7cqfmqcug4ahdg7ivgyzla25pgrn6soa"
-  }
-  us-ashburn-1    = {
-    centos6 = "ocid1.image.oc1.iad.aaaaaaaa2czkuqalinjferx3iszp264xspwnd7xzlfhupxtzc4zdnuxi6bwa"
-    centos7 = "ocid1.image.oc1.iad.aaaaaaaa3n6t4mwilogs7a7dvp64tptstjvivq52yasfjgw64lcbdqf4d3ca"
-    oel6    = "ocid1.image.oc1.iad.aaaaaaaasxwd6pbz6py3shznyfxuxexiatoxse7zyd7tz4tmra27wle6ydwq"
-    oel7    = "ocid1.image.oc1.iad.aaaaaaaavzjw65d6pngbghgrujb76r7zgh2s64bdl4afombrdocn4wdfrwdq"
-  }
-  us-langley-1    = {
-    centos6 = "ocid1.image.oc2.us-langley-1.aaaaaaaa7bgboeixz75owe3fbdmg2pvmysk2rxob6bufkisyin3v27qsdz2q"
-    centos7 = "ocid1.image.oc2.us-langley-1.aaaaaaaa3ryqvptloob45777kvfqsoymukhioddaj5yows526j4cn5enl6aa"
-    oel6    = "ocid1.image.oc2.us-langley-1.aaaaaaaakzg6qr6hpm3jj7x3wyt2ya7bsh5xtvku3hmlysguuaasir6u673a"
-    oel7    = "ocid1.image.oc2.us-langley-1.aaaaaaaauckkms7acrl6to3cuhmv6hfjqwlnoxzuzophaose7pi2sfk4dzna"
-  }
-  us-luke-1       = {
-    centos6 = "ocid1.image.oc2.us-luke-1.aaaaaaaa6woblaikk4fmyciqfwmbvoeukgq2m3jt5rrqyclseehrsawwkpyq"
-    centos7 = "ocid1.image.oc2.us-luke-1.aaaaaaaa4o74g2lmljky7fgx4o5zr3aw7rww7jjkliwbqoxq6yu5vjm23e3a"
-    oel6    = "ocid1.image.oc2.us-luke-1.aaaaaaaajyelyu6k7kzyoxeneyye74ld3osxx53ufeh4a2thrnpub5zi47mq"
-    oel7    = "ocid1.image.oc2.us-luke-1.aaaaaaaadxeycutztmvaeefvilc57lfqool2rlgl2r34juyu4jkbodx2xspq"
-  }
-  us-phoenix-1    = {
-    centos6 = "ocid1.image.oc1.phx.aaaaaaaau6s3kqgtnuxtu2yc7czi2z4ylcn5mhx7igcmhb3ujjaiypcjhozq"
-    centos7 = "ocid1.image.oc1.phx.aaaaaaaak3hatlw7tncpvvatc4t7ihocxfx243ii54m2kuxjlsln4vnspnea"
-    oel6    = "ocid1.image.oc1.phx.aaaaaaaas3h3h5hr3uvfliydhvusoscpqzflewislg4m3ycj6y6y3exvbe3a"
-    oel7    = "ocid1.image.oc1.phx.aaaaaaaacy7j7ce45uckgt7nbahtsatih4brlsa2epp5nzgheccamdsea2yq"
-  }
-}
-```
+More information about this image and about the OCIDs required to be provided as a variable can be found here:
+
+https://docs.oracle.com/en-us/iaas/images/image/2e439f8e-e98f-489b-82a3-338360b46b82/
 
 More information regarding shapes can be found here:
+
 https://docs.oracle.com/en-us/iaas/Content/Compute/References/computeshapes.htm
 
 * Parameters for the VM Bastion Compute Configuration
     * __bastion_shape__ - (Required) (Updatable) The shape of an instance. The shape determines the number of CPUs, amount of memory, and other resources allocated to the instance.
-    * __bation_linux_image__ - the linux image OCID for your region.
+    * __bastion_instance_image_ocid__ - the linux image OCID for your region.
 
 Below is an example:
 ```
@@ -538,15 +424,40 @@ variable "bastion_shape" {
   default = "VM.Standard2.4"
 }
 
-variable "bation_linux_image" {
-  default = "ocid1.image.oc1.iad.aaaaaaaavzjw65d6pngbghgrujb76r7zgh2s64bdl4afombrdocn4wdfrwdq"
+variable "bastion_instance_image_ocid" {
+  type = map(string)
+  default = {
+    ap-chuncheon-1	= "ocid1.image.oc1.ap-chuncheon-1.aaaaaaaaihmt2keujm4pd3wswehk3ybcs4d4guuapvml7slexmwgjxwjaypq"
+    ap-hyderabad-1	= "ocid1.image.oc1.ap-hyderabad-1.aaaaaaaawcl3nadtbiijdrrrczdfh2bqbujtaswfviu5rf3dc2hldetikuzq"
+    ap-melbourne-1	= "ocid1.image.oc1.ap-melbourne-1.aaaaaaaayrgmmffm34ikswpqlsc3rlu74vofqrypuo6srgvl6nhpccwkbdqq"
+    ap-mumbai-1	    = "ocid1.image.oc1.ap-mumbai-1.aaaaaaaayg64ftz6kq7y4zbvohti67pzn2yxioweb3yfscwqeq5urccnmcvq"
+    ap-osaka-1	    = "ocid1.image.oc1.ap-osaka-1.aaaaaaaa4rzsgxccrowpua6nn6pujztlyrcmhdgd6gsgsgo4ikuvhgy3ihia"
+    ap-seoul-1	    = "ocid1.image.oc1.ap-seoul-1.aaaaaaaayze2sndwv7uwwgltjvhjhy3n2rr5nr7wbrernzberaxzcm6iyepq"
+    ap-sydney-1	    = "ocid1.image.oc1.ap-sydney-1.aaaaaaaahjlvew72o4dg5h5ok76tew7d5rw3s6hfng7xystxj6fxinxdixca"
+    ap-tokyo-1	    = "ocid1.image.oc1.ap-tokyo-1.aaaaaaaazou4xzdvfawk23xzeury3a33gvo4i3fmyzxlchpptsqnwpyrayrq"
+    ca-montreal-1	  = "ocid1.image.oc1.ca-montreal-1.aaaaaaaazwrlosyjzkech4pokwrgi6mnzfvtjjeya6mj5rhimtf4i6ag3aoa"
+    ca-toronto-1	  = "ocid1.image.oc1.ca-toronto-1.aaaaaaaarqogbrbjbgnpvio6im4yiz564kpgq6q35jk66q2h4a53cxnqgqeq"
+    eu-amsterdam-1	= "ocid1.image.oc1.eu-amsterdam-1.aaaaaaaa3wwms4s2asbn6isysx6qexsppsh725cbh5wuv6u466znhj64u64a"
+    eu-frankfurt-1	= "ocid1.image.oc1.eu-frankfurt-1.aaaaaaaa7lzlvp6re2qyum4vmyryjk2okyfj7vp7lj2rd6qk2ovp7yfssoxa"
+    eu-zurich-1	    = "ocid1.image.oc1.eu-zurich-1.aaaaaaaab6njbd32zxehpsvliwjujewg5jqow3vxmv5nr3wbvfomuc6lzv4a"
+    me-dubai-1	    = "ocid1.image.oc1.me-dubai-1.aaaaaaaa7wybi5o7rye52jp5uj3bu5ccwofgxjjeo54gsers4j6lnfhrtuaq"
+    me-jeddah-1	    = "ocid1.image.oc1.me-jeddah-1.aaaaaaaazk2fffaxgc5534lze5ojxai4vnxuxiz4k57s3joafi26hbby5w6a"
+    sa-santiago-1	  = "ocid1.image.oc1.sa-santiago-1.aaaaaaaafchgyo6a4sa4h6edkvijohbcwnroafhb66sbe3come5d5qhj4noq"
+    sa-saopaulo-1	  = "ocid1.image.oc1.sa-saopaulo-1.aaaaaaaawisuo2l655it3yw5oaq7lrf6wh7dyof22yk23ek47cnxfcpkgfia"
+    sa-vinhedo-1	  = "ocid1.image.oc1.sa-vinhedo-1.aaaaaaaae2g4ystqi35snjnp2nn25cvmkh74ngpm45uqosmh7ukgurnalkuq"
+    uk-cardiff-1	  = "ocid1.image.oc1.uk-cardiff-1.aaaaaaaamijlpruvprwtaovx26yvun5tuijutfmmk6npcbawsfmgrv6fyc3a"
+    uk-london-1	    = "ocid1.image.oc1.uk-london-1.aaaaaaaaqb6vgjln2bsdvlkdk2eqov5hhqbyffodkto2qimvab4mvh4q567q"
+    us-ashburn-1	  = "ocid1.image.oc1.iad.aaaaaaaatw76yshzzwmu6l7rdpsv3kpfnanubwtdhjbrhelz4n7sz7ss5s6q"
+    us-phoenix-1	  = "ocid1.image.oc1.phx.aaaaaaaavb7udllf45sc5whsgcsmzmbiqb73rpysi3t5nuy5jil3yocfsoka"
+    us-sanjose-1	  = "ocid1.image.oc1.us-sanjose-1.aaaaaaaaicbcb5sfq6n5iisvx2hfr2vroifs4jmzgvuvizo7m32m2tlzzx6q"
+  }
 }
 ```
 
 * Parameters for the ODI VM Configuration
     * __odi_instance_shape__ - (Required) (Updatable) The shape of an instance. The shape determines the number of CPUs, amount of memory, and other resources allocated to the instance.
     * __adw_username__ - the Autonomous Data Warehouse username
-    * __adw_password__ - the Autonomous Data Warehouse password provided 
+    * __adw_password__ - the Autonomous Data Warehouse password provided when deployed the Autonomous Database.
     * __odi_vnc_password__ - a VNC password that you can connect on the linux instance using VNC
     * __odi_schema_prefix__ - the schema prefix
     * __odi_schema_password__ - the schema password
@@ -560,63 +471,64 @@ variable "bation_linux_image" {
 # ODI VM Configuration
 
 ```
+
 variable "odi_instance_shape" {
-  default = "VM.Standard2.4"
+  default = "VM.Standard2.4" # Example instance shape: VM.Standard2.4
 }
 
 variable "adw_username" {
   type = string
-  default = "admin"
+  default = "admin" # Example username: admin
 }
 
 variable "adw_password" {
   type = string
-  default = "<enter-password-here>"
+  default = "" # Example password: Par0laMea123
 }
 
 variable "odi_vnc_password" {
   type = string
-  default = "<enter-password-here>"
+  default = ""   # Example password: Par0laMea123
 }
 
 variable "odi_schema_prefix" {
   type = string
-  default = "odi"
+  default = "odi" # Example schema prefix: odi
 }
 
 variable "odi_schema_password" {
   type = string
-  default = "<enter-password-here>"
+  default = ""   # Example password: Par0laMea123
 }
 
 variable "odi_password" {
   type = string
-  default = "<enter-password-here>"
+  default = ""   # Example password: Par0laMea123
 }
 
 variable "adw_creation_mode" {
   type = bool
-  default = true
+  default = true  # True - As we are using ADW not mysql
 }
 
 variable "embedded_db" {
   type = bool
-  default = false
+  default = false  # False - As we are using ADW not mysql embeded 
 }
 
 variable "studio_mode" {
   type = string
-  default = "ADVANCED"     # "ADVANCED" or  "Web"
+  default = "ADVANCED"  # "ADVANCED" or "Web"
 }
 
 variable "db_tech" {
   type = string
-  default = "ADB"
+  default = "ADB"  # DB Tech ADB not Mysql
 }
 
 variable "studio_name" {
   type = string
-  default = "ADVANCED"     # "ADVANCED" ,  "ODI Web Studio Administrator" or "ODI Studio"
+  default = "ADVANCED" #  "ADVANCED" ,  "ODI Web Studio Administrator" or "ODI Studio"
 }
 
 ```
@@ -682,17 +594,122 @@ __Step #2:__ - Open a terminal and use the command: "cat /u01/oracle/logs/odiCon
 When the installation and configuration it's done the output will look like the one below.
 
 ```
+[opc@odi-instance logs]$ cat odiConfigure.log 
+
+	RCU Logfile: /tmp/RCU2022-11-17_11-34_792509053/logs/rcu.log
+
+
+RCU-6069:Warning : Database connect string specified is not in recommended format.  Refer to RCU help for supported connect string formats. Continuing execution.
+
+Enter the database password(User:admin):
+ 
+
+Processing command line ....
+Repository Creation Utility - Checking Prerequisites
+Checking Global Prerequisites
+Enter the schema password. This password will be used for all schema users of following components:STB,WLS,IAU_APPEND,IAU_VIEWER,OPSS,IAU,ODI.
+ 
+
+Enter the value of Custom Variable [Supervisor Password] for Component ODI [Min Length:6, Max Length:12]
+ 
+
+Enter the value of Custom Variable [Work Repository Type: (D) Development (Default) or (E) Execution] for Component ODI [Min Length:0, Max Length:1]
+
+
+RCUCommandLine Error - Value for Custom variable Work Repository Type: (D) Development (Default) or (E) Execution was not provided.
+Enter the value of Custom Variable [Work Repository Type: (D) Development (Default) or (E) Execution] for Component ODI [Min Length:0, Max Length:1]
+
+
+Enter the value of Custom Variable [Work Repository Name (WORKREP)] for Component ODI [Min Length:0, Max Length:128]
+
+
+RCUCommandLine Error - Value for Custom variable Work Repository Name (WORKREP) was not provided.
+Enter the value of Custom Variable [Work Repository Name (WORKREP)] for Component ODI [Min Length:0, Max Length:128]
+
+
+Enter the value of Custom Variable [Work Repository Password] for Component ODI [Min Length:0, Max Length:10]
+ 
+
+RCUCommandLine Error - Value for Custom variable Work Repository Password was not provided.
+Enter the value of Custom Variable [Work Repository Password] for Component ODI [Min Length:0, Max Length:10]
+ 
+
+Enter the value of Custom Variable [Encryption Algorithm: AES-128 (Default) or AES-256] for Component ODI [Min Length:0, Max Length:7]
+
+
+RCUCommandLine Error - Value for Custom variable Encryption Algorithm: AES-128 (Default) or AES-256 was not provided.
+Enter the value of Custom Variable [Encryption Algorithm: AES-128 (Default) or AES-256] for Component ODI [Min Length:0, Max Length:7]
+
+
+Repository Creation Utility - Checking Prerequisites
+Checking Component Prerequisites
+Repository Creation Utility - Creating Tablespaces
+Validating and Creating Tablespaces
+Create tablespaces in the repository database
+Repository Creation Utility - Create
+Repository Create in progress.
+        Percent Complete: 12
+Executing pre create operations
+        Percent Complete: 30
+        Percent Complete: 30
+        Percent Complete: 32
+        Percent Complete: 34
+        Percent Complete: 36
+        Percent Complete: 36
+        Percent Complete: 38
+        Percent Complete: 38
+Creating Common Infrastructure Services(STB)
+        Percent Complete: 46
+        Percent Complete: 46
+        Percent Complete: 56
+        Percent Complete: 56
+        Percent Complete: 56
+Creating Audit Services Append(IAU_APPEND)
+        Percent Complete: 64
+        Percent Complete: 64
+        Percent Complete: 74
+        Percent Complete: 74
+        Percent Complete: 74
+Creating Audit Services Viewer(IAU_VIEWER)
+        Percent Complete: 82
+        Percent Complete: 82
+        Percent Complete: 82
+        Percent Complete: 83
+        Percent Complete: 83
+        Percent Complete: 84
+        Percent Complete: 84
+        Percent Complete: 84
+Creating Weblogic Services(WLS)
+        Percent Complete: 89
+        Percent Complete: 89
+        Percent Complete: 93
+        Percent Complete: 93
+        Percent Complete: 100
+Creating Audit Services(IAU)
+Creating Oracle Platform Security Services(OPSS)
+Creating Master and Work Repository(ODI)
+Executing post create operations
+
+Repository Creation Utility: Create - Completion Summary
+
+Database details:
+-----------------------------
+Connect Descriptor                           : (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.us-ashburn-1.oraclecloud.com))(connect_data=(service_name=rddainsuh6u1okc_adwipn_low.adb.oraclecloud.com))(security=(ssl_server_cert_dn=CN=adwc.uscom-east-1.oraclecloud.com, OU=Oracle BMCS US, O=Oracle Corporation, L=Redwood City, ST=California, C=US)))
+Connected As                                 : admin
+Prefix for (prefixable) Schema Owners        : ODI
+RCU Logfile                                  : /tmp/RCU2022-11-17_11-34_792509053/logs/rcu.log
+
 Component schemas created:
 -----------------------------
 Component                                    Status         Logfile		
 
-Common Infrastructure Services               Success        /tmp/RCU2022-03-03_09-53_432763643/logs/stb.log 
-Oracle Platform Security Services            Success        /tmp/RCU2022-03-03_09-53_432763643/logs/opss.log 
-Master and Work Repository                   Success        /tmp/RCU2022-03-03_09-53_432763643/logs/odi.log 
-Audit Services                               Success        /tmp/RCU2022-03-03_09-53_432763643/logs/iau.log 
-Audit Services Append                        Success        /tmp/RCU2022-03-03_09-53_432763643/logs/iau_append.log 
-Audit Services Viewer                        Success        /tmp/RCU2022-03-03_09-53_432763643/logs/iau_viewer.log 
-WebLogic Services                            Success        /tmp/RCU2022-03-03_09-53_432763643/logs/wls.log 
+Common Infrastructure Services               Success        /tmp/RCU2022-11-17_11-34_792509053/logs/stb.log 
+Oracle Platform Security Services            Success        /tmp/RCU2022-11-17_11-34_792509053/logs/opss.log 
+Master and Work Repository                   Success        /tmp/RCU2022-11-17_11-34_792509053/logs/odi.log 
+Audit Services                               Success        /tmp/RCU2022-11-17_11-34_792509053/logs/iau.log 
+Audit Services Append                        Success        /tmp/RCU2022-11-17_11-34_792509053/logs/iau_append.log 
+Audit Services Viewer                        Success        /tmp/RCU2022-11-17_11-34_792509053/logs/iau_viewer.log 
+WebLogic Services                            Success        /tmp/RCU2022-11-17_11-34_792509053/logs/wls.log 
 
 Repository Creation Utility - Create : Operation Completed
 Loading KM : LKM SQL to SQL (Built-In), Base KM : null
@@ -801,6 +818,7 @@ Loading KM : LKM BICC to ADW Copy Direct, Base KM : LKM Object Storage to ADWC C
 Loading KM : OracleErpCloudExtractBaseKM, Base KM : null
 Loading KM : LKM Oracle ERP Cloud to SQL, Base KM : OracleErpCloudExtractBaseKM
 Loading KM : LKM Oracle ERP Cloud to File Direct, Base KM : OracleErpCloudExtractBaseKM
+Loading KM : LKM NetSuite to Oracle, Base KM : null
 Loading KM : PigKM, Base KM : null
 Loading KM : LKMPig, Base KM : PigKM
 Loading KM : LKMPigFile, Base KM : LKMPig
@@ -871,23 +889,37 @@ Table SNP_ALLOC_AGENT entry for I_CONTEXT = 4 configuration does not exist in th
 Table SNP_ALLOC_AGENT Configuration Completed Successfully
   Closing down all connections.
 
-File saved!
-Fetching all ADB instances...
 Generating wallet for ADB Instance: ADWipn
-Generating wallet for ADB Instance: ADWipan
+Generating wallet for ADB Instance: ADWipnEBSa
+Wallet download failed for: ADWipnEBSa Reason: (409, IncorrectState, false) The operation cannot be performed because the Autonomous Database with ID ocid1.autonomousdatabase.oc1.iad.anuwcljrknuwtjiaduyk7kcycx2herbmq5ma4qfxlzk27znotyucf46s4evq is in the TERMINATED state. (opc-request-id: A438A148576649A0B9AF772C0839C72A/0466E8FDE7BB9CA960FE60568EDEE12F/E9D06B02F35DB5D78DBA950217317142)
+Generating wallet for ADB Instance: ADWipanEBS
+Generating wallet for ADB Instance: DataModelsManufacturing
+Wallet download failed for: DataModelsManufacturing Reason: (409, IncorrectState, false) The operation cannot be performed because the Autonomous Database with ID ocid1.autonomousdatabase.oc1.iad.anuwcljrknuwtjiay5bssljdgfmdtcfri7jtx3nmgcuutwhki3q462ukchya is in the TERMINATED state. (opc-request-id: F30BAE62364A47D6BBBF917E393E61D0/FD053F18F73A34CECAAFA7BD499BBDF5/B0F82948BEB88BC44A689A74174A8038)
 ODI Marketplace configuration started.
 Invoking ADB config
 ODI configuration for ADB technology
 Start wallet download
 updating configuration
+[INFO] Feature Flag JSON file updated
+
 Starting repository creation for db tech
-Running common configuration.
-[INFO] Configuration is allowed.
-Seeding ODI repository...
-Running ODI MP common config...
-Configuring ADB dataservers in ODI repo...
+Running ODI Post-RCU MP common config ...
 ODI configuration completed
-[oracle@odi-instance logs]$
+Finished MP configuration
+Going to start Apps
+Allowing : 127.0.0.1,10.0.0.86,127.0.0.1
+2022-11-17 12:04:10.775 NOTIFICATION Ignoring JIT  connection to master repository, being 18c or above driver and connections are cached
+2022-11-17 12:04:12.473 NOTIFICATION Ignoring JIT  connection to master repository, being 18c or above driver and connections are cached
+2022-11-17 12:04:12.740 NOTIFICATION New data source: [ODI_ODI_REPO/*******@jdbc:oracle:thin:@(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.us-ashburn-1.oraclecloud.com))(connect_data=(service_name=rddainsuh6u1okc_adwipn_low.adb.oraclecloud.com))(security=(ssl_server_cert_dn=CN=adwc.uscom-east-1.oraclecloud.com, OU=Oracle BMCS US, O=Oracle Corporation, L=Redwood City, ST=California, C=US)))]
+2022-11-17 12:04:12.741 NOTIFICATION Ignoring JIT  connection to work repository, being SSL enabled DB and connections are cached
+2022-11-17 12:04:12.741 NOTIFICATION Ignoring JIT  connection to work repository, being SSL enabled DB and connections are cached
+2022-11-17 12:04:14.274 NOTIFICATION Ignoring JIT  connection to master repository, being 18c or above driver and connections are cached
+2022-11-17 12:04:14.821 NOTIFICATION ODI-1111 Agent OracleDIAgent1 started. Agent version: 12.2.1. Port: 20910. JMX Port: 20810.
+2022-11-17 12:04:14.823 NOTIFICATION ODI-1136 Starting Schedulers on Agent OracleDIAgent1.
+2022-11-17 12:04:16.281 NOTIFICATION ODI-1137 Scheduler started for work repository WORKREP on Agent OracleDIAgent1.
+2022-11-17 12:04:25.973 NOTIFICATION Inside cleanStaleSessions ::::::::::::::::::::::::::::::::::::
+2022-11-17 12:04:26.209 NOTIFICATION Not an InternatlAgent ::::::::::::::::startContinueLoadPlansThread:::::::::::::::
+[opc@odi-instance logs]$ 
 
 ```
 

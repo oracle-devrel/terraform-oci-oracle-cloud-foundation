@@ -91,6 +91,12 @@ module "network-routing" {
   }
 }
 
+module "network-routing-attachment" {
+  source = "../../../cloud-foundation/modules/oci-cis-landingzone-quickstart/network/vcn-routing"
+  compartment_id = var.compartment_id 
+  subnets_route_tables = local.network-routing-attachment
+}
+
 module "network-security-lists" {
   source = "../../../cloud-foundation/modules/oci-cis-landingzone-quickstart/network/security"
   compartment_id = var.compartment_id 
