@@ -39,7 +39,10 @@ resource "oci_core_instance" "instance" {
     }
 
     #prevent any metadata changes to destroy instance
+    # lifecycle {
+    #   ignore_changes = [metadata, shape, shape_config]
+    # }
     lifecycle {
-      ignore_changes = [metadata, shape, shape_config]
-    }
+        ignore_changes = all
+  }
 }

@@ -4,7 +4,7 @@
 title: "Create the Departmental data warehousing - an EBS integration example solution"
 stackDescription: "Create the Departmental data warehousing - an EBS integration example solution"
 schemaVersion: 1.1.0
-version: "20220303"
+version: "20221118"
 locale: "en"
 groupings:
   - title: "General Settings"
@@ -42,7 +42,6 @@ groupings:
   - title: "Bastion VM Configuration"
     variables:
       - bastion_shape
-      - bation_linux_image
   - title: "ODI VM Configuration"
     variables:
       - odi_instance_shape
@@ -74,6 +73,7 @@ groupings:
       - whitelisted_ips
       - analytics_instance_network_endpoint_details_whitelisted_ips
       - release
+      - bastion_instance_image_ocid
 # General Configuration Variables
 variables:
   tenancy_ocid:
@@ -97,7 +97,7 @@ variables:
   display_name_prefix:
     title: Display Name Prefix
     type: string
-    default: "Cloud data lake house - process enterprise and streaming data for analysis and machine learning Solution"
+    default: "Create the Departmental data warehousing - an EBS integration example solution"
     description: Enter the Display name for the solution.
     required: true
     visible: true
@@ -171,7 +171,7 @@ variables:
       - 36
       - 52
       - 128
-    default: 1
+    default: "1"
     visible: true
     required: true
   adw_enable_auto_scaling:
@@ -201,7 +201,7 @@ variables:
       - 10
       - 11
       - 12
-    default: 1
+    default: "1"
     required: true
     visible: true
   adw_db_workload:
@@ -219,7 +219,7 @@ variables:
     description: "Enter a unique name for this instance. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
     type: string
     maxLength: 30
-    default: "AnalyticsX"
+    default: "AnalyicSDEBS"
     required: true
     visible: true
   analytics_instance_license_type:
@@ -258,7 +258,7 @@ variables:
       - 24
       - 36
       - 52
-    default: 1
+    default: "2"
     visible: true
     required: true
   analytics_instance_capacity_capacity_type:
@@ -307,13 +307,6 @@ variables:
     visible: true
     dependsOn:
       compartmentId: ${compartment_id}
-  bation_linux_image:
-    title: Provide the linux image OCID for the bastion VM.
-    description: "Provide the linux image OCID for the bastion VM."
-    type: string
-    default: "ocid1.image.oc1.iad.aaaaaaaavzjw65d6pngbghgrujb76r7zgh2s64bdl4afombrdocn4wdfrwdq"
-    required: true
-    visible: true
 # "ODI VM Configuration"
   odi_instance_shape:
     title: Provide the shape for ODI VM
@@ -387,8 +380,8 @@ variables:
     required: true
     visible: true
   studio_mode:
-    title: "Studio modeo fhe ODI"
-    description: "Studio modeo fhe ODI"
+    title: "Studio mode for ODI"
+    description: "Studio mode for ODI"
     type: enum
     enum:
       - "ADVANCED"
@@ -406,8 +399,8 @@ variables:
     required: true
     visible: true
   studio_name:
-    title: "The studio name of the ODI"
-    description: "The studio name of the ODI"
+    title: "The studio name of ODI"
+    description: "The studio name of ODI"
     type: enum
     enum:
       - "ADVANCED"

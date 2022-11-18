@@ -46,27 +46,30 @@ data "template_cloudinit_config" "bastion-config" {
 data "template_file" "bootstrap" {
   template = file("${path.module}/userdata/odi-bootstrap.tpl")
   vars = {
-    odi_vnc_password    = var.odi_vnc_password
-    adw_instance        = lookup(module.adw.adw,var.adw_db_name)
-    adw_username        = var.adw_username
-    adw_password        = var.adw_password
-    odi_password        = var.odi_password
-    odi_schema_prefix   = var.odi_schema_prefix
-    odi_schema_password = var.odi_schema_password
-    adw_creation_mode   = var.adw_creation_mode
-    embedded_db         = var.embedded_db
-    studio_mode         = var.studio_mode 
-    db_tech             = var.db_tech
-    studio_name         = var.studio_name
+    odi_vnc_password     = var.odi_vnc_password
+    adw_instance         = lookup(module.adw.adw,var.adw_db_name)
+    adw_username         = var.adw_username
+    adw_password         = var.adw_password
+    odi_password         = var.odi_password
+    odi_schema_prefix    = var.odi_schema_prefix
+    odi_schema_password  = var.odi_schema_password
+    adw_creation_mode    = var.adw_creation_mode  
+    embedded_db          = var.embedded_db
+    studio_mode          = var.studio_mode 
+    db_tech              = var.db_tech
+    lb_address           = ""
+    register_repository  = false
+    show_adp_desktop     = false
+    studio_name          = var.studio_name
   }
 }
 
 
 locals {
-  odi_image                   = "ocid1.image.oc1..aaaaaaaa6khjykwya7brreppxvtiuifnolxmmgufcfbtwvugtui5kjjzz4sa"
-  mp_listing_id               = "ocid1.appcataloglisting.oc1..aaaaaaaat7fdtoicx5x34ofrcckfoimlrjb4tly5pgm3qfoyqssp2qnvsl6q"
-  mp_listing_resource_id      = "ocid1.image.oc1..aaaaaaaa6khjykwya7brreppxvtiuifnolxmmgufcfbtwvugtui5kjjzz4sa"
-  mp_listing_resource_version = "ODI_Marketplace_V12.2.1.4.200721a"
+  odi_image = "ocid1.image.oc1..aaaaaaaagufmbd5nvlq5cdhhhg5rikrtiljj2ppufxllx3m4v363x3k4eucq"
+  mp_listing_id = "ocid1.appcataloglisting.oc1..aaaaaaaat7fdtoicx5x34ofrcckfoimlrjb4tly5pgm3qfoyqssp2qnvsl6q"
+  mp_listing_resource_id = "ocid1.image.oc1..aaaaaaaagufmbd5nvlq5cdhhhg5rikrtiljj2ppufxllx3m4v363x3k4eucq"
+  mp_listing_resource_version = "Oracle_Data_Integrator_V12.2.1.4.221007"
 
   ad_names                          = compact(data.template_file.ad_names.*.rendered)
   public_subnet_availability_domain = local.ad_names[0]
@@ -137,7 +140,7 @@ bastion_instance_params = {
     assign_public_ip  = true
     hostname_label    = ""
     source_type   = "image"
-    source_id     = var.bation_linux_image
+    source_id     = var.bastion_instance_image_ocid[var.region]
     metadata = {
       ssh_authorized_keys = module.keygen.OPCPrivateKey.public_key_openssh
       user_data           = data.template_cloudinit_config.bastion-config.rendered
@@ -157,9 +160,9 @@ bastion_instance_params = {
     shape          = var.odi_instance_shape
     defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
     freeform_tags  = {}
-    subnet_id        = lookup(module.network-subnets.subnets,"public-subnet").id
+    subnet_id        = lookup(module.network-subnets.subnets,"private-subnet").id
     vnic_display_name = ""
-    assign_public_ip = true
+    assign_public_ip = false
     hostname_label   = ""
     source_type = "image"
     source_id   = local.odi_image
@@ -257,7 +260,33 @@ bastion_instance_params = {
       }],
         defined_tags      = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
     }
+      private_route_table-nat = {
+      compartment_id = var.compartment_id,
+      vcn_id=lookup(module.network-vcn.vcns,"vcn").id,
+      subnet_id = lookup(module.network-subnets.subnets,"private-subnet").id,
+      route_table_id = "",
+      route_rules = [{
+        is_create = true,
+        destination       = "0.0.0.0/0",
+        destination_type  = "CIDR_BLOCK",
+        network_entity_id = lookup(module.network-vcn.nat_gateways, lookup(module.network-vcn.vcns,"vcn").id).id,
+        description       = ""
+      }],
+      defined_tags  = {}
+    }
   }
+
+#network routing attachment
+network-routing-attachment = {
+    "" = {
+      compartment_id = var.compartment_id,
+      vcn_id = lookup(module.network-vcn.vcns,"vcn").id,
+      subnet_id = lookup(module.network-subnets.subnets,"public-subnet").id,
+      route_table_id = lookup(module.network-routing.subnets_route_tables,"public_route_table").id,
+      route_rules = [],
+      defined_tags = {}
+    }
+}
 
 #create security list - opening port 22 ssh and port 80 - http
   security_lists = {
@@ -367,6 +396,16 @@ bastion_instance_params = {
             src_type      = "CIDR_BLOCK",
             src_port      = null,
             dst_port      = null,
+            icmp_type     = null,
+            icmp_code     = null
+          }],
+          [{
+            stateless = false
+            protocol  = "all"
+            src           = "0.0.0.0/0",
+            src_type      = "CIDR_BLOCK",
+            src_port      = null,
+            dst_port      = null
             icmp_type     = null,
             icmp_code     = null
           }],

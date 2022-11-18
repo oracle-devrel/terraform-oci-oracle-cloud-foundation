@@ -6,6 +6,6 @@ output "bastions_details" {
 }
 
 output "sessions_details" {
-  value = {for g in oci_bastion_session.session : g.display_name => g}
+  value = {for g in oci_bastion_session.these : g.display_name => g}
 }
 

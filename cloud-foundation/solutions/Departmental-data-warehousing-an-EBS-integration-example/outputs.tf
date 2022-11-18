@@ -41,7 +41,12 @@ output "private_VNC" {
   value = "ODI_INSTANCE_PRIVATE_IP:1"
 }
 
-output "ssh_private_key" {
-  value = module.keygen.OPCPrivateKey["private_key_pem"]
-  sensitive = true
+output "generated_ssh_private_key_for_bastion" {
+  value = nonsensitive(module.keygen.OPCPrivateKey["private_key_pem"])
+}
+
+resource "local_file" "private_key" {
+    content  = module.keygen.OPCPrivateKey["private_key_pem"]
+    filename = "private_key.pem"
+    file_permission = 0600
 }
