@@ -119,3 +119,5 @@ We welcome your feedback. To post feedback, submit feature ideas or report bugs,
 
 ## <a name="known-issues"></a>Known Issues
 **At the moment, there are no known issues**
+
+ORACLE AND ITS AFFILIATES DO NOT PROVIDE ANY WARRANTY WHATSOEVER, EXPRESS OR IMPLIED, FOR ANY SOFTWARE, MATERIAL OR CONTENT OF ANY KIND

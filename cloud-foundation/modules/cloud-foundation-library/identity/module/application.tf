@@ -1,3 +1,6 @@
+# Copyright © 2022, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
 
 # input
 
@@ -75,6 +78,8 @@ locals {
         "manage ons-family", "manage alarms", "manage metrics", "manage logs", "manage cloudevents-rules",
         # Resource manager
         "manage orm-stacks", "manage orm-jobs", "manage orm-config-source-providers",
+        #File Storage Service
+        "manage file-systems", "manage export-sets",
 
         # read 
         "read all-resources", "read audit-events", "read work-requests",  "read instance-agent-plugins"
@@ -82,40 +87,14 @@ locals {
 
     var.application_type == "ebs" #adds additional database policy grants needed for ebs admins
         ? formatlist ("allow group %%s to %s in compartment %%s",[
-            "manage database-family", "manage autonomous-database-family",
+            "manage database-family", "manage autonomous-database-family", "manage load-balancers", "manage tag-namespaces"
         ]) 
         : []
         
-    ) # TODO: make clear seperation of Landing Zone statements and CM statements
-
-
-
- # TODO: clean up documentation
- 
-    # taken from EBS demo stack     -- https://docs.oracle.com/cd/E26401_01/doc.122/f35809/T679330T679339.htm#T679469
-    ebscm_statements = concat ( 
-        local.app_statements, 
-        formatlist("allow group %%s to %s in compartment %%s",[
-            "manage load-balancers", "manage tag-namespaces",  
-            "manage database-family" # not in docs but I think is necessary to create an ebs environment
-        ]),
-        var.with_identity_domains ? ["allow group %%s to use domains in compartment %%s"] : [] #docs say scope to tenancy
     )
 
-    /*
-    #tenancy
-        formatlist( "allow group ${oci_identity_group.application[0].name} to %s in tenancy", [
-        "manage buckets", "manage objects", "manage app-catalog-listing", "inspect compartments",
-        "inspect users", "inspect groups", "use tag-namespaces"
-    ]),
-        formatlist( "allow group ${oci_identity_group.application[0].name} to %s in compartment ${oci_identity_compartment.application[0].name}", [
-        "manage database-family", "manage instance-family", "manage load-balancers",
-        "manage tag-namespaces", "manage virtual-network-family", "manage volume-family"
-    ]),
-    */
 
-
-    applied_statement = local.app_statements #TODO add support for ebs application type
+    applied_statement = local.app_statements
 
 }
 

@@ -32,6 +32,9 @@ resource "oci_analytics_analytics_instance" "oac" {
     capacity_type  = each.value.analytics_instance_capacity_capacity_type
     capacity_value = each.value.analytics_instance_capacity_value
   }
+   lifecycle {
+    ignore_changes = all
+  }
 }
 
 

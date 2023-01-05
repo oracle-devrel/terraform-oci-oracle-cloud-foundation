@@ -50,7 +50,7 @@ variable "adw_size_in_tbs" {
 
 variable "adw_db_name" {
     type = string
-    default = "ADWoipn"
+    default = "ADWoipna"
 }
 
 variable "adw_db_workload" {
@@ -80,12 +80,12 @@ variable "adw_license_model" {
 
 variable "database_admin_password" {
   type = string
-  default = ""
+  default = "<your-passwsord-here>"
 }
 
 variable "database_wallet_password" {
   type = string
-  default = ""
+  default = "<your-passwsord-here>"
 }
 
 
@@ -111,6 +111,13 @@ variable "logging_logs_events_enabled" {
     default = false
 }
 
+# Variable for the database management service - managed group - required for the ansible module
+
+variable "managed_database_group_name" {
+  type    = string
+  default = "My_manage_Group"
+}
+
 # Networking variables
 
 # VCN and subnet Variables
@@ -129,7 +136,7 @@ variable "private_subnet_cidr" {
 
 variable "service_name" {
   type        = string
-  default     = "ServiceName1"
+  default     = "monitoringlevel1"
   description = "A prefix for policies and dynamic groups names - scope: to be unique names not duplicates"
 }
 
@@ -139,11 +146,6 @@ variable "use_regional_subnet" {
   type = bool
   default = true
   description = "Indicates use of regional subnets (preferred) instead of AD specific subnets"
-}
-
-variable "release" {
-  description = "Reference Architecture Release (OCI Architecture Center)"
-  default     = "1.0.0"
 }
 
 # # End

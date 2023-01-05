@@ -1,3 +1,6 @@
+# Copyright © 2022, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
 
 # creates vcn, SGW, IGW, and NGW, and route tables(?)
 # option to lockdown default security list
@@ -78,6 +81,11 @@ output "cidrs" {
 output "service_gateway" {
   value = var.create_service_gateway ? oci_core_service_gateway.this[0].id : null
   description = "ocid of created SGW"
+}
+
+output "service_cidr" {
+  value = var.create_service_gateway ? data.oci_core_services.all_oci_services[0].services[0].cidr_block : null
+  description = "the service cidr used by the service gateway"
 }
 
 output "nat_gateway" {

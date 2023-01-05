@@ -1,0 +1,24 @@
+- hosts: 
+  - localhost
+  collections: 
+  - oracle.oci
+
+  tasks:
+    - name: Perform action enable_autonomous_database_management on autonomous_database
+      oci_database_autonomous_database_actions:
+        autonomous_database_id: "{{ autonomous_database_id }}"
+        action: enable_autonomous_database_management
+
+    - name: Create managed_database_group
+      oci_database_management_managed_database_group:
+        name: "{{ managed_database_group_name }}"
+        compartment_id: "{{ compartment_id }}"
+      register: result
+    - set_fact:
+        managed_database_group_id: "{{ result.managed_database_group.id }}"
+           
+    - name: Perform action add_managed_database on managed_database_group
+      oci_database_management_managed_database_group_actions:
+        managed_database_group_id: "{{ managed_database_group_id }}"
+        managed_database_id: "{{ autonomous_database_id }}"
+        action: add_managed_database

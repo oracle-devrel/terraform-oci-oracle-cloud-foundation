@@ -185,9 +185,9 @@ module "compute" {
   }
 }
 
-resource "time_sleep" "wait_2_mins" {
+resource "time_sleep" "wait_3_mins_for_the_instances_to_be_up_and_running" {
   depends_on = [module.compute]
-  create_duration = "2m"
+  create_duration = "3m"
 }
 
 ##### Calling the network modules that are required for this solution ######
@@ -279,8 +279,7 @@ module "network-security-groups" {
 module "dynamic_groups" {
   source = "../../../cloud-foundation/modules/oci-cis-landingzone-quickstart/iam/iam-dynamic-group"
   providers = {
-    oci = oci
-    oci.homeregion = oci.homeregion
+    oci = oci.homeregion
   }
   dynamic_groups = local.dynamic_groups
 }
@@ -289,8 +288,7 @@ module "policies" {
   source = "../../../cloud-foundation/modules/oci-cis-landingzone-quickstart/security/policies"
   depends_on = [module.dynamic_groups]
   providers = {
-    oci = oci
-    oci.homeregion = oci.homeregion
+    oci = oci.homeregion
   }
   policies   = local.policies
 }
