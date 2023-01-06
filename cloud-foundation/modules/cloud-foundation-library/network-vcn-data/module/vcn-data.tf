@@ -44,7 +44,7 @@ output "cidrs" {
 }
 
 output "service_gateway" {
-  value = var.service_gateway ? data.oci_core_service_gateways.this[0].id : null
+  value = var.service_gateway ? data.oci_core_service_gateways.this[0].service_gateways[0].id : null
   description = "ocid of created SGW"
 }
 
