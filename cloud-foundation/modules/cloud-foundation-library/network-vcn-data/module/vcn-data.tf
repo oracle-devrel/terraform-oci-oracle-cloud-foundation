@@ -82,7 +82,7 @@ data "oci_core_services" "this" {
     count = var.service_gateway ? 1 : 0
 
   filter {
-    name   = "name"
+    name   = "id"
     values = [data.oci_core_service_gateways.this[0].service_gateways[0].services[0].service_id]
   }
   
