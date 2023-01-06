@@ -49,8 +49,8 @@ output "service_gateway" {
 }
 
 output "service_cidr" {
-  value = var.service_gateway ? data.oci_core_services.this[0].services[0].id : null
-  description = "the service cidr id used by the service gateway"
+  value = var.service_gateway ? data.oci_core_services.this[0].services[0].cidr_block : null
+  description = "the service cidr used by the service gateway"
 }
 
 output "nat_gateway" {
