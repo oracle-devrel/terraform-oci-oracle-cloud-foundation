@@ -29,7 +29,7 @@ resource "oci_identity_policy" "general" {
   description    = "general policy applying to any user"
   name           = "general"
   statements     = concat(formatlist("allow any-user to %s in tenancy", [
-     "inspect buckets", "inspect compartments", "read app-catalog-listing", "read instance-images", "read repos", "inspect users", "inspect groups", "inspect dynamic-groups"
+     "inspect tenancies", "inspect buckets", "inspect compartments", "read app-catalog-listing", "read instance-images", "read repos", "inspect users", "inspect groups", "inspect dynamic-groups"
     ]),
     ["allow any-user to use tag-namespaces in tenancy where target.tag-namespace.name='Oracle-Tags'"]
     ,
