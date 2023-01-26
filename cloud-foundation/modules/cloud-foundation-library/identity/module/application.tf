@@ -54,6 +54,18 @@ output "appplication_environment_compartments" {
     description = "map of application environment compartments ocid with environment name as key and ocid as value"
 }
 
+output "application_group" {
+    value =  var.create_application_persona ? oci_identity_group.application[0].id : null 
+    description = "ocid of the main application group"
+}
+
+output "application_environment_groups" {
+    value = {for group in oci_identity_group.environments: group.name => group.id}
+    description = "map of application environment groups ocid with environment name as key and ocid as value"
+}
+
+
+
 # logic
 
 locals {
@@ -137,7 +149,7 @@ resource "oci_identity_group" "environments" {
     for_each =  toset(local.environment_names)
 
     compartment_id = var.tenancy_ocid
-    description = "group for ebs admins"
+    description = "group for ${each.key} admins"
     name = each.key
   
 }
