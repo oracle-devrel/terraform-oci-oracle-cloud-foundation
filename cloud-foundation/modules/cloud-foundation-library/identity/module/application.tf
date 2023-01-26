@@ -49,7 +49,7 @@ output "application_compartment" {
     description = "ocid of the main application compartment"
 }
 
-output "appplication_environment_compartments" {
+output "application_environment_compartments" {
     value = {for compartment in oci_identity_compartment.environments: compartment.name => compartment.id}
     description = "map of application environment compartments ocid with environment name as key and ocid as value"
 }
