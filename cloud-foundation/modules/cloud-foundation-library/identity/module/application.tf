@@ -18,10 +18,10 @@ variable "application_name" {
     description = "optional custom name for application identity resources"
 }
 
-variable "application_type" {
-    type = string 
-    default = "generic"
-    description = "defines the policies applied to each group. Valid values are \"generic\" and \"ebs\" "
+variable "additional_application_policies" {
+  type = list(string)
+  default = []
+  description = "allows you to add custom policies to the application and environment compartments. use short policy format of verb + resource"
 }
 
 variable "application_environments" { # rename environments
@@ -29,6 +29,8 @@ variable "application_environments" { # rename environments
     default = []
     description = "creates sub personas from the main application compartment. Used to isolate admin teams."
 }
+
+
 
 
 /* expected defined values 
@@ -60,11 +62,10 @@ locals {
 
     environment_names = [for name in var.application_environments: "${local.application_name}-${name}"]
 
+
     # first symbol is group name
     # second symbol is a verb + resource type or list of verb + resource type
     # third symbol is compartment name
-
-    # taken from Landing Zone
     app_statements = concat (
         formatlist("allow group %%s to %s in compartment %%s",[
         # manage
@@ -84,17 +85,13 @@ locals {
         # read 
         "read all-resources", "read audit-events", "read work-requests",  "read instance-agent-plugins"
     ] ),
-
-    var.application_type == "ebs" #adds additional database policy grants needed for ebs admins
-        ? formatlist ("allow group %%s to %s in compartment %%s",[
-            "manage database-family", "manage autonomous-database-family", "manage load-balancers", "manage tag-namespaces"
-        ]) 
-        : []
+        
+        formatlist ("allow group %%s to %s in compartment %%s", var.additional_application_policies) 
+        
         
     )
 
 
-    applied_statement = local.app_statements
 
 }
 
@@ -127,7 +124,7 @@ resource "oci_identity_policy" "application" {
     description = "Landing Zone ${oci_identity_group.application[0].name}'s compartment policy."
     name = local.application_name
     statements = [
-        for s in local.applied_statement:
+        for s in local.app_statements:
             format(s,oci_identity_group.application[0].name,oci_identity_compartment.application[0].name)
     ]
 
@@ -161,24 +158,8 @@ resource "oci_identity_policy" "environments" {
     description = "${each.value.name}'s compartment policy"
     name = each.key
     statements = [
-        for s in local.applied_statement:
+        for s in local.app_statements:
             format(s,oci_identity_group.environments[each.key].name,each.value.name)
     ]
   
 }
-
-/*
-module "ebs_environments" {
-    for_each = toset(local.environment_names)
-
-    source = "./modules/app_persona"
-
-    tenancy_ocid = var.tenancy_ocid
-    app_persona = {
-        name = "${oci_identity_compartment.application[0].name}-${each.key}"
-        persona_type = "application"
-        parent_compartment_ocid = oci_identity_compartment.application[0].id
-    }
-}
-
-*/
