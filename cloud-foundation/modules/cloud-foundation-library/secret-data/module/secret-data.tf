@@ -20,7 +20,7 @@ variable "secret_names" {
 variable "compartment" {
     type = string 
     default = null 
-    decription = "required for looking up secrets by name."
+    description = "required for looking up secrets by name."
 }
 
 
