@@ -60,7 +60,7 @@ data "oci_vault_secrets" "these" {
 locals {
 
     secret_ocids = merge (var.secret_ocids, 
-        {for key,value in var.secret_names: key => data.oci_vault_secrets.these[key].secret_id}
+        {for key,value in var.secret_names: key => data.oci_vault_secrets.these[key].secrets[0].id}
     )
   
 }
