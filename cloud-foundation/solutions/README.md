@@ -3,7 +3,7 @@
 
 ## <a name="Solutions"></a>Overview
 For the moment we have implemented the following solutions:
-- Data platform - departmental data warehouse for line of business (LOB) Full Solution
+- Data platform - departmental data warehouse for line of business (LOB)
 - Data platform - data warehouse with e-business integration
 - Weblogic Clustered Deployment Solution
 - Hello-WebServer

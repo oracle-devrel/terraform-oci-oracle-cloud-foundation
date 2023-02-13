@@ -51,7 +51,7 @@ If you don't have the required permissions and quota, contact your tenancy admin
 
 # <a name="Deploy-Using-Oracle-Resource-Manager"></a>Deploy Using Oracle Resource Manager
 
-1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation/releases/download/v1.0.0/Data-platform-departmental-data-warehouse-for-line-of-business-Full-Solution-RM.zip)
+1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation/releases/download/v1.0.0/Data-platform-departmental-data-warehouse-for-line-of-business-RM.zip)
 
 
     If you aren't already signed in, when prompted, enter the tenancy and user credentials.
@@ -71,7 +71,7 @@ If you don't have the required permissions and quota, contact your tenancy admin
 Now, you'll want a local copy of this repo. You can make that with the commands:
 
     git clone https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation.git
-    cd terraform-oci-oracle-cloud-foundation/cloud-foundation/solutions/Data-platform-departmental-data-warehouse-for-line-of-business-Full-Solution
+    cd terraform-oci-oracle-cloud-foundation/cloud-foundation/solutions/Data-platform-departmental-data-warehouse-for-line-of-business
     ls
 
 ## Deployment
