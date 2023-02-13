@@ -1,8 +1,8 @@
 # Copyright © 2023, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-title: "Create the Data platform - departmental data warehouse for line of business (LOB) - Full Solution"
-stackDescription: "Deploy the Data platform - departmental data warehouse for line of business (LOB) - Full Solution"
+title: "Create the Data platform - departmental data warehouse for line of business (LOB)"
+stackDescription: "Deploy the Data platform - departmental data warehouse for line of business (LOB)"
 schemaVersion: 1.1.0
 version: "20230209"
 locale: "en"
@@ -90,7 +90,7 @@ variables:
   display_name_prefix:
     title: Display Name Prefix
     type: string
-    default: "Deploy the Data platform - departmental data warehouse for line of business (LOB) - Full Solution"
+    default: "Deploy the Data platform - departmental data warehouse for line of business (LOB)"
     description: Enter the Display name for the solution.
     required: true
     visible: true
