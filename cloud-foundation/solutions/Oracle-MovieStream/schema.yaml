@@ -1,0 +1,349 @@
+# Copyright © 2023, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+title: "Deploy Oracle MovieStream"
+stackDescription: "Deploy the Oracle MovieStream Solution.Oracle MovieStream is a fictitious movie streaming service. They face challenges that are typical to many organizations across industries"
+schemaVersion: 1.1.0
+version: "20230112"
+locale: "en"
+groupings:
+  - title: "General Settings"
+    visible: true
+    variables:
+      - tenancy_ocid
+      - compartment_id
+      - region
+      - display_name_prefix
+  - title: "Autonomous Database Configuration"
+    variables:
+      - db_name
+      - db_is_free_tier
+      - db_license_model
+      - db_password
+      - db_version
+      - db_size_in_tbs
+      - db_enable_auto_scaling
+      - db_cpu_core_count
+      - db_workload
+      # - tag
+      # - run_post_load_procedures
+  - title: "Bastion VM Configuration"
+    variables:
+      - bastion_instance_display_name
+      - bastion_instance_shape
+      - bastion_availability_domain
+  # - title: "Data Catalog"
+  #   variables:
+  #     - catalog_display_name
+  - title: "Network Configuration"
+    variables:
+      - service_name
+      - vcn_cidr
+      - public_subnet_cidr
+      - private_subnet_cidr
+      - show_advanced_options
+  - title: "Hidden Variables"
+    visible: false
+    variables:
+      - user_ocid
+      - fingerprint
+      - private_key_path
+      - bastion_source_image_id
+# General Configuration Variables
+variables:
+  tenancy_ocid:
+    title: Tenancy ID
+    description: The Oracle Cloud Identifier (OCID) for your tenancy.
+    type: string
+    required: true
+    visible: false
+  compartment_id:
+    title: Stack Compartment
+    description: Choose the compartment where all resources will be provisioned.
+    type: oci:identity:compartment:id
+    required: true
+    visible: true
+  region:
+    title: Region
+    description: Select Region where all resources will be created.
+    type: oci:identity:region:name
+    required: true
+    visible: true
+  display_name_prefix:
+    title: Display Name Prefix
+    type: string
+    default: "Oracle MovieStream"
+    description: Enter the Display name for the solution.
+    required: true
+    visible: true
+# Autonomous Database Configuration Variables
+  db_name:
+    title: Database Name
+    description: "Provide Database name. Constraints: 12 alphanumeric characters only. No Spaces."
+    required: true
+    type: string
+    maxLength: 30
+  db_is_free_tier:
+    title: Do do want a always Free Oracle Autonomous Database instance?
+    description: "Provision Always Free Oracle Autonomous Database instance (1 OCPU 20 GB Storage)?"
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true
+  db_license_model:
+    title: "Provision Paid Oracle Autonomous Database instance (2 OCPU 1 TB Storage) - License Included or BYOL?"
+    description: "Note: This configuration can be changed later from the OCI console."
+    type: enum
+    enum:
+      - LICENSE_INCLUDED
+      - BRING_YOUR_OWN_LICENSE
+    default: BRING_YOUR_OWN_LICENSE
+    required: true
+    visible:
+      eq:
+        - db_is_free_tier
+        - "false"
+  db_password:
+    title: Database Admin Password
+    description: "Provide admin password. Constraints: 12 - 30 characters. At least one uppercase letter, one lowercase letter, and one number. No special characters."
+    type: password
+    required: true
+    confirmation: true
+    pattern: ((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[%!@^&)(]).{12,20})
+  db_version:
+    title: "A valid Oracle Database version for Autonomous Database"
+    description: "A valid Oracle Database version for Autonomous Database"
+    type: enum
+    enum:
+      - "19c"
+    default: "19c"
+    required: true
+    visible: true
+  db_size_in_tbs:
+    title: "The quantity of data in the database, in terabytes."
+    description: "The quantity of data in the database, in terabytes."
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 4
+      - 6
+      - 8
+      - 10
+      - 12
+      - 16
+      - 24
+      - 36
+      - 52
+      - 128
+    default: 1
+    visible: true
+    required: true
+  db_enable_auto_scaling:
+    title: Indicates if auto scaling is enabled for the Autonomous Database CPU core count. 
+    description: "Indicates if auto scaling is enabled for the Autonomous Database CPU core count. "
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true   
+  db_cpu_core_count:
+    title: The number of OCPU cores to be made available to the database 
+    description: "The number of OCPU cores to enable. Available cores are subject to your tenancy's service limits."
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+      - 10
+      - 11
+      - 12
+    default: 1
+    required: true
+    visible: true
+  db_workload:
+    title: Autonomous Database Type of workload. 
+    description: "Autonomous Database Type of workload."
+    type: enum
+    enum:
+      - "DW"
+    default: "DW"
+    required: true
+    visible: false
+  # tag:
+  #   title: Pick the datasets to load. 
+  #   description: "Pick one from below"
+  #   type: enum
+  #   enum:
+  #     - "movieapp"
+  #     - "graph-get-started"
+  #   default: "movieapp"
+  #   required: true
+  #   visible: true 
+  # run_post_load_procedures:
+  #   title: Run procedures after loading data
+  #   description: "Pick one from below"
+  #   type: enum
+  #   enum:
+  #     - true
+  #     - false
+  #   default: true
+  #   required: true
+  #   visible: true   
+ # "Bastion VM Configuration"
+  bastion_instance_display_name:
+    title: Bastion VM Display Name
+    description: "Enter a name for thhe Bastion VM. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    maxLength: 30
+    default:  "Oracle-MovieStream"
+    required: true
+    visible: true
+  bastion_instance_shape:
+    title: Provide the shape for Bastion VM
+    description: "Provide the shape for Bastion VM"
+    type: oci:core:instanceshape:name
+    default: "VM.Standard2.4"
+    required: true
+    visible: true
+    dependsOn:
+      compartmentId: ${compartment_id}
+  bastion_availability_domain:
+    title: Provide the availability domain for the VM
+    description: "Select the availability domain where you want to deploy the VM"
+    required: true
+    visible: true
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 3
+    default: 1
+# # Data Catalog Configuration  
+#   catalog_display_name:
+#     title: Data Catalog Name
+#     description: "Enter a unique name for this data catalog. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+#     type: string
+#     maxLength: 30
+#     required: true
+#     visible: true
+# Network Configuration
+  service_name:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "OracleMovieStream"
+    minLength: 1
+    maxLength: 255
+    pattern: "^[a-zA-Z_]\\w{0,254}$"
+    required: true
+    title: Resource Name Prefix
+    description: The names of all compute and network resources will begin with this prefix. It can only contain letters or numbers and must begin with a letter.
+  vcn_cidr:
+    visible: 
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.0.0/16"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: VCN Network CIDR
+    required: true
+    description: The CIDR to assign to the new Virtual Cloud Network (VCN) to create for this service. This field is not required if you want to use an existing VCN. When using VCN peering ensure that the VCNs being peered have non-overlapping CIDR blocks.
+  public_subnet_cidr:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.0.0/24"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Public Subnet CIDR
+    description: "The CIDR of the new public subnet."
+  private_subnet_cidr:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.1.0/24"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Private Subnet CIDR
+    description: "The CIDR of the new private subnet."
+  show_advanced_options:
+    title: Show Advanced Options
+    description: Enable advanced options for network.
+    type: boolean
+    default: false
+    visible: true
+outputs:
+  Instructions:
+    type: string
+    title: Instructions
+  generated_ssh_private_key_for_bastion:
+    type: string
+    title: Generated Ssh Private Key for Bastion
+  ADW_Database_db_connection:
+    type: string
+    title: ADW_Database_db_connection
+  ADW_Database_private_endpoint_ip:
+    type: string
+    title: ADW_Database_private_endpoint_ip
+  Database_Actions:
+    type: link
+    title: url
+  graph_studio_url:
+    type: link
+    title: graph_studio_url
+  machine_learning_user_management_url:
+    type: link
+    title: machine_learning_user_management_url
+  database_fully_qualified_name:
+    type: string
+    title: database_fully_qualified_name
+  web-instance-all_instances:
+    type: string
+    title: Bastion VM Ocid
+  web-instance-all_private_ips:
+    type: string
+    title: Bastion VM Private IP
+  web-instance-all_public_ips:
+    type: string
+    title: Bastion VM Public IP
+  # DataCatalog_Name:
+  #   type: string
+  #   title: Data Catalog Name
+  # DataCatalog_data_asset:
+  #   type: string
+  #   title: Data Catalog Data asset
+  # DataCatalog_connection:
+  #   type: string
+  #   title: Data Catalog connection to DB
+outputGroups:
+  - title: Outputs
+    outputs:
+      - Instructions
+      - generated_ssh_private_key_for_bastion
+      - ADW_Database_db_connection
+      - ADW_Database_private_endpoint_ip
+      - Database_Actions
+      - graph_studio_url
+      - machine_learning_user_management_url
+      - database_fully_qualified_name
+      - web-instance-all_instances
+      - web-instance-all_private_ips
+      - web-instance-all_public_ips
+      # - DataCatalog_Name
+      # - DataCatalog_data_asset
+      # - DataCatalog_connection
