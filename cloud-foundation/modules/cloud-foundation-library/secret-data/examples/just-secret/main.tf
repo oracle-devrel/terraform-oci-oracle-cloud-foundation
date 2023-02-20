@@ -9,7 +9,11 @@ variable "secret_compartment" {
   
 }
 
-variable "secret" {
+variable "secret_name" {
+  type = string
+}
+
+variable "secret_ocid" {
   type = string
 
 }
@@ -32,6 +36,9 @@ module "secret" {
 
 
 
-    secret_ocids = { "mysecret" = var.secret}
+    secret_ocids = { "mysecret" = var.secret_ocid}
+
+    compartment = var.secret_compartment
+    secret_names = { "named_secret" = var.secret_name, "another_secret" = "network-elz-ebs-cm"}
 
 }
