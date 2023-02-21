@@ -58,6 +58,12 @@ output "subnet_cidr" {
 
 locals {
   prefix = var.prefix == null ? "" : "${var.prefix}-"
+
+
+  # trim dns label to be no more than 15 characters
+  subnet_dns_label = substr (var.subnet_dns_label, 0, 15)
+
+
 }
 
 
@@ -129,7 +135,7 @@ resource "oci_core_subnet" "this" {
 
 
   display_name = "${local.prefix}SN"
-  dns_label = var.subnet_dns_label
+  dns_label = local.subnet_dns_label
 
   #dns_label    = var.subnet_dns_label
 

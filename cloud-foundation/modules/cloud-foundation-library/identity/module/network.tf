@@ -71,14 +71,19 @@ resource "oci_identity_policy" "network" {
   statements     = concat(
       # network team in network compartment
       formatlist("allow group ${oci_identity_group.network[0].name} to %s in compartment ${oci_identity_compartment.network[0].name}", [
-        "read all-resources", "manage virtual-network-family", "manage dns", "manage load-balancers",
+        "read all-resources", 
+        # network related resources
+        "manage virtual-network-family", "manage dns", "manage load-balancers", "manage bastion-family",
+        # compute/file storage related resources
+        "manage instance-family ", "manage mount-targets",
+        # standard helper resources
         "manage alarms", "manage metrics", "manage orm-stacks", "manage orm-jobs", "manage orm-config-source-providers",
-        "read audit-events", "read work-requests", "manage instance-family ", "manage bastion-session", "manage cloudevents-rules",
-        "manage alarms", "read instance-agent-plugins",
+        "read audit-events", "read work-requests",   "manage cloudevents-rules",
+        "manage alarms", "read instance-agent-plugins", 
       ]),
       # network users in network compartment
       formatlist("allow group ${oci_identity_group.network_service[0].name} to %s in compartment ${oci_identity_compartment.network[0].name}", [
-        "use virtual-network-family",
+        "use virtual-network-family", "use bastion", "manage bastion-session",
         # File Storage Service
         "manage export-sets", "use mount-targets", "use file-systems"
       ]),
