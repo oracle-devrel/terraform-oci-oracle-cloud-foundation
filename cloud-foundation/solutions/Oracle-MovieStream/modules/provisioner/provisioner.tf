@@ -140,6 +140,7 @@ resource "null_resource" "remote-exec" {
       "sudo chmod 777 /home/opc/oml_sample.py",
       "sudo wget https://objectstorage.us-ashburn-1.oraclecloud.com/n/oradbclouducm/b/data/o/movieapp.zip -P /home/opc/",
       "sudo chmod 777 /home/opc/movieapp.zip",
+      ## why we are doing this - comment it .
       "sudo wget https://objectstorage.us-ashburn-1.oraclecloud.com/n/oradbclouducm/b/data/o/oml4py-client-linux-x86_64-1.0.zip -P /home/opc/",
       "sudo chmod 777 /home/opc/oml4py-client-linux-x86_64-1.0.zip",
       "sudo systemctl disable firewalld",
