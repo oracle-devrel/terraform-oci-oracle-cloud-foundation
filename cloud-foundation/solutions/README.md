@@ -20,3 +20,4 @@ For the moment we have implemented the following solutions:
 - S3_tfstate_backend_cloud_foundation_automation
 - Oracle-MovieStream
 - MovieStream_live_lab
+- OracleDataModel-Manufacturing
