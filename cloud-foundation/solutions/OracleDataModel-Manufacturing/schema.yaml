@@ -1,0 +1,430 @@
+# Copyright © 2023, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+title: "Data Model for Manufacturing in Oracle Cloud Infrastructure"
+stackDescription: "Create the Data Model Manufacturing in Oracle Cloud Infrastructure"
+schemaVersion: 1.1.0
+version: "20230401"
+locale: "en"
+groupings:
+  - title: "General Settings for the Oracle Analytics automation"
+    visible: true
+    variables:
+      - tenancy_ocid
+      - compartment_id
+      - region
+      - display_name_prefix
+      - ociPrivateKeyWrapped
+      - user_ocid
+      - fingerprint
+      - Authorization_Token
+  - title: "Autonomous Database Configuration"
+    variables:
+      - db_name
+      - db_password
+      - db_cpu_core_count
+      - db_size_in_tbs
+      - db_workload
+      - db_version 
+      - db_is_free_tier
+      - db_license_model
+      - db_enable_auto_scaling
+  - title: "Oracle Analytics Cloud Configuration"
+    variables:
+      - Oracle_Analytics_Instance_Name
+      - analytics_instance_feature_set
+      - analytics_instance_license_type
+      - analytics_instance_idcs_access_token
+      - analytics_instance_capacity_capacity_type
+      - analytics_instance_capacity_value
+  - title: "Object Storage"
+    variables:
+      - bucket_name
+      - bucket_access_type
+      - bucket_storage_tier
+      - bucket_events_enabled
+  # - title: "Data Catalog"
+  #   variables:
+  #     - catalog_display_name
+  - title: "Bastion Instance Configuration"
+    variables:
+      - bastion_instance_display_name
+      - bastion_instance_shape
+      - bastion_source_image_id
+  - title: "Network Configuration"
+    variables:
+      - vcn_cidr
+      - public_subnet_cidr
+      - private_subnet_cidr
+      - show_advanced_options
+  - title: "Hidden Variables"
+    visible: false
+    variables:
+      - private_key_path
+      - bastion_instance_image_ocid
+# General Configuration Variables
+variables:
+  tenancy_ocid:
+    title: Tenancy ID
+    description: The Oracle Cloud Identifier (OCID) for your tenancy.
+    type: string
+    required: true
+    visible: false
+  compartment_id:
+    title: Stack Compartment
+    description: Choose the compartment where all resources will be provisioned.
+    type: oci:identity:compartment:id
+    required: true
+    visible: true
+  region:
+    title: Region
+    description: Select Region where all resources will be created.
+    type: oci:identity:region:name
+    required: true
+    visible: true
+  display_name_prefix:
+    title: Display Name Prefix
+    type: string
+    default: "Create the Data Model Manufacturing in Oracle Cloud Infrastructure"
+    description: Enter the Display name for the solution.
+    required: true
+    visible: true
+  user_ocid:
+    title: "The User Ocid of your username"
+    type: string
+    default: "copy-paste User Ocid of your username"
+    description: Enter The OCID of your user for example ocid1.user.oc1..aaaaaaaa4bjez27pyslznrrk5g24yiev24ld3ketha6tqj36f34lbbaddhib
+    required: true
+    visible: true
+  fingerprint:
+    title: Your fingerprint of your user
+    type: string
+    default: "copy-paste fingerprint Ocid of your username"
+    description: Enter Your fingerprint of your user for Example 12:1d:7d:18:6d:a7:e3:fc:17:4c:30:a9:44:65:7d:12
+    required: true
+    visible: true
+  ociPrivateKeyWrapped:
+    title: The OCI ociPrivateKeyWrapped
+    type: string
+    default: "copy-paste your oci PrivateKey Wrapped"
+    description: "You must pass this signing key in the payload for some snapshot APIs. Before you add it to the payload, you must Base64 encode the private key (ociPrivateKeyWrapped). For example, to generate a Base64 encoded string from your private key: / On Mac: cat myprivate-key.pem | base64 -o mywrapped-private-key.pem / On Linux: cat myprivate-key.pem | base64 -w 0 > mywrapped-private-key.pem / Note: Ensure that the private key file that you encode includes -----BEGIN and -----END tags."
+    required: true
+    visible: true
+  Authorization_Token:
+    title: Authorization_Token
+    type: string
+    default: ""
+    description: Authorization_Token
+    required: false
+    visible: false
+# Autonomous Database Configuration Variables
+  db_name:
+    title: Database Name
+    description: "Provide Database name. Constraints: 30 alphanumeric characters only. No Spaces."
+    required: true
+    type: string
+    maxLength: 30
+    default: "DataModelsManufacturingg"
+  db_password:
+    title: Database Admin Password
+    description: "Provide admin password. Constraints: 12 - 30 characters. At least one uppercase letter, one lowercase letter, and one number. No special characters."
+    type: password
+    required: true
+    confirmation: true
+    pattern: ((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[%!@^&)(]).{12,20})
+    default: "WlsAtpDb1234#"
+  db_cpu_core_count:
+    title: The number of OCPU cores to be made available to the database 
+    description: "The number of OCPU cores to enable. Available cores are subject to your tenancy's service limits."
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+      - 10
+      - 11
+      - 12
+    default: "2"
+    required: true
+    visible: true
+  db_size_in_tbs:
+    title: "The quantity of data in the database, in terabytes."
+    description: "The quantity of data in the database, in terabytes."
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 4
+      - 6
+      - 8
+      - 10
+      - 12
+      - 16
+      - 24
+      - 36
+      - 52
+      - 128
+    default: "1"
+    visible: true
+    required: true
+  db_workload:
+    title: Autonomous Database Type of workload. 
+    description: "Autonomous Database Type of workload."
+    type: enum
+    enum:
+      - "DW"
+    default: "DW"
+    required: true
+    visible: false 
+  db_version:
+    title: "A valid Oracle Database version for Autonomous Database"
+    description: "A valid Oracle Database version for Autonomous Database"
+    type: enum
+    enum:
+      - "19c"
+    default: "19c"
+    required: true
+    visible: true
+  db_enable_auto_scaling:
+    title: Indicates if auto scaling is enabled for the Autonomous Database CPU core count. 
+    description: "Indicates if auto scaling is enabled for the Autonomous Database CPU core count. "
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "true"
+    required: true
+    visible: true
+  db_is_free_tier:
+    title: Do do want a always Free Oracle Autonomous Database instance?
+    description: "Provision Always Free Oracle Autonomous Database instance (1 OCPU 20 GB Storage)?"
+    type: enum
+    enum:
+      - true
+      - false
+    default: false
+    required: true
+    visible: true
+  db_license_model:
+    title: "Provision Paid Oracle Autonomous Database instance (2 OCPU 1 TB Storage) - License Included or BYOL?"
+    description: "Note: This configuration can be changed later from the OCI console."
+    type: enum
+    enum:
+      - LICENSE_INCLUDED
+      - BRING_YOUR_OWN_LICENSE
+    default: BRING_YOUR_OWN_LICENSE
+    required: true
+    visible:
+      eq:
+        - db_is_free_tier
+        - false
+ # Oracle Analytics Cloud Configuration
+  Oracle_Analytics_Instance_Name:
+    title: Analytics Instance Name
+    description: "Enter a unique name for this instance. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    maxLength: 30
+    default: "DataModelsManufacturing"
+    required: true
+    visible: true
+  analytics_instance_feature_set:
+    title: Analytics Instance Type
+    description: Choose the Analytics Product Type.
+    type: enum
+    enum:
+      - SELF_SERVICE_ANALYTICS
+      - ENTERPRISE_ANALYTICS
+    default: "ENTERPRISE_ANALYTICS"
+    visible: create_analytics_instance
+    required: true
+  analytics_instance_license_type:
+    title: Analytics License
+    description: Choose your Oracle Analytics Cloud License Type.
+    type: enum
+    enum:
+      - LICENSE_INCLUDED
+      - BRING_YOUR_OWN_LICENSE
+    default: LICENSE_INCLUDED
+    visible: true
+    required: true
+  analytics_instance_idcs_access_token:
+    title: IDCS Access Token
+    description: Provide IDCS Access token. See Pre-req section in the Installation Document.
+    type: string
+    default: "copy-paste your token instead"
+    visible: true
+    required: true
+  analytics_instance_capacity_capacity_type:
+    title: Analytics Instance Capacity Type
+    description: The capacity value selected (OLPU count, number of users, …etc…). This parameter affects the number of CPUs, amount of memory or other resources allocated to the instance. 
+    type: enum
+    enum:
+      - "OLPU_COUNT"
+      - "USERS_COUNT"
+    default: "OLPU_COUNT"
+    visible: true
+    required: true
+  analytics_instance_capacity_value:
+    title: Analytics Instance Capacity
+    description: Provide the number of OCPUs for the Oracle Analytics Instance.
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 4
+      - 6
+      - 8
+      - 10
+      - 12
+      - 16
+      - 24
+      - 36
+      - 52
+    default: "1"
+    visible: true
+    required: true
+# Object Storage Configuration  
+  bucket_name:
+    title: Object Storage Bucket Name
+    description: "Enter a unique name for this object storage bucket. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    maxLength: 30
+    default: "DataModelsManufacturing"
+    required: true
+    visible: true
+  bucket_access_type:
+    title: Object Storage Access Type
+    description: "Select the Access Type of the bucket."
+    type: enum
+    enum:
+      - NoPublicAccess
+      - ObjectReadWithoutList
+      - ObjectRead
+    default: "NoPublicAccess"
+    required: true
+    visible: true
+  bucket_storage_tier:
+    title: Object Storage Bucket Name
+    description: "Select the storage Tier of the bucket."
+    type: enum
+    enum:
+      - Standard
+      - Archive
+    default: "Standard"
+    required: true
+    visible: true
+  bucket_events_enabled:
+    title: Indicates if bucket events are enabled or not. 
+    description: "Indicates if bucket events are enabled or not "
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true  
+# # Data Catalog Configuration  
+#   catalog_display_name:
+#     title: Data Catalog Name
+#     description: "Enter a unique name for this data catalog. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+#     type: string
+#     maxLength: 30
+#     default: "DataModelsManufacturing"
+#     required: true
+#     visible: true
+# Bastion Instance Configurationn
+  bastion_instance_display_name:
+    title: Oracle Data Integration Service
+    description: "Enter a unique name for the Oracle Data Integration Service. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    maxLength: 30
+    default: "VNC DataModelsManufacturing"
+    required: true
+    visible: true
+  bastion_instance_shape:
+    title: Provide the shape for Bastion VM
+    description: "Provide the shape for Bastion VM"
+    type: oci:core:instanceshape:name
+    default: "VM.Standard2.4"
+    required: true
+    visible: true
+    dependsOn:
+      compartmentId: ${compartment_id}
+# Network Configuration
+  vcn_cidr:
+    visible: 
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.0.0/16"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: VCN Network CIDR
+    required: true
+    description: The CIDR to assign to the new Virtual Cloud Network (VCN) to create for this service. This field is not required if you want to use an existing VCN. When using VCN peering ensure that the VCNs being peered have non-overlapping CIDR blocks.
+  public_subnet_cidr:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.0.0/24"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Public Subnet CIDR
+    description: "The CIDR of the new public subnet."
+  private_subnet_cidr:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.1.0/24"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Private Subnet CIDR
+    description: "The CIDR of the new private subnet."
+  show_advanced_options:
+    title: Show Advanced Options
+    description: Enable advanced options for network.
+    type: boolean
+    default: false
+    visible: true
+outputs:
+  Instructions:
+    type: string
+    title: Instructions
+  ADW_Service_Console_URL:
+    type: link
+    title: ADB Service Console URL
+  Analytics_URL:
+    type: link
+    title: Analytics URL
+  Buckets:
+    type: string
+    title: Buckets
+  DataCatalog:
+    type: string
+    title: DataCatalog
+  Odi:
+    type: string
+    title: Odi workspace
+outputGroups:
+  - title: Application
+    outputs:
+      - Instructions
+      - ADW_Database_db_connection
+      - ADW_Database_private_endpoint_ip
+      - Analytics_URL
+      - oci_analytics_analytics_instance_private_access_channel
+      - Buckets
+      - DataCatalog_Name
+      - datacatalog_data_asset
+      - datacatalog_connection
+      - web-instance-all_instances
+      - web-instance-all_private_ips
+      - web-instance-all_public_ips
+
