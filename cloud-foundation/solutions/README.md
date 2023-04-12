@@ -19,5 +19,5 @@ For the moment we have implemented the following solutions:
 - OCI-Observability-Hybrid-Configurations-monitoring-on-prem-DBs-from-the-cloud
 - S3_tfstate_backend_cloud_foundation_automation
 - Oracle-MovieStream
-- MovieStream_live_lab
+- Deploy Autonomous Database and the MovieStream data sets for Oracle LiveLabs
 - OracleDataModel-Manufacturing
