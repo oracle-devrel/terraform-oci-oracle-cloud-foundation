@@ -21,3 +21,4 @@ For the moment we have implemented the following solutions:
 - Oracle-MovieStream
 - Deploy Autonomous Database and the MovieStream data sets for Oracle LiveLabs
 - OracleDataModel-Manufacturing
+- Informatica-Intelligent-Data-Management-Cloud-Secure-Agent
