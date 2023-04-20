@@ -1,0 +1,379 @@
+# Copyright © 2023, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+title: "Create the Informatica Intelligent Data Management Cloud Secure Agent solution"
+stackDescription: "Use this solution to launch, configure, and run the virtual machines, virtual network, and other services
+required like ADW and object storage to deploy Informatica Intelligent Data Management Cloud (IDMC) on Oracle Cloud Infrastructure. You can
+connect to the IDMC services using the Informatica Secure Agent to leverage your computing needs."
+schemaVersion: 1.1.0
+version: "20230223"
+locale: "en"
+groupings:
+  - title: "General Settings"
+    visible: true
+    variables:
+      - tenancy_ocid
+      - display_name_prefix
+      - region
+      - compartment_id
+      - show_advanced
+  - title: "Autonomous Database Configuration"
+    variables:
+      - db_name
+      - db_is_free_tier
+      - db_license_model
+      - db_password
+      - db_version
+      - db_size_in_tbs
+      - db_enable_auto_scaling
+      - db_cpu_core_count
+      - db_workload
+  - title: "Object Storage"
+    variables:
+      - bucket_name
+      - bucket_access_type
+      - bucket_storage_tier
+      - bucket_events_enabled
+  - title: "Bastion VM Configuration"
+    variables:
+      - bastion_shape
+  - title: "Informatica Intelligent Data Management Cloud (IDMC) Details"
+    variables:
+      - informatica_instance_shape
+      - hostname_label
+      - iics_user
+      - iics_token
+      - iics_gn
+      - iics_dc
+  - title: "Network Configuration"
+    variables:
+      - vcn_cidr
+      - public_subnet_cidr
+      - private_subnet_cidr
+      - show_advanced_options
+  - title: "Hidden Variables"
+    visible: false
+    variables:
+      - user_ocid
+      - fingerprint
+      - private_key_path
+      - use_regional_subnet
+      - bastion_instance_image_ocid
+      - iics_dc_enum
+# General Configuration Variables
+variables:
+  tenancy_ocid:
+    title: Tenancy ID
+    description: The Oracle Cloud Identifier (OCID) for your tenancy.
+    type: string
+    required: true
+    visible: false
+  compartment_id:
+    title: Stack Compartment
+    description: Choose the compartment where all resources will be provisioned.
+    type: oci:identity:compartment:id
+    required: true
+    visible: true
+  region:
+    title: Region
+    description: Select Region where all resources will be created.
+    type: oci:identity:region:name
+    required: true
+    visible: true
+  display_name_prefix:
+    title: Display Name Prefix
+    type: string
+    default: "Create the Informatica Intelligent Data Management Cloud Secure Agent solution"
+    description: Enter the Display name for the solution.
+    required: true
+    visible: true
+# Autonomous Database Configuration Variables
+  db_name:
+    title: Database Name
+    description: "Provide Database name. Constraints: 12 alphanumeric characters only. No Spaces."
+    required: true
+    type: string
+    maxLength: 30
+  db_is_free_tier:
+    title: Do do want a always Free Oracle Autonomous Database instance?
+    description: "Provision Always Free Oracle Autonomous Database instance (1 OCPU 20 GB Storage)?"
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true
+  db_license_model:
+    title: "Provision Paid Oracle Autonomous Database instance (2 OCPU 1 TB Storage) - License Included or BYOL?"
+    description: "Note: This configuration can be changed later from the OCI console."
+    type: enum
+    enum:
+      - LICENSE_INCLUDED
+      - BRING_YOUR_OWN_LICENSE
+    default: "BRING_YOUR_OWN_LICENSE"
+    required: true
+    visible:
+      eq:
+        - db_is_free_tier
+        - false
+  db_password:
+    title: Database Admin Password
+    description: "Provide admin password. Constraints: 12 - 30 characters. At least one uppercase letter, one lowercase letter, and one number. No special characters."
+    type: password
+    required: true
+    confirmation: true
+    pattern: ((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[%!@^&)(]).{12,20})
+  db_version:
+    title: "A valid Oracle Database version for Autonomous Database"
+    description: "A valid Oracle Database version for Autonomous Database"
+    type: enum
+    enum:
+      - "19c"
+    default: "19c"
+    required: true
+    visible: true
+  db_size_in_tbs:
+    title: "The quantity of data in the database, in terabytes."
+    description: "The quantity of data in the database, in terabytes."
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 4
+      - 6
+      - 8
+      - 10
+      - 12
+      - 16
+      - 24
+      - 36
+      - 52
+      - 128
+    default: 1
+    visible: true
+    required: true
+  db_enable_auto_scaling:
+    title: Indicates if auto scaling is enabled for the Autonomous Database CPU core count. 
+    description: "Indicates if auto scaling is enabled for the Autonomous Database CPU core count. "
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true   
+  db_cpu_core_count:
+    title: The number of OCPU cores to be made available to the database 
+    description: "The number of OCPU cores to enable. Available cores are subject to your tenancy's service limits."
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+      - 10
+      - 11
+      - 12
+    default: 1
+    required: true
+    visible: true
+  db_workload:
+    title: Autonomous Database Type of workload. 
+    description: "Autonomous Database Type of workload."
+    type: enum
+    enum:
+      - "DW"
+    default: "DW"
+    required: true
+    visible: false 
+# Object Storage Configuration  
+  bucket_name:
+    title: Object Storage Bucket Name
+    description: "Enter a unique name for this object storage bucket. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    maxLength: 30
+    default: "InformaticaSecureAgent"
+    required: true
+    visible: true
+  bucket_access_type:
+    title: Object Storage Access Type
+    description: "Select the Access Type of the bucket."
+    type: enum
+    enum:
+      - NoPublicAccess
+      - ObjectReadWithoutList
+      - ObjectRead
+    default: "ObjectRead"
+    required: true
+    visible: true
+  bucket_storage_tier:
+    title: Object Storage Bucket Name
+    description: "Select the storage Tier of the bucket."
+    type: enum
+    enum:
+      - Standard
+      - Archive
+    default: "Standard"
+    required: true
+    visible: true
+  bucket_events_enabled:
+    title: Indicates if bucket events are enabled or not. 
+    description: "Indicates if bucket events are enabled or not "
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true 
+# "Bastion VM Configuration"
+  bastion_shape:
+    title: Provide the shape for Bastion VM
+    description: "Provide the shape for Bastion VM"
+    type: oci:core:instanceshape:name
+    default: "VM.Standard2.4"
+    required: true
+    visible: true
+    dependsOn:
+      compartmentId: ${compartment_id}
+# "Informatica Intelligent Data Management Cloud Variables "
+  informatica_instance_shape:
+    title: Provide the shape for Informatica Secure Agent VM
+    description: "Provide the shape for Informatica Secure Agent VM"
+    type: oci:core:instanceshape:name
+    default: "VM.Standard2.4"
+    required: true
+    visible: true
+    dependsOn:
+      compartmentId: ${compartment_id}
+  hostname_label:
+    type: string
+    required: true
+    title: DNS hostname label
+    description: DNS hostname label. Make sure that the DNS hostname label is unique and complies with RFC 952 and RFC 1123  
+  iics_user:
+    type: string
+    required: true
+    default: ""
+    title: IDMC Username
+  iics_token:
+    type: string
+    required: true
+    default: ""
+    title: IDMC Secure Agent Installation Token
+  iics_gn:
+    type: string
+    required: false
+    default: ""
+    title: IDMC Secure Agent Group Name
+  iics_dc:
+    visible: true
+    type: enum
+    title: IDMC Data Center Location
+    description: The data center location for the deployment. Choose the data center location based on the user details registered in Informatica Intelligent Data Management Cloud
+    enum:
+      - "United States of America"
+      - "Singapore"
+      - "Germany"
+      - "Japan"
+    required: true
+    default: "United States of America"
+# Network Configuration
+  vcn_cidr:
+    visible: 
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.0.0/16"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: VCN Network CIDR
+    required: true
+    description: The CIDR to assign to the new Virtual Cloud Network (VCN) to create for this service. This field is not required if you want to use an existing VCN. When using VCN peering ensure that the VCNs being peered have non-overlapping CIDR blocks.
+  public_subnet_cidr:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.0.0/24"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Public Subnet CIDR
+    description: "The CIDR of the new public subnet." 
+  private_subnet_cidr:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.1.0/24"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Private Subnet CIDR
+    description: "The CIDR of the new private subnet."
+  show_advanced_options:
+    title: Show Advanced Options
+    description: Enable advanced options for network.
+    type: boolean
+    default: false
+    visible: true
+outputs:
+  ADW_LOGIN:
+    type: string
+    title: ADW LOGIN DETAILS
+  ADW_Database_db_connection:
+    type: string
+    title: ADW_Database_db_connection
+  ADW_Database_private_endpoint_ip:
+    type: string
+    title: ADW_Database_private_endpoint_ip
+  Database_Actions:
+    type: link
+    title: url
+  graph_studio_url:
+    type: link
+    title: graph_studio_url
+  machine_learning_user_management_url:
+    type: link
+    title: machine_learning_user_management_url
+  database_fully_qualified_name:
+    type: string
+    title: database_fully_qualified_name
+  Buckets:
+    type: string
+    title: Buckets
+  Bastion_compute_linux_instances:
+    type: string
+    title: Bastion Compute public IP
+  Bastion_all_private_ips:
+    type: string
+    title: Bastion Compute private IP
+  informatica_secure_agent_compute_linux_instances:
+    type: string
+    title: Informatica Secure Agent Compute public IP
+  informatica_secure_agent_all_private_ips:
+    type: string
+    title: Informatica Secure Agent Compute private IP
+  generated_ssh_private_key_for_bastion:
+    type: string
+    title: Generated Ssh Private Key for Bastion
+outputGroups:
+  - title: Application
+    outputs:
+      - ADW_LOGIN
+      - ADW_Database_db_connection
+      - ADW_Database_private_endpoint_ip
+      - Database_Actions
+      - graph_studio_url
+      - machine_learning_user_management_url
+      - database_fully_qualified_name
+      - Buckets
+      - Bastion_compute_linux_instances
+      - Bastion_all_private_ips
+      - informatica_secure_agent_compute_linux_instances
+      - informatica_secure_agent_all_private_ips
+      - generated_ssh_private_key_for_bastion
