@@ -1,7 +1,7 @@
 # Copyright © 2023, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-title: "Create the Informatica Intelligent Data Management Cloud Secure Agent solution"
+title: "Create the Informatica Secure Agent – create a ready to go development data platform on OCI"
 stackDescription: "Use this solution to launch, configure, and run the virtual machines, virtual network, and other services
 required like ADW and object storage to deploy Informatica Intelligent Data Management Cloud (IDMC) on Oracle Cloud Infrastructure. You can
 connect to the IDMC services using the Informatica Secure Agent to leverage your computing needs."
@@ -34,9 +34,6 @@ groupings:
       - bucket_access_type
       - bucket_storage_tier
       - bucket_events_enabled
-  - title: "Bastion VM Configuration"
-    variables:
-      - bastion_shape
   - title: "Informatica Intelligent Data Management Cloud (IDMC) Details"
     variables:
       - informatica_instance_shape
@@ -49,7 +46,6 @@ groupings:
     variables:
       - vcn_cidr
       - public_subnet_cidr
-      - private_subnet_cidr
       - show_advanced_options
   - title: "Hidden Variables"
     visible: false
@@ -57,8 +53,6 @@ groupings:
       - user_ocid
       - fingerprint
       - private_key_path
-      - use_regional_subnet
-      - bastion_instance_image_ocid
       - iics_dc_enum
 # General Configuration Variables
 variables:
@@ -232,16 +226,6 @@ variables:
     default: "false"
     required: true
     visible: true 
-# "Bastion VM Configuration"
-  bastion_shape:
-    title: Provide the shape for Bastion VM
-    description: "Provide the shape for Bastion VM"
-    type: oci:core:instanceshape:name
-    default: "VM.Standard2.4"
-    required: true
-    visible: true
-    dependsOn:
-      compartmentId: ${compartment_id}
 # "Informatica Intelligent Data Management Cloud Variables "
   informatica_instance_shape:
     title: Provide the shape for Informatica Secure Agent VM
@@ -305,16 +289,6 @@ variables:
     required: true
     title: Public Subnet CIDR
     description: "The CIDR of the new public subnet." 
-  private_subnet_cidr:
-    visible:
-      and:
-        - show_advanced_options
-    type: string
-    default: "10.0.1.0/24"
-    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
-    required: true
-    title: Private Subnet CIDR
-    description: "The CIDR of the new private subnet."
   show_advanced_options:
     title: Show Advanced Options
     description: Enable advanced options for network.
@@ -346,19 +320,13 @@ outputs:
   Buckets:
     type: string
     title: Buckets
-  Bastion_compute_linux_instances:
-    type: string
-    title: Bastion Compute public IP
-  Bastion_all_private_ips:
-    type: string
-    title: Bastion Compute private IP
   informatica_secure_agent_compute_linux_instances:
     type: string
     title: Informatica Secure Agent Compute public IP
   informatica_secure_agent_all_private_ips:
     type: string
     title: Informatica Secure Agent Compute private IP
-  generated_ssh_private_key_for_bastion:
+  generated_ssh_private_key_for_instances:
     type: string
     title: Generated Ssh Private Key for Bastion
 outputGroups:
@@ -372,8 +340,8 @@ outputGroups:
       - machine_learning_user_management_url
       - database_fully_qualified_name
       - Buckets
-      - Bastion_compute_linux_instances
-      - Bastion_all_private_ips
       - informatica_secure_agent_compute_linux_instances
       - informatica_secure_agent_all_private_ips
-      - generated_ssh_private_key_for_bastion
+      - generated_ssh_private_key_for_instances
+
+

@@ -1,4 +1,4 @@
-# Oracle Cloud Foundation Terraform Solution - Deploy an analytics platform for Informatica IDMC on Oracle Cloud
+# Oracle Cloud Foundation Terraform Solution - Informatica Secure Agent – create a ready to go development data platform on OCI
 
 ## Table of Contents
 1. [Overview](#overview)
@@ -35,7 +35,7 @@ This reference architecture shows how the Informatica IDMC Secure Agent operates
 
 The following diagram shows a mapping of the architecture above to services provided on Oracle Cloud Infrastructure using security best practices and at the end of the deployment you will have in your tenancy the related services.
 
-![](./images/infa-bastion-adb.png)
+![](./images/infa-no-bastion-adb.png)
 
 
 For more options of deployment the Informatica IDMC please check the link: see [_Deploy an analytics platform for Informatica IDMC on Oracle Cloud_](https://docs.oracle.com/en/solutions/informatica-on-oci/).
@@ -45,13 +45,13 @@ For more options of deployment the Informatica IDMC please check the link: see [
 
 ## Prerequisites
 
-- Permission to `manage` the following types of resources in your Oracle Cloud Infrastructure tenancy: `vcns`, `nat-gateways`, `route-tables`, `subnets`, `service-gateways`, `security-lists`, `autonomous database`, `Object Storage` and `compute instances`.
+- Permission to `manage` the following types of resources in your Oracle Cloud Infrastructure tenancy: `vcns`, `nat-gateways`, `route-tables`, `subnets`, `service-gateways`, `security-lists`, `autonomous database`, `Object Storage` and `compute instance`.
 - Quota to create the following resources: 1 ADW database instance and 2 VM instance, 1 Object Storage
 If you don't have the required permissions and quota, contact your tenancy administrator. See [Policy Reference](https://docs.cloud.oracle.com/en-us/iaas/Content/Identity/Reference/policyreference.htm), [Service Limits](https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/servicelimits.htm), [Compartment Quotas](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/resourcequotas.htm).
 
 # <a name="Deploy-Using-Oracle-Resource-Manager"></a>Deploy Using Oracle Resource Manager
 
-1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation/releases/download/v1.0.0/Informatica-Intelligent-Data-Management-Cloud-Secure-Agent-RM.zip)
+1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation/releases/download/v1.0.0/Informatica-Secure-Agent–create-a-ready-to-go-development-data-platform-on-OCI-RM.zip)
 
 
     If you aren't already signed in, when prompted, enter the tenancy and user credentials.
@@ -71,7 +71,7 @@ If you don't have the required permissions and quota, contact your tenancy admin
 Now, you'll want a local copy of this repo. You can make that with the commands:
 
     git clone https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation.git
-    cd terraform-oci-oracle-cloud-foundation/cloud-foundation/solutions/Informatica-Intelligent-Data-Management-Cloud-Secure-Agent
+    cd terraform-oci-oracle-cloud-foundation/cloud-foundation/solutions/Informatica-Secure-Agent–create-a-ready-to-go-development-data-platform-on-OCI
     ls
 
 ## Deployment
@@ -202,7 +202,7 @@ variable "private_key_path" {
 ## Repository files
 * **images(folder)** - Contains images to be used inside the README.md file
 * **modules(folder)** - ( this folder will be pressent only for the Resource Manager zipped files) Contains folders with subsystems and modules for each section of the project: networking, autonomous database, analytics cloud, etc.
-* **scripts(folder)** - this folder contains the necessary scripts that will run on the compute instances, for the bastion and also for the Secure Agent VM.
+* **scripts(folder)** - this folder contains the necessary scripts that will run on the compute instance for the Secure Agent VM.
 * **CONTRIBUTING.md** - Contributing guidelines, also called Contribution guidelines, the CONTRIBUTING.md file, or software contribution guidelines, is a text file which project managers include in free and open-source software packages or other open media packages for the purpose of describing how others may contribute user-generated content to the project.The file explains how anyone can engage in activities such as formatting code for submission or submitting patches
 * **LICENSE** - The Universal Permissive License (UPL), Version 1.0 
 * **local.tf** - Local values can be helpful to avoid repeating the same values or expressions multiple times in a configuration, but if overused they can also make a configuration hard to read by future maintainers by hiding the actual values used.Here is the place where all the resources are defined.
@@ -337,30 +337,8 @@ module "keygen" {
 ```
 
 
-# Compute Informatica Secure Agent VM and Bastion
-The compute module will create two VM's.. one VM that will stand as a Bastion/Jump Host and the Secure Agent itself on another VM. 
-The Bastion it's deployed in the public subnet and the Secure Agent Instance it's in the private subnet.
-For the Bastion VM we are using the Oracle-Linux-Cloud-Developer-8.5-2022.05.22-0 image as it comes with all the neccesary software installed and for the Informatica Secure Anget Instance we are using the informatica Marketplace Image version August_2022.03. 
-
-More information about this image and about the OCIDs required to be provided as a variable can be found here:
-
-https://docs.oracle.com/en-us/iaas/images/image/2e439f8e-e98f-489b-82a3-338360b46b82/
-
-More information regarding shapes can be found here:
-
-https://docs.oracle.com/en-us/iaas/Content/Compute/References/computeshapes.htm
-
-* Parameters for the VM Bastion Compute Configuration
-    * __bastion_shape__ - (Required) (Updatable) The shape of an instance. The shape determines the number of CPUs, amount of memory, and other resources allocated to the instance.
-
-Below is an example:
-```
-# VM Bastion Compute Configuration
-
-variable "bastion_shape" {
-  default = "VM.Standard2.4"
-}
-```
+# Compute Informatica Secure Agent VM 
+The compute module will create the informatica VM's one VM.
 
 * Parameters for the Infromatica Secure Agent VM Configuration
     * __informatica_instance_shape__ - (Required) (Updatable) The shape of an instance. The shape determines the number of CPUs, amount of memory, and other resources allocated to the instance.
@@ -443,9 +421,6 @@ variable "private_subnet_cidr" {
 
 ```
 
-Don't modify any other variables in the variable.tf file - it may cause that the solution will not work propertly. The use_regional_subnet variable is for the subnets to be regional, not AD specific.
-
-
 ## Running the code
 
 ```
@@ -460,34 +435,19 @@ $ terraform destroy --auto-approve
 ```
 ## Validate Topology 
 
-__Step #1:__ - After the terraform apply will be deployed you can login on the bastion and from there to jump on the Informatica Secure Agent VM instance using ssh. First you will need to create a file using the ouput of the private key and use it to connect to the Informatica Secure Agent.
+__Step #1:__ - After the terraform apply will be deployed you can login on on the Informatica Secure Agent VM instance using ssh and after that do a sudo su -
 
 Example: 
 
 ```
-Informatica-Intelligent-Data-Management-Cloud-Secure-Agent $ ssh -i private_key.pem opc@public_ip_address_of_the_bastion_vm
-The authenticity of host '141.144.196.80 (141.144.196.80)' can't be established.
-ED25519 key fingerprint is SHA256:BWDmpRAVm0pVzRaCBavNY4RmHnpVOdi4fapytWggfIw.
-This key is not known by any other names
-Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
-Warning: Permanently added '141.144.196.80' (ED25519) to the list of known hosts.
+Informatica-Secure-Agent–create-a-ready-to-go-development-data-platform-on-OCI iopanait$ ssh -i private_key.pem opc@193.122.156.212
 Activate the web console with: systemctl enable --now cockpit.socket
 
-[opc@informatica-bastion ~]$ 
-[opc@informatica-bastion ~]$ touch key
-[opc@informatica-bastion ~]$ chmod 600 key
-[opc@informatica-bastion ~]$ vi key   ---- !! Here you will need to paste your private key generated on the terraform output !.
-[opc@informatica-bastion ~]$ ssh -i key opc@orivate_ip_address_of_the_informatica_secure_agent_vm
-The authenticity of host '10.0.1.134 (10.0.1.134)' can't be established.
-ECDSA key fingerprint is SHA256:Hktppc3mgt0IS8on/gZhjnGRelgFrWDGYuIg+8HFVos.
-Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
-Warning: Permanently added '10.0.1.134' (ECDSA) to the list of known hosts.
-Activate the web console with: systemctl enable --now cockpit.socket
-
-[opc@informatica-secure-agent ~]$ 
-[opc@informatica-secure-agent ~]$ sudo su - infa 
-Last login: Mon Feb 27 12:58:24 GMT 2023
-[infa@informatica-secure-agent ~]$ 
+Last login: Mon May  1 11:25:37 2023 from 217.123.20.97
+[opc@securenl ~]$ 
+[opc@securenl ~]$ sudo su - 
+Last login: Mon May  1 11:25:41 GMT 2023 on pts/0
+[root@securenl ~]# 
 
 ```
 
@@ -500,7 +460,7 @@ __Step #2:__ - You can access the log files at the following locations:
 When the installation and configuration it's done the output will look like the one below.
 
 ```
-[infa@informatica-secure-agent ~]$ cat /opt/infaagent/apps/agentcore/infaagent.log
+[root@securenl ~]# cat /opt/infaagent/apps/agentcore/infaagent.log
 Successfully started up InfaAgent.
 InfaAgent is starting up... Please ensure InfaAgent has come up successfully on the web page.
 63.17
@@ -514,7 +474,7 @@ ConfigProperties: Loading properties from /opt/infaagent/apps/agentcore/../../ap
 ConfigProperties: Done loading properties from /opt/infaagent/apps/agentcore/../../apps/agentcore/conf/infaagent.ini
 ConfigProperties: Loading properties from /opt/infaagent/apps/agentcore/../../apps/agentcore/conf/proxy.ini
 ConfigProperties: Done loading properties from /opt/infaagent/apps/agentcore/../../apps/agentcore/conf/proxy.ini
-[infa@informatica-secure-agent ~]$ cat /opt/agent_setup.log
+[root@securenl ~]# cat /opt/agent_setup.log
 Starting IICS secure agent installation...
 Starting agent registration...
 Setting Data Center location...
@@ -522,9 +482,10 @@ Adding secure agent to group
 Starting IICS Agent
 Registering IICS Agent
 Execution complete
-[infa@informatica-secure-agent ~]$ cat /opt/DO_NOT_DELETE_INFA_IICS_SA.txt
+[root@securenl ~]# 
+[root@securenl ~]# cat /opt/DO_NOT_DELETE_INFA_IICS_SA.txt
 Secure agent installation script completed.
-[infa@informatica-secure-agent ~]$ 
+[root@securenl ~]# 
 ```
 
 ## <a name="documentation"></a>Documentation

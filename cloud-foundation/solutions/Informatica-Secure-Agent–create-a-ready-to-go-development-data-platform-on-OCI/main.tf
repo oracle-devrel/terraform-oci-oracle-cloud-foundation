@@ -2,9 +2,9 @@
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 
-# Create ADW Database with Endpoint in private subnet
-module "adw_database_private_endpoint" {
-  source = "./modules/cloud-foundation-library/database/adw_private_endpoint_for_each"
+# Create ADW Database 
+module "adw_database" {
+  source = "../../../cloud-foundation/modules/cloud-foundation-library/database/adw_private_endpoint"
   adw_params = local.adw_params 
 }
 
@@ -12,7 +12,7 @@ module "adw_database_private_endpoint" {
 # Calling the Object Storage module
 module "os" {
   source = "../../../cloud-foundation/modules/cloud-foundation-library/object-storage"
-  depends_on = [module.adw_database_private_endpoint]
+  depends_on = [module.adw_database]
   tenancy_ocid = var.tenancy_ocid
   bucket_params = {
     for k,v in local.bucket_params : k => v if v.compartment_id != "" 
@@ -26,22 +26,11 @@ module "keygen" {
 }
 
 
-#Calling the compute module to create a bastion for VNC connectivity to informatica secure agent instance
-
-module "bastion" {
-  source = "../../../cloud-foundation/modules/cloud-foundation-library/instance_with_out_flexible"
-  tenancy_ocid = var.tenancy_ocid
-  instance_params = {
-    for k,v in local.bastion_instance_params : k => v if v.compartment_id != ""  
-  }
-}
-
-
 # Calling the informatica secure agent Instance module
 
 module "informatica_secure_agent" {
   source = "../../../cloud-foundation/modules/cloud-foundation-library/instance_with_out_flexible"
-  depends_on = [ module.adw_database_private_endpoint , module.os]
+  depends_on = [ module.adw_database , module.os]
   tenancy_ocid = var.tenancy_ocid
   instance_params = local.informatica_secure_agent_params 
 }

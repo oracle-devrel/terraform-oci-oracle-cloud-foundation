@@ -21,4 +21,5 @@ For the moment we have implemented the following solutions:
 - Oracle-MovieStream
 - Deploy Autonomous Database and the MovieStream data sets for Oracle LiveLabs
 - OracleDataModel-Manufacturing
-- Informatica-Intelligent-Data-Management-Cloud-Secure-Agent
+- Informatica-Secure-Agent-create-a-secure-ready-to-go-complete-data-platform-on-OCI
+- Informatica-Secure-Agent–create-a-ready-to-go-development-data-platform-on-OCI
