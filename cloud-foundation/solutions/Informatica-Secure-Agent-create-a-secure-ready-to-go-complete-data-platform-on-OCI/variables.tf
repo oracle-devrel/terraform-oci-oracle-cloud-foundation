@@ -36,7 +36,6 @@ variable "private_key_path" {
     default = ""
 }
 
-
 # ADW Database Variables:
 
 variable "db_name" {
@@ -89,7 +88,7 @@ variable "db_license_model" {
 
 variable "bucket_name" {
   type    = string
-  default = "InformaticaSecureAgent"
+  default = "InformaticaSecure"
 }
 
 variable "bucket_access_type" {
@@ -213,13 +212,5 @@ variable "public_subnet_cidr" {
 
 variable "private_subnet_cidr" {
   default = "10.0.1.0/24"
-}
-
-# # don't modify any other variables (below) - it may cause that the solution will not work propertly.
-
-variable "use_regional_subnet" {
-  type = bool
-  default = true
-  description = "Indicates use of regional subnets (preferred) instead of AD specific subnets"
 }
 

@@ -35,17 +35,6 @@ data "oci_objectstorage_namespace" "os" {
   compartment_id = var.tenancy_ocid
 }
 
-data "template_cloudinit_config" "bastion-config" {
-  gzip          = true
-  base64_encode = true
-  # cloud-config configuration file.
-  # /var/lib/cloud/instance/scripts/*
-  part {
-    filename     = "init.sh"
-    content_type = "text/cloud-config"
-    content      = file("${path.module}/scripts/bastion-bootstrap")
-  }
-}
 
 locals {
   informatica_image = "ocid1.image.oc1..aaaaaaaal2pawq4ysiekxkf7jbk2i5x5ctolj22a2gfsw576mx7kjfu4xyha"
@@ -80,7 +69,7 @@ locals {
       database_admin_password     = var.db_password
       database_wallet_password    = var.db_password
       is_mtls_connection_required = true
-      subnet_id                   = lookup(module.network-subnets.subnets,"private-subnet").id
+      subnet_id                   = null
       nsg_ids                     = []
       defined_tags                = {}
   },
@@ -99,32 +88,6 @@ locals {
   }
 }
 
-#create Bastion for the solution 
-bastion_instance_params = { 
-  #Create the Bastion Instance
-  informatica_bastion = {
-    availability_domain = 1
-    compartment_id = var.compartment_id
-    display_name   = "informatica_bastion"
-    shape          = var.bastion_shape
-    defined_tags   = {}
-    freeform_tags  = {}
-    subnet_id         = lookup(module.network-subnets.subnets,"public-subnet").id
-    vnic_display_name = ""
-    assign_public_ip  = true
-    hostname_label    = ""
-    source_type   = "image"
-    source_id     = var.bastion_instance_image_ocid[var.region]
-    metadata = {
-      ssh_authorized_keys = module.keygen.OPCPrivateKey.public_key_openssh
-      user_data           = data.template_cloudinit_config.bastion-config.rendered
-    }
-    fault_domain = ""
-    provisioning_timeout_mins = "30"
-  }
-}
-
-
 #create Informatica Secure Agent instance
   informatica_secure_agent_params = {
   informatica_secure_agent = {
@@ -134,9 +97,9 @@ bastion_instance_params = {
     shape          = var.informatica_instance_shape
     defined_tags   = {}
     freeform_tags  = {}
-    subnet_id        = lookup(module.network-subnets.subnets,"private-subnet").id
+    subnet_id        = lookup(module.network-subnets.subnets,"public-subnet").id
     vnic_display_name = ""
-    assign_public_ip = false
+    assign_public_ip = true
     hostname_label   = var.hostname_label
     source_type = "image"
     source_id   = local.informatica_image
@@ -175,7 +138,7 @@ bastion_instance_params = {
     }
 }
 
-#creates the subnet "public-subnet - 10.0.0.0/24 and private-subnet - 10.0.1.0/24"
+#creates the subnet "public-subnet - 10.0.0.0/24"
   subnet-lists = { 
      "" = {
         compartment_id = var.compartment_id
@@ -189,7 +152,7 @@ bastion_instance_params = {
           public-subnet = { 
 	          compartment_id=var.compartment_id, 
             vcn_id=lookup(module.network-vcn.vcns,"vcn").id, 
-            availability_domain=var.use_regional_subnet? "" : local.public_subnet_availability_domain,
+            availability_domain=""
 	          cidr=var.public_subnet_cidr,
             dns_label="public",
             private=false,
@@ -198,18 +161,6 @@ bastion_instance_params = {
             defined_tags  = {}
             freeform_tags = {}
           }
-          private-subnet = { 
-	          compartment_id=var.compartment_id, 
-            vcn_id=lookup(module.network-vcn.vcns,"vcn").id, 
-            availability_domain=var.use_regional_subnet? "" : local.public_subnet_availability_domain,
-	          cidr=var.private_subnet_cidr, 
-            dns_label="private",
-            private=true,
-            dhcp_options_id="",
-            security_list_ids=[module.network-security-lists.security_lists["private_security_list"].id],
-            defined_tags  = {}
-            freeform_tags = {}
-	        }
         }
         defined_tags  = {}
         freeform_tags = {}
@@ -231,27 +182,6 @@ bastion_instance_params = {
         description       = ""
       }],
         defined_tags      = {}
-    }
-      private_route_table-nat = {
-      compartment_id = var.compartment_id,
-      vcn_id=lookup(module.network-vcn.vcns,"vcn").id,
-      subnet_id = lookup(module.network-subnets.subnets,"private-subnet").id,
-      route_table_id = "",
-      route_rules = [{
-        is_create = true,
-        destination       = "0.0.0.0/0",
-        destination_type  = "CIDR_BLOCK",
-        network_entity_id = lookup(module.network-vcn.nat_gateways, lookup(module.network-vcn.vcns,"vcn").id).id,
-        description       = ""
-      },
-      {
-        is_create = true,
-        destination       = lookup(data.oci_core_services.sgw_services.services[0], "cidr_block"),
-        destination_type  = "SERVICE_CIDR_BLOCK",
-        network_entity_id = lookup(module.network-vcn.service_gateways, lookup(module.network-vcn.vcns,"vcn").id).id,
-        description       = ""
-      }],
-      defined_tags  = {}
     }
   }
 
@@ -344,74 +274,9 @@ network-routing-attachment = {
            icmp_code    = null
          }],
       }
-    private_security_list = {
-        vcn_id = lookup(module.network-vcn.vcns,"vcn").id,
-        compartment_id = var.compartment_id,
-        defined_tags  = {}
-        ingress_rules = concat([{
-            stateless = false
-            protocol  = "all"
-            src           = var.vcn_cidr,
-            src_type      = "CIDR_BLOCK",
-            src_port      = null,
-            dst_port      = null,
-            icmp_type     = null,
-            icmp_code     = null
-          }],
-          [{
-            stateless = false
-            protocol  = "6"
-            src           = var.vcn_cidr,
-            src_type      = "CIDR_BLOCK",
-            src_port      = null,
-            dst_port      = {min = 22, max=22},
-            icmp_type     = null,
-            icmp_code     = null
-          }],
-          [{
-            stateless = false
-            protocol  = "all",
-            src           = "0.0.0.0/0"
-            src_type      = "CIDR_BLOCK",
-            src_port      = null,
-            dst_port      = null,
-            icmp_type     = null,
-            icmp_code     = null
-          }],
-          [{
-            stateless = false
-            protocol  = "all"
-            src           = "0.0.0.0/0",
-            src_type      = "CIDR_BLOCK",
-            src_port      = null,
-            dst_port      = null
-            icmp_type     = null,
-            icmp_code     = null
-          }],
-          [{
-            stateless = false
-            protocol  = "17"
-            src           = var.vcn_cidr,
-            src_type      = "CIDR_BLOCK",
-            src_port      = null,
-            dst_port      = {min = 3306, max=3306},
-            icmp_type     = null,
-            icmp_code     = null
-          }]),
-        egress_rules = [{
-           stateless     = false,
-           protocol      = "all",
-           dst           = "0.0.0.0/0",
-           dst_type      = "CIDR_BLOCK",
-           src_port      = null,
-            dst_port     = null,
-            icmp_type    = null,
-            icmp_code    = null
-         }]
-      }
     }
 
-# Create Network Security lists - public and private
+# Create Network Security lists - public
  nsgs-lists = {
    public-nsgs-list = {
         vcn_id = lookup(module.network-vcn.vcns,"vcn").id,
@@ -446,39 +311,6 @@ network-routing-attachment = {
           icmp_code    = null
       }},
    }
-  private-nsgs-list = {
-        vcn_id = lookup(module.network-vcn.vcns,"vcn").id,
-        compartment_id = var.compartment_id,
-        defined_tags  = {}
-        ingress_rules = { ingress2 = {
-          is_create    = true,
-          description  = "Parameters for customizing Network Security Group(s).",
-          protocol     = "all",
-          stateless    = false,
-          src          = var.private_subnet_cidr,
-          src_type     = "CIDR_BLOCK",
-          dst_port_min = null,
-          dst_port_max = null,
-          src_port_min = null,
-          src_port_max = null,
-          icmp_type    = null,
-          icmp_code    = null
-      }},
-        egress_rules = { egress2 = {
-          is_create    = true,
-          description  = "Parameters for customizing Network Security Group(s).",
-          protocol     = "all",
-          stateless    = false,
-          dst          = "0.0.0.0/0",
-          dst_type     = "CIDR_BLOCK",
-          dst_port_min = null,
-          dst_port_max = null,
-          src_port_min = null,
-          src_port_max = null,
-          icmp_type    = null,
-          icmp_code    = null
-      }}
-  }
  }
 
 # End
