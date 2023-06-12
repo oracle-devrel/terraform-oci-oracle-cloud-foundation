@@ -1,0 +1,7 @@
+schema_version: 20230608
+name: decoder
+version: 0.0.50
+runtime: python
+entrypoint: /python/bin/fdk /function/func.py handler
+memory: 256
+timeout: 300

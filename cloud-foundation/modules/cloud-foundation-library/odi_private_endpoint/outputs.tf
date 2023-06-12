@@ -1,0 +1,6 @@
+# Copyright © 2023, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+output "odi" {
+  value       = length(oci_dataintegration_workspace.this) > 0 ? oci_dataintegration_workspace.this[*] : null
+}
