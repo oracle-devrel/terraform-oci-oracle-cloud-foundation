@@ -1,4 +1,4 @@
-## Copyright (c) 2022, Oracle and/or its affiliates.
+## Copyright (c) 2023, Oracle and/or its affiliates.
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 resource "random_id" "tag" {
@@ -9,7 +9,7 @@ resource "oci_identity_tag_namespace" "ArchitectureCenterTagNamespace" {
   provider       = oci.homeregion
   compartment_id = var.compartment_id
   description    = "ArchitectureCenterTagNamespace"
-  name           = "ArchitectureCenter\\Cloud-data-lake-house-${random_id.tag.hex}"
+  name           = "ArchitectureCenter\\Data-platform-data-lakehouse-${random_id.tag.hex}"
                     
   provisioner "local-exec" {
     command = "sleep 10"

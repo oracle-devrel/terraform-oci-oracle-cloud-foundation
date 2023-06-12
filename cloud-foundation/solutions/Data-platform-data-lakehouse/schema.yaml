@@ -1,0 +1,1053 @@
+# Copyright © 2023, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+title: "Deploy the Data platform - data lakehouse solution inside OCI"
+stackDescription: "Leverage a cloud data lakehouse that combines the abilities of a data lake and a data warehouse to process a broad range of enterprise and streaming data for business analysis and machine learning."
+schemaVersion: 1.1.0
+version: "20230610"
+locale: "en"
+groupings:
+  - title: "General Settings"
+    visible: true
+    variables:
+      - tenancy_ocid
+      - display_name_prefix
+      - region
+      - compartment_id
+      - show_advanced
+  - title: "Autonomous Database Configuration"
+    variables:
+      - db_name
+      - db_is_free_tier
+      - db_license_model
+      - db_password
+      - db_version
+      - db_size_in_tbs
+      - db_enable_auto_scaling
+      - db_cpu_core_count
+      - db_workload
+  - title: "Object Storage"
+    variables:
+      - bronze_bucket_name
+      - bronze_bucket_access_type
+      - bronze_bucket_storage_tier
+      - bronze_bucket_events_enabled
+      - silver_bucket_name
+      - silver_bucket_access_type
+      - silver_bucket_storage_tier
+      - silver_bucket_events_enabled
+      - gold_bucket_name
+      - gold_bucket_access_type
+      - gold_bucket_storage_tier
+      - gold_bucket_events_enabled
+      - dataflow_logs_bucket_name
+      - dataflow_logs_bucket_access_type
+      - dataflow_logs_bucket_storage_tier
+      - dataflow_logs_bucket_events_enabled
+  - title: "Api Gateway"
+    variables:
+      - apigw_display_name
+      - apigwdeploy_display_name
+  - title: Streaming and Service Connector Configuration
+    variables:
+      - stream_pool_name
+      - stream_name
+      - stream_partitions
+      - stream_retention_in_hours
+      - service_connector_display_name
+      - service_connector_source_kind
+      - service_connector_source_cursor_kind
+      - service_connector_target_kind
+      - service_connector_target_bucket
+      - service_connector_target_batch_rollover_size_in_mbs
+      - service_connector_target_batch_rollover_time_in_ms
+      - service_connector_target_object_name_prefix
+      - service_connector_description
+      - service_connector_tasks_kind
+      - service_connector_tasks_batch_size_in_kbs
+      - service_connector_tasks_batch_time_in_sec
+  - title: "Functions and OCIR Configuration"
+    variables:
+      - app_display_name
+      - ocir_repo_name
+      - ocir_user_name
+      - ocir_user_password
+  - title: Data Catalog Configuration
+    variables:
+      - catalog_display_name
+  - title: Bastion Service Configuration
+    variables:
+      - private_bastion_service_name
+  - title: "Oracle Analytics Cloud Configuration"
+    variables:
+      - Oracle_Analytics_Instance_Name
+      - analytics_instance_feature_set
+      - analytics_instance_license_type
+      - analytics_instance_idcs_access_token
+      - analytics_instance_capacity_capacity_type
+      - analytics_instance_capacity_value
+  - title: "Oracle Data Integration Configuration Service"
+    variables:
+      - ocidi_display_name
+      - ocidi_description
+  - title: Data Science Optional Configuration
+    variables:
+      - project_description
+      - project_display_name
+      - notebook_session_display_name
+      - notebook_session_notebook_session_configuration_details_shape
+      - notebook_session_notebook_session_configuration_details_block_storage_size_in_gbs
+  - title: Data Flow Optional Configuration
+      variables:
+      - application_display_name
+      - application_driver_shape
+      - application_executor_shape
+      - application_file_uri
+      - application_language
+      - application_num_executors
+      - application_spark_version
+      - application_class_name
+      - application_description
+      - dataflow_display_name
+      - dataflow_max_host_count
+  - title: WAF Service Configuration
+    variables:
+      - waf_display_name
+  - title: "Network Configuration"
+    variables:
+      - vcn_0_hub_cidr
+      - public_subnet_cidr_vcn0
+      - drg_cidr_rt
+      - vcn_1_workload_cidr
+      - private_subnet_cidr_application_vnc1
+      - private_subnet_cidr_midtier_vnc1
+      - private_subnet_cidr_data_vnc1
+  - title: "Load Balancer Configuration"
+    variables:
+      - load_balancer_shape
+      - load_balancer_maximum_bandwidth_in_mbps
+      - load_balancer_minimum_bandwidth_in_mbps
+      - load_balancer_display_name
+  - title: "Hidden Variables"
+    visible: false
+    variables:
+      - user_ocid
+      - fingerprint
+      - private_key_path
+      - release
+# General Configuration Variables
+variables:
+  tenancy_ocid:
+    title: Tenancy ID
+    description: The Oracle Cloud Identifier (OCID) for your tenancy.
+    type: string
+    required: true
+    visible: false
+  compartment_id:
+    title: Stack Compartment
+    description: Choose the compartment where all resources will be provisioned.
+    type: oci:identity:compartment:id
+    required: true
+    visible: true
+  region:
+    title: Region
+    description: Select Region where all resources will be created.
+    type: oci:identity:region:name
+    required: true
+    visible: true
+  display_name_prefix:
+    title: Display Name Prefix
+    type: string
+    default: "Deploy the Data platform - data lakehouse solution inside OCI"
+    description: Enter the Display name for the solution.
+    required: true
+    visible: true
+# Autonomous Database Configuration Variables
+  db_name:
+    title: Database Name
+    description: "Provide Database name. Constraints: 12 alphanumeric characters only. No Spaces."
+    required: true
+    type: string
+    maxLength: 30
+  db_is_free_tier:
+    title: Do do want a always Free Oracle Autonomous Database instance?
+    description: "Provision Always Free Oracle Autonomous Database instance (1 OCPU 20 GB Storage)?"
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true
+  db_license_model:
+    title: "Provision Paid Oracle Autonomous Database instance (2 OCPU 1 TB Storage) - License Included or BYOL?"
+    description: "Note: This configuration can be changed later from the OCI console."
+    type: enum
+    enum:
+      - LICENSE_INCLUDED
+      - BRING_YOUR_OWN_LICENSE
+    default: "BRING_YOUR_OWN_LICENSE"
+    required: true
+    visible:
+      eq:
+        - db_is_free_tier
+        - false
+  db_password:
+    title: Database Admin Password
+    description: "Provide admin password. Constraints: 12 - 30 characters. At least one uppercase letter, one lowercase letter, and one number. No special characters."
+    type: password
+    required: true
+    confirmation: true
+    pattern: ((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[%!@^&)(]).{12,20})
+  db_version:
+    title: "A valid Oracle Database version for Autonomous Database"
+    description: "A valid Oracle Database version for Autonomous Database"
+    type: enum
+    enum:
+      - "19c"
+    default: "19c"
+    required: true
+    visible: true
+  db_size_in_tbs:
+    title: "The quantity of data in the database, in terabytes."
+    description: "The quantity of data in the database, in terabytes."
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 4
+      - 6
+      - 8
+      - 10
+      - 12
+      - 16
+      - 24
+      - 36
+      - 52
+      - 128
+    default: 1
+    visible: true
+    required: true
+  db_enable_auto_scaling:
+    title: Indicates if auto scaling is enabled for the Autonomous Database CPU core count. 
+    description: "Indicates if auto scaling is enabled for the Autonomous Database CPU core count. "
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true   
+  db_cpu_core_count:
+    title: The number of OCPU cores to be made available to the database 
+    description: "The number of OCPU cores to enable. Available cores are subject to your tenancy's service limits."
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+      - 10
+      - 11
+      - 12
+    default: 1
+    required: true
+    visible: true
+  db_workload:
+    title: Autonomous Database Type of workload. 
+    description: "Autonomous Database Type of workload."
+    type: enum
+    enum:
+      - "DW"
+    default: "DW"
+    required: true
+    visible: false 
+# Object Storage Configuration  
+  bronze_bucket_name:
+    title: Object Storage Bucket Name
+    description: "Enter a unique name for this object storage bucket. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    maxLength: 30
+    default: "bronze_bucket"
+    required: true
+    visible: true
+  bronze_bucket_access_type:
+    title: Object Storage Access Type
+    description: "Select the Access Type of the bucket."
+    type: enum
+    enum:
+      - NoPublicAccess
+      - ObjectReadWithoutList
+      - ObjectRead
+    default: "NoPublicAccess"
+    required: true
+    visible: true
+  bronze_bucket_storage_tier:
+    title: Object Storage Bucket Name
+    description: "Select the storage Tier of the bucket."
+    type: enum
+    enum:
+      - Standard
+      - Archive
+    default: "Standard"
+    required: true
+    visible: true
+  bronze_bucket_events_enabled:
+    title: Indicates if bucket events are enabled or not. 
+    description: "Indicates if bucket events are enabled or not "
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true
+  silver_bucket_name:
+    title: Object Storage Bucket Name
+    description: "Enter a unique name for this object storage bucket. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    maxLength: 30
+    default: "silver_bucket"
+    required: true
+    visible: true
+  silver_bucket_access_type:
+    title: Object Storage Access Type
+    description: "Select the Access Type of the bucket."
+    type: enum
+    enum:
+      - NoPublicAccess
+      - ObjectReadWithoutList
+      - ObjectRead
+    default: "NoPublicAccess"
+    required: true
+    visible: true
+  silver_bucket_storage_tier:
+    title: Object Storage Bucket Name
+    description: "Select the storage Tier of the bucket."
+    type: enum
+    enum:
+      - Standard
+      - Archive
+    default: "Standard"
+    required: true
+    visible: true
+  silver_bucket_events_enabled:
+    title: Indicates if bucket events are enabled or not. 
+    description: "Indicates if bucket events are enabled or not "
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true 
+  gold_bucket_name:
+    title: Object Storage Bucket Name
+    description: "Enter a unique name for this object storage bucket. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    maxLength: 30
+    default: "gold_bucket"
+    required: true
+    visible: true
+  gold_bucket_access_type:
+    title: Object Storage Access Type
+    description: "Select the Access Type of the bucket."
+    type: enum
+    enum:
+      - NoPublicAccess
+      - ObjectReadWithoutList
+      - ObjectRead
+    default: "NoPublicAccess"
+    required: true
+    visible: true
+  gold_bucket_storage_tier:
+    title: Object Storage Bucket Name
+    description: "Select the storage Tier of the bucket."
+    type: enum
+    enum:
+      - Standard
+      - Archive
+    default: "Standard"
+    required: true
+    visible: true
+  gold_bucket_events_enabled:
+    title: Indicates if bucket events are enabled or not. 
+    description: "Indicates if bucket events are enabled or not "
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true 
+  dataflow_logs_bucket_name:
+    title: Object Storage Bucket Name
+    description: "Enter a unique name for this object storage bucket. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    maxLength: 30
+    default: "dataflow-logs"
+    required: true
+    visible: true
+  dataflow_logs_bucket_access_type:
+    title: Object Storage Access Type
+    description: "Select the Access Type of the bucket."
+    type: enum
+    enum:
+      - NoPublicAccess
+      - ObjectReadWithoutList
+      - ObjectRead
+    default: "NoPublicAccess"
+    required: true
+    visible: true
+  dataflow_logs_bucket_storage_tier:
+    title: Object Storage Bucket Name
+    description: "Select the storage Tier of the bucket."
+    type: enum
+    enum:
+      - Standard
+      - Archive
+    default: "Standard"
+    required: true
+    visible: true
+  dataflow_logs_bucket_events_enabled:
+    title: Indicates if bucket events are enabled or not. 
+    description: "Indicates if bucket events are enabled or not "
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true 
+# Api Gateway Configuration  
+  apigw_display_name:
+    title: Api Gateway Name
+    description: "Enter a unique name for this Api Gateway. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    maxLength: 30
+    default: "Lakehouse_ApiGW"
+    required: true
+    visible: true
+  apigwdeploy_display_name:
+    title: Api Gateway Deployment Name
+    description: "Enter a unique name for this Api Gateway Deployment. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    maxLength: 30
+    default: "Lakehouse_deployment"
+    required: true
+    visible: true
+# Streams and Service Connector Hub Variables
+  stream_pool_name:
+    type: string
+    default: "Test_Stream_Pool"
+    visible: true
+    required: true
+    title: "Stream Pool Name for Streaming"
+    description: "Stream Pool Name for Streaming"
+  stream_name:
+    type: string
+    default: "Test_Stream"
+    visible: true
+    required: true
+    title: "Stream Name for Streaming"
+    description: "Stream Name for Streaming"
+  stream_partitions:
+    type: number
+    minimum: 1
+    maximum: 25
+    multipleOf: 1
+    default: 1
+    visible: true
+    required: true
+    title: "Number of Stream Partitions for Streaming"
+    description: "Number of Stream Partitions for Streaming"
+  stream_retention_in_hours:
+    type: number
+    minimum: 24
+    maximum: 168
+    multipleOf: 1
+    default: 24
+    visible: true
+    required: true
+    title: "Stream Retention in Hours"
+    description: "Stream Retention in Hours"
+  service_connector_display_name:
+    type: string
+    default: "Test_Service_Connector"
+    visible: true
+    required: true
+    title: "Service Connector Hub Display Name"
+    description: "Service Connector Hub Display Name"
+  service_connector_source_kind:
+    type: string
+    default: "streaming"
+    visible: true
+    required: true
+    title: "Source Kind for Service Connector Hub"
+    description: "Source Kind for Service Connector Hub"
+  service_connector_source_cursor_kind:
+    type: string
+    default: "TRIM_HORIZON"
+    visible: true
+    required: true
+    title: "Cursor Kind for Service Connector Hub"
+    description: "Starts consuming from the oldest available message in the stream."
+  service_connector_target_kind:
+    type: string
+    default: "objectStorage" 
+    visible: true
+    required: true
+    title: "Target Kind for Service Connector Hub"
+    description: "Selecting the target of object storage."
+  service_connector_target_bucket:
+    type: string
+    default: "bronze_bucket"
+    visible: true
+    required: true
+    title: "Bucket Target for Service Connector Hub"
+    description: "Selecting the target of data_bucket."
+  service_connector_target_batch_rollover_size_in_mbs:
+    type: number
+    minimum: 1
+    maximum: 100
+    default: 10
+    visible: true
+    required: true
+    title: "Target Batch Rollover Size in MBs"
+    description: "Setting target batch rollover size in megabytes."
+  service_connector_target_batch_rollover_time_in_ms:
+    type: number
+    minimum: 60000
+    maximum: 420000
+    default: 60000
+    visible: true
+    required: true
+    title: "Target Batch Rollover Time in Milliseconds"
+    description: "Setting the target batch rollover time in milliseconds."
+  service_connector_target_object_name_prefix:
+    type: string
+    default: "data"
+    visible: true
+    required: true
+    title: "Object Name Prefix for Service Connector Hub"
+    description: "Setting object name prefix of data pulled from the Streaming service."
+  service_connector_description:
+    type: string
+    default: "Used to connect streaming to object storage"
+    visible: true
+    required: true
+    title: "Service Connector Hub Description"
+    description: "Describes the use case for the Service Connector Hub."
+  service_connector_tasks_kind:
+    type: string
+    default: "function"
+    visible: true
+    required: true
+    title: "Service Connector Hub Task Kind"
+    description: "The kind of task used between the source and target."
+  service_connector_tasks_batch_size_in_kbs:
+    type: number
+    minimum: 1
+    maximum: 6143
+    default: 5120
+    visible: true
+    required: true
+    title: "Task Batch Size in KBs"
+    description: "Setting task batch sixe in kilobytes."
+  service_connector_tasks_batch_time_in_sec:
+    type: number
+    minimum: 60
+    maximum: 600
+    default: 60
+    visible: true
+    required: true
+    title: "Task Batch Time in Seconds"
+    description: "Setting task batch time in seconds."
+#Functions and OCIR Variables
+  app_display_name:
+    type: string
+    required: true
+    visibile: true
+    default: "DecoderApp"
+    title: "Function Display Name"
+    description: "Set the name of the function application"
+  ocir_repo_name:
+    type: string
+    required: true
+    visibile: true
+    title: "OCIR repository name"
+    description: "Oracle Cloud Infrastructure Registry repository name"
+  ocir_user_name:
+    type: string
+    required: true
+    visibile: true
+    title: "OCIR username"
+    description: "Oracle Cloud Infrastructure Registry username (your OCI username) - example: oracleidentitycloudservice/username" 
+  ocir_user_password:
+    type: password
+    required: true
+    visibile: true
+    title: "OCIR user password"
+    description: "Oracle Cloud Infrastructure Registry user password (your OCI user authtoken) - example: Q0fn}4DpL8B[WaGbuSYt " 
+# Data Catalog Configuration  
+  catalog_display_name:
+    title: Data Catalog Name
+    description: "Enter a unique name for this data catalog. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    maxLength: 30
+    default: "DataLakeHouse"
+    required: true
+    visible: true
+# Bastion Service Configuration  
+  private_bastion_service_name:
+    title: Private Bastion Service Name
+    description: "Enter a unique name for the private subnet bastion service. The name provided must start with a letter, contain only alphanumeric characters."
+    type: string
+    default: "private-bastion-service"
+    required: true
+    visible: true
+ # Oracle Analytics Cloud Configuration
+  Oracle_Analytics_Instance_Name:
+    title: Analytics Instance Name
+    description: "Enter a unique name for this instance. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    maxLength: 30
+    default: "DataLakeHouse"
+    required: true
+    visible: true
+  analytics_instance_license_type:
+    title: Analytics License
+    description: Choose your Oracle Analytics Cloud License Type.
+    type: enum
+    enum:
+      - LICENSE_INCLUDED
+      - BRING_YOUR_OWN_LICENSE
+    default: LICENSE_INCLUDED
+    visible: true
+    required: true
+  analytics_instance_feature_set:
+    title: Analytics Instance Type
+    description: Choose the Analytics Product Type.
+    type: enum
+    enum:
+      - SELF_SERVICE_ANALYTICS
+      - ENTERPRISE_ANALYTICS
+    default: "ENTERPRISE_ANALYTICS"
+    visible: create_analytics_instance
+    required: true
+  analytics_instance_capacity_value:
+    title: Analytics Instance Capacity
+    description: Provide the number of OCPUs for the Oracle Analytics Instance.
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 4
+      - 6
+      - 8
+      - 10
+      - 12
+      - 16
+      - 24
+      - 36
+      - 52
+    default: 1
+    visible: true
+    required: true
+  analytics_instance_capacity_capacity_type:
+    title: Analytics Instance Capacity Type
+    description: The capacity value selected (OLPU count, number of users, …etc…). This parameter affects the number of CPUs, amount of memory or other resources allocated to the instance. 
+    type: enum
+    enum:
+      - "OLPU_COUNT"
+      - "USERS_COUNT"
+    default: "OLPU_COUNT"
+    visible: true
+    required: true
+  analytics_instance_idcs_access_token:
+    title: IDCS Access Token
+    description: Provide IDCS Access token. See Pre-req section in the Installation Document.
+    type: string
+    default: "copy-paste your token instead"
+    visible: true
+    required: true
+# ODI - Oracle Cloud Infrastructure Data Integration service
+  ocidi_display_name:
+    title: Oracle Data Integration Service
+    description: "Enter a unique name for the Oracle Data Integration Service. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    maxLength: 30
+    default: "ocidi_workspace"
+    required: true
+    visible: true
+  ocidi_description:
+    title: Oracle Data Integration Service
+    description: "Enter a descriptionfor the Oracle Data Integration Service."
+    type: string
+    maxLength: 30
+    default: "ocidi_workspace"
+    required: true
+    visible: true
+# Data Science Variables
+  project_description:
+    type: string
+    default: "Machine_learning_platform"
+    visible: true
+    required: true
+    title: "Project Description for Data Science Project"
+    description: "Project Description for Data Science Project"
+  project_display_name:
+    type: string
+    default: "Machine_learning_platform"
+    visible: true
+    required: true
+    title: "Project Display Name for Data Science Project"
+    description: "Project Display Name for Data Science Project"
+  notebook_session_display_name:
+    type: string
+    default: "Machine_learning_notebook_session"
+    visible: true
+    required: true
+    title: "Notebook Session Display Name for Data Science Project"
+    description: "Notebook Session Display Name for Data Science Project"
+  notebook_session_notebook_session_configuration_details_shape:
+    type: oci:core:instanceshape:name
+    default: VM.Standard2.1
+    visible: true
+    required: true
+    title: "VM Shape for Data Science Project"
+    description: "VM Shape for Data Science Project"
+    dependsOn:
+      compartmentId: ${compartment_id}
+  notebook_session_notebook_session_configuration_details_block_storage_size_in_gbs:
+    type: number
+    minimum: 50
+    maximum: 1024
+    multipleOf: 1
+    default: 50
+    visible: true
+    required: true
+    title: "Block Storage Size for Data Science Project"
+    description: "Block Storage Size for Data Science Project"
+# Data Flow variables  
+  application_display_name:
+    type: string
+    default: "dataflowapp"
+    visible: true
+    required: true
+    title: "Application Display Name for Data Flow"
+    description: "Application Display Name for Data Flow"
+  application_driver_shape:
+    type: oci:core:instanceshape:name
+    default: "VM.Standard2.1"
+    visible: true
+    required: true
+    title: "Application Driver Shape for Data Flow"
+    description: "Application Driver Shape for Data Flow"
+    dependsOn:
+      compartmentId: ${compartment_id}
+  application_executor_shape:
+    type: oci:core:instanceshape:name
+    default: "VM.Standard2.1"
+    visible: true
+    required: true
+    title: "Application Executor Shape for Data Flow"
+    description: "Application Executor Shape for Data Flow"
+    dependsOn:
+      compartmentId: ${compartment_id}
+  application_file_uri:
+    type: string
+    default: "oci://oow_2019_dataflow_lab@bigdatadatasciencelarge/usercontent/oow-lab-2019-java-etl-1.0-SNAPSHOT.jar"
+    visible: true
+    required: false
+    title: "Application File URI for Data Flow"
+    description: "Application File URI for Data Flow"
+  application_language:
+    type: string
+    default: "Java"
+    visible: true
+    required: true
+    title: "Application Language for Data Flow"
+    description: "Application Language for Data Flow"
+  application_num_executors:
+    type: number
+    minimum: 1
+    maximum: 100 
+    multipleOf: 1
+    default: 1
+    visible: true
+    required: true
+    title: "Number of Executors for Data Flow Application"
+    description: "Number of Executors for Data Flow Application"
+  application_spark_version:
+    type: string
+    default: "2.4.4"
+    visible: true
+    required: true
+    title: "Application Spark Version for Data Flow"
+    description: "Application Spark Version for Data Flow"
+  application_class_name:
+    type: string
+    default: "convert.Convert"
+    visible: true
+    required: true
+    title: "Application Class Name for Data Flow"
+    description: "Application Class Name for Data Flow"
+  application_description:
+    type: string
+    default: "Test Java Application"
+    visible: true
+    required: true
+    title: "Application Description for Data Flow"
+    description: "Application Description for Data Flow"
+# WAF Service Configuration  
+  waf_display_name:
+    title: Waf Service Name
+    description: "Enter a unique name for the Waf service. The name provided must start with a letter, contain only alphanumeric characters."
+    type: string
+    default: "waflb"
+    required: true
+    visible: true
+# Network Configuration
+  vcn_0_hub_cidr:
+    visible: 
+      and:
+        - show_advanced_options
+    type: string
+    default: "192.0.0.0/16"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: VCN 0 HUB Network CIDR
+    required: true
+    description: The CIDR to assign to the new Virtual Cloud Network (VCN) to create for this service. This field is not required if you want to use an existing VCN. When using VCN peering ensure that the VCNs being peered have non-overlapping CIDR blocks.
+  public_subnet_cidr_vcn0:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "192.0.2.0/28"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Public Subnet CIDR inside the VCN 0 Hub
+    description: "The CIDR of the new public subnet." 
+  drg_cidr_rt:
+    visible: 
+      and:
+        - show_advanced_options
+    type: string
+    default: "192.0.0.0/16"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: Dynamic Routing Gateway
+    required: true
+    description: The CIDR to assign to the new Dynamic Routing Gateway (DRG) to create for this service. This DRG will be attached on the first VCN 0 HUB. 
+  vcn_1_workload_cidr:
+    visible: 
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.0.0/16"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: VCN 1 WORKLOAD Network CIDR
+    required: true
+    description: The CIDR to assign to the new Virtual Cloud Network (VCN) to create for this service. This field is not required if you want to use an existing VCN. When using VCN peering ensure that the VCNs being peered have non-overlapping CIDR blocks.
+  private_subnet_cidr_application_vnc1:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.10.0/28"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Private Application Subnet CIDR
+    description: "The CIDR of the new private application subnet."
+  private_subnet_cidr_midtier_vnc1:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.20.0/28"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Private midtier Subnet CIDR
+    description: "The CIDR of the new private midtier subnet."
+  private_subnet_cidr_data_vnc1:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.30.0/28"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Private Data Subnet CIDR
+    description: "The CIDR of the new private data subnet."
+  show_advanced_options:
+    title: Show Advanced Options
+    description: Enable advanced options for network.
+    type: boolean
+    default: false
+    visible: true
+# Load Balancer Variables
+  load_balancer_shape:
+    type: string
+    default: "flexible"
+    visible: true
+    required: true
+    title: "Enter the shape type for the load balancer"
+    description: "Enter the shape type for the load balancer"
+  load_balancer_display_name:
+    type: string
+    default: "lboac"
+    visible: true
+    required: true
+    title: "Enter the display name for the load balancer"
+    description: "Enter the display name for the load balancer"
+  load_balancer_maximum_bandwidth_in_mbps:
+    type: number
+    default: 400
+    visible: true
+    required: true
+    title: "Number of Maximum Bandwidth in Mbps"
+    description: "Number of Maximum Bandwidth in Mbps"
+  load_balancer_minimum_bandwidth_in_mbps:
+    type: number
+    default: 10
+    visible: true
+    required: true
+    title: "Number of Minimum Bandwidth in Mbps"
+    description: "Number of Minimum Bandwidth in Mbps"
+outputs:
+  ADW_LOGIN:
+    type: string
+    title: ADW LOGIN DETAILS
+  ADW_Database_db_connection:
+    type: string
+    title: ADW_Database_db_connection
+  ADW_Database_private_endpoint_ip:
+    type: string
+    title: ADW_Database_private_endpoint_ip
+  Database_Actions:
+    type: link
+    title: url
+  graph_studio_url:
+    type: link
+    title: graph_studio_url
+  machine_learning_user_management_url:
+    type: link
+    title: machine_learning_user_management_url
+  database_fully_qualified_name:
+    type: string
+    title: database_fully_qualified_name
+  Buckets:
+    type: string
+    title: Buckets
+  Api_gateways:
+    type: string
+    title: Api Gateways
+  Api_deployments:
+    type: string
+    title: Api Deployments
+  Api_endpoints:
+    type: string
+    title: Api Endpoints
+  Streaming_poolID:
+    type: string
+    title: Streaming_Pools
+  Streaming_ID:
+    type: string
+    title: Streaming_IDs
+  Apps:
+    type: string
+    title: Apps
+  Functions:
+    type: string
+    title: Functions
+  DataCatalog_Name:
+    type: string
+    title: Data Catalog
+  datacatalog_data_asset_adw:
+    type: string
+    title: Data Catalog
+  datacatalog_data_asset_object_storage:
+    type: string
+    title: Data Catalog
+  generated_ssh_private_key_for_bastion:
+    type: string
+    title: Generated Ssh Private Key for Bastion
+  Bastion_service_details:
+    type: string
+    title: Bastion Service Details
+  Bastion_service_sessions_details:
+    type: string
+    title: Bastion Service Sessions Details
+  Analytics_URL:
+    type: link
+    title: Analytics URL
+  Data_Integration_Service:
+    type: string
+    title: Data Integration Service Details
+  Datascience:
+    type: string
+    title: Data Science
+  Notebook: 
+    type: string
+    title: Notebook
+  dataflow_application:
+    type: string
+    title: Data Flow Application Details
+  dataflow_private_endpoint:
+    type: string
+    title: Data Flow Application Private Endpoint Details
+  waf:
+    type: string
+    title: WAF Details
+  containers_artifacts:
+    type: string
+    title: Container Artifacts Details
+  lpg_requestor:
+    type: string
+    title: Local Peering Gateway Requestor Details
+  lpg_acceptor:
+    type: string
+    title: Local Peering Gateway Acceptor Details
+  load_balancer_IP:
+    type: string
+    title: Load Balancing IP
+outputGroups:
+  - title: Application
+    outputs:
+      - ADW_LOGIN
+      - ADW_Database_db_connection
+      - ADW_Database_private_endpoint_ip
+      - Database_Actions
+      - graph_studio_url
+      - machine_learning_user_management_url
+      - database_fully_qualified_name
+      - Buckets
+      - Api_gateways
+      - Api_deployments
+      - Api_endpoints 
+      - Streaming_poolID
+      - Streaming_ID
+      - Apps
+      - Functions
+      - DataCatalog_Name
+      - datacatalog_data_asset_adw
+      - datacatalog_data_asset_object_storage
+      - generated_ssh_private_key_for_bastion
+      - Bastion_service_details
+      - Bastion_service_sessions_details
+      - Analytics_URL
+      - Data_Integration_Service
+      - Datascience
+      - Notebook
+      - dataflow_application
+      - dataflow_private_endpoint
+      - waf
+      - containers_artifacts
+      - lpg_requestor
+      - lpg_acceptor
+      - load_balancer_IP
