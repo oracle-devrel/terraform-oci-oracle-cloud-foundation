@@ -98,7 +98,7 @@ groupings:
       - notebook_session_notebook_session_configuration_details_shape
       - notebook_session_notebook_session_configuration_details_block_storage_size_in_gbs
   - title: Data Flow Optional Configuration
-      variables:
+    variables:
       - application_display_name
       - application_driver_shape
       - application_executor_shape
@@ -113,6 +113,12 @@ groupings:
   - title: WAF Service Configuration
     variables:
       - waf_display_name
+  - title: "Load Balancer Configuration"
+    variables:
+      - load_balancer_shape
+      - load_balancer_maximum_bandwidth_in_mbps
+      - load_balancer_minimum_bandwidth_in_mbps
+      - load_balancer_display_name
   - title: "Network Configuration"
     variables:
       - vcn_0_hub_cidr
@@ -122,12 +128,6 @@ groupings:
       - private_subnet_cidr_application_vnc1
       - private_subnet_cidr_midtier_vnc1
       - private_subnet_cidr_data_vnc1
-  - title: "Load Balancer Configuration"
-    variables:
-      - load_balancer_shape
-      - load_balancer_maximum_bandwidth_in_mbps
-      - load_balancer_minimum_bandwidth_in_mbps
-      - load_balancer_display_name
   - title: "Hidden Variables"
     visible: false
     variables:
@@ -813,6 +813,35 @@ variables:
     default: "waflb"
     required: true
     visible: true
+# Load Balancer Variables
+  load_balancer_shape:
+    type: string
+    default: "flexible"
+    visible: true
+    required: true
+    title: "Enter the shape type for the load balancer"
+    description: "Enter the shape type for the load balancer"
+  load_balancer_display_name:
+    type: string
+    default: "lboac"
+    visible: true
+    required: true
+    title: "Enter the display name for the load balancer"
+    description: "Enter the display name for the load balancer"
+  load_balancer_maximum_bandwidth_in_mbps:
+    type: number
+    default: 400
+    visible: true
+    required: true
+    title: "Number of Maximum Bandwidth in Mbps"
+    description: "Number of Maximum Bandwidth in Mbps"
+  load_balancer_minimum_bandwidth_in_mbps:
+    type: number
+    default: 10
+    visible: true
+    required: true
+    title: "Number of Minimum Bandwidth in Mbps"
+    description: "Number of Minimum Bandwidth in Mbps"
 # Network Configuration
   vcn_0_hub_cidr:
     visible: 
@@ -890,35 +919,6 @@ variables:
     type: boolean
     default: false
     visible: true
-# Load Balancer Variables
-  load_balancer_shape:
-    type: string
-    default: "flexible"
-    visible: true
-    required: true
-    title: "Enter the shape type for the load balancer"
-    description: "Enter the shape type for the load balancer"
-  load_balancer_display_name:
-    type: string
-    default: "lboac"
-    visible: true
-    required: true
-    title: "Enter the display name for the load balancer"
-    description: "Enter the display name for the load balancer"
-  load_balancer_maximum_bandwidth_in_mbps:
-    type: number
-    default: 400
-    visible: true
-    required: true
-    title: "Number of Maximum Bandwidth in Mbps"
-    description: "Number of Maximum Bandwidth in Mbps"
-  load_balancer_minimum_bandwidth_in_mbps:
-    type: number
-    default: 10
-    visible: true
-    required: true
-    title: "Number of Minimum Bandwidth in Mbps"
-    description: "Number of Minimum Bandwidth in Mbps"
 outputs:
   ADW_LOGIN:
     type: string
