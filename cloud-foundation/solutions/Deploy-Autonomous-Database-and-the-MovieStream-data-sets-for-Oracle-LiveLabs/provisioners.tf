@@ -13,7 +13,7 @@ resource "null_resource" "sqlcl-create-usr" {
                 ./sqlcl/bin/sql -cloudconfig wallet_${var.db_name}.zip moviestream/watchS0meMovies#@'${local.conn_db}' @./tables.sql
                 rm -rf sqlcl-21.4.1.17.1458.zip
                 rm -rf sqlcl
-                rm -rf tables.sql
+                rm -rf tables.sql     
             EOT
         }
 

@@ -172,7 +172,8 @@ variables:
     enum:
       - "movieapp"
       - "graph-get-started"
-    default: "graph-get-started"
+      - "end-to-end"
+    default: "end-to-end"
     required: true
     visible: true 
   run_post_load_procedures:
@@ -182,7 +183,7 @@ variables:
     enum:
       - true
       - false
-    default: false
+    default: true
     required: true
     visible: true 
 outputs:
@@ -214,13 +215,13 @@ outputs:
     type: string
     title: adb_admin_password
     visible: true      
-  graph_username:
+  adb_user_name:
     type: string
-    title: graph_username
+    title: adb_user_name
     visible: true      
-  graph_password:
+  adb_user_password:
     type: string
-    title: graph_password
+    title: adb_user_password
     visible: true        
 outputGroups:
   - title: Database details
@@ -228,13 +229,13 @@ outputGroups:
       - ADW_Database_db_connection
       - ADW_Database_private_endpoint_ip
       - database_fully_qualified_name
-  - title: Graph details
+  - title: ADB user details
     outputs: 
       - Database_Actions
       - graph_studio_url
       - machine_learning_user_management_url
       - adb_admin_password
-      - graph_username
-      - graph_password
+      - adb_user_name
+      - adb_user_password
 primaryOutputButton: graph_studio_url
 

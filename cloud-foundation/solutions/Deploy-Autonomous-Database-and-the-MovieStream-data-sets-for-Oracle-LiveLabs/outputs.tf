@@ -7,11 +7,11 @@ output "adb_admin_password" {
   value = "WlsAtpDb1234#"
 }
 
-output "graph_username" {
+output "adb_user_name" {
   value = "MOVIESTREAM"
 }
 
-output "graph_password" {
+output "adb_user__password" {
   value = "watchS0meMovies#"
 }
 

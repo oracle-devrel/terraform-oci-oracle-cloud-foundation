@@ -1,4 +1,4 @@
-# Oracle Cloud Foundation Terraform Solution - Deploy Autonomous Database and the MovieStream data sets for Oracle LiveLabs
+# Oracle Cloud Foundation Terraform Solution - Oracle MovieStream for LiveLabs - Use graph analytics to recommend movies
 
 ![](https://oracle-livelabs.github.io/adb/movie-stream-story-lite/introduction/images/moviestream.jpeg)
 
@@ -21,9 +21,33 @@
 ## <a name="overview"></a>Overview
 ----------------
 
-This script is used to help you quickly get started with Oracle LiveLabs. It will deploy an Oracle Autonomous Database, create a user (named MOVIESTREAM) and then install data sets into the MOVIESTREAM schema. It is used by numerous Oracle LiveLabs as a prerequisite step.
+Location of the lab:  [Integrate, Analyze and Act on All data using Autonomous Database](https://apexapps.oracle.com/pls/apex/r/dbpm/livelabs/view-workshop?wid=889) - **Lab 7: Use Graph analytics for product recommendations**
 
-For example, a graph workshop wants to focus on graph features - not necessarily on deploying an Autonomous Database instance and loading data sets (although this is easy to do!). Workshop owners can simply provide students with a URL that will take them to Oracle Cloud's Resource Manager. The student will then fill out a few fields that describe: 1) where to deploy the database, 2) a password for the admin user, 3) a name for the database, and 4) the data sets to install. After clicking apply, the complete environment will be available to use in just a few minutes.
+In this lab, you will use Oracle Graph analytics to detect and create customer communities based on movie viewing behavior. Once you've created communities - make recommendations based on what your community members have watched.
+
+Watch the video below for a quick walk-through of the lab. [_click here_](https://cdnapisec.kaltura.com/html5/html5lib/v2.98/mwEmbedFrame.php/p/2171811/uiconf_id/35965902/entry_id/1_ret5ywcn?wid=_2171811&iframeembed=true&playerId=kaltura_player&entry_id=1_ret5ywcn&flashvars[streamerType]=auto#).
+
+
+About graph
+
+When you model your data as a graph, you can run graph algorithms to analyze connections and relationships in your data. You can also use graph queries to find patterns in your data, such as cycles, paths between vertices, anomalous patterns, and others. Graph algorithms are invoked using a Java or Python API, and graph queries are run using PGQL (Property Graph Query Language, see pgql-lang.org).
+
+In this lab you will use a graph created from the tables MOVIE, CUSTOMER_PROMOTIONS, and CUSTSALES_PROMOTIONS. MOVIE and CUSTOMER_PROMOTIONS are vertex tables (every row in these tables becomes a vertex). CUSTSALES_PROMOTIONS connects the two tables, and is the edge table. Every time a customer in CUSTOMER_PROMOTIONS rents a movie in the table MOVIE, that is an edge in the graph. This graph has been created for you for use in this lab.
+
+You have the choice of over 60 pre-built algorithms when analyzing a graph. In this lab you will use the Personalized SALSA algorithm, which is a good choice for product recommendations. Customer vertices map to hubs and movies map to authorities. Higher hub scores indicate a closer relationship between customers. Higher authority scores indicate that the vertex (or movie) is plays a more important role in establishing that closeness.
+
+Objectives
+
+In this lab, you will use the Graph Studio feature of Autonomous Database to:
+
+Use a notebook
+Run a few PGQL graph queries
+Use python to run Personalized SALSA from the algorithm library
+Query and save the recommendations
+
+
+
+Oracle Cloud provides an amazing platform to productively deliver secure, insightful, scalable and performant solutions. MovieStream designed their solution leveraging the world class Oracle Autonomous Database and Oracle Cloud Infrastructure (OCI) Data Lake services. Their data architecture is following the Oracle Reference Architecture [_Enterprise Data Warehousing - an Integrated Data Lake_](https://docs.oracle.com/en/solutions/oci-curated-analysis/index.html) - which is used by Oracle customers around the world. It's worthwhile to review the architecture so you can understand the value of integrating the data lake and data warehouse - as it enables you to answer more complex questions using all your data.
 
 
 ## <a name="deliverables"></a>Deliverables
@@ -35,14 +59,11 @@ For example, a graph workshop wants to focus on graph features - not necessarily
 
 ## <a name="architecture"></a>Architecture-Diagram
 ----------------
-Oracle MovieStream is a fictitious on-line movie streaming company. It's business scenario is used to highlight how to develop intelligent applications using OCI and Oracle Autonomous Database. Let's take a look two key components of MovieStream's architecture. 
 
-MovieStream is storing their data across Oracle Object Storage and Autonomous Database. Data is captured from various sources into a landing zone in object storage. This data is then processed (cleansed, transformed and optimized) and stored in a gold zone on object storage. Once the data is curated, it is loaded into an Autonomous Database where it is analyzed by many (and varied) members of the user community.
+In this workshop, we'll start with two key components of MovieStream's architecture. MovieStream is storing their data across Oracle Object Storage and Autonomous Database. Data is captured from various sources into a landing zone in object storage. This data is then processed (cleansed, transformed and optimized) and stored in a gold zone on object storage. Once the data is curated, it is loaded into an Autonomous Database where it is analyzed by many (and varied) members of the user community.
 
 
 ![](https://oracle-livelabs.github.io/adb/movie-stream-story-lite/introduction/images/architecture.png)
-
-For the workshop, the data is stored in a data lake in the Oracle LiveLabs tenancy. This script will deploy the Autonomous Database and load data from that data lake.
 
 
 ## <a name="instructions"></a>Executing Instructions
@@ -56,10 +77,10 @@ If you don't have the required permissions and quota, contact your tenancy admin
 
 # <a name="Deploy-Using-Oracle-Resource-Manager"></a>Deploy Using Oracle Resource Manager
 
-1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation/releases/download/v1.0.0/MovieStream_live_lab-RM.zip&zipUrlVariables={"tag":"graph-get-started","run_post_load_procedures":"true","db_name":"adblivelab"})
+1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation/releases/download/v1.0.0/Deploy-Autonomous-Database-and-the-MovieStream-data-sets-for-Oracle-LiveLabs-RM.zip)
 
 
-    If you aren't already signed in, when prompted, enter the tenancy and user credentials. You'll notice that the URL contains overridden defaults for a few of the variables (e.g. "tag" and "db_name"). Change or remove these variables as you see fit.
+    If you aren't already signed in, when prompted, enter the tenancy and user credentials.
 
 2. Review and accept the terms and conditions.
 3. Select the region where you want to deploy the stack.
@@ -72,9 +93,9 @@ If you don't have the required permissions and quota, contact your tenancy admin
 ## <a name="After-Deployment-via-Resource-Manager"></a>What to do after the Deployment via Resource Manager
 ----------------
 
-After the solution is deployed successfully from Terraform CLI you will have some outputs on the screen. 
+- After the solution was deployed successfully from Terraform CLI you will have some outputs on the screen. 
 
-**Example of output:**
+Example of output:
 
 ```
 Apply complete! Resources: 5 added, 0 changed, 0 destroyed.
@@ -131,11 +152,11 @@ Database_Actions = [
 ]
 adb_admin_password = "WlsAtpDb1234#"
 database_fully_qualified_name = "sz5km3vsrs3lie5-moviestreamlabseven.adb.eu-amsterdam-1.oraclecloudapps.com"
-graph_password = "watchS0meMovies#"
+adb_user_password = "watchS0meMovies#"
 graph_studio_url = [
   "https://SZ5KM3VSRS3LIE5-MOVIESTREAMLABSEVEN.adb.eu-amsterdam-1.oraclecloudapps.com/graphstudio/",
 ]
-graph_username = "MOVIESTREAM"
+adb_user_name = "MOVIESTREAM"
 machine_learning_user_management_url = [
   "https://SZ5KM3VSRS3LIE5-MOVIESTREAMLABSEVEN.adb.eu-amsterdam-1.oraclecloudapps.com/omlusers/",
 ]
@@ -144,7 +165,7 @@ machine_learning_user_management_url = [
 
 ## Oracle MovieStream demonstration deployment
 
-This stack installs everything required to run your Oracle MovieStream LiveLab. This may be your first step in a workshop. Or, in some cases, it may allow you to jump to a specific lab within a workshop. For example, the **Deploy to Oracle Cloud** link above allows you to jump directly to Lab 7 in the [Integrate, Analyze and Act on All data using Autonomous Database](https://apexapps.oracle.com/pls/apex/r/dbpm/livelabs/run-workshop?p210_wid=889&p210_wec=&session=112456050571777) workshop.
+This stack installs everything required to run the Oracle MovieStream Live Lab. Now you can follow the steps for the MovieStream Live lab 7 from https://apexapps.oracle.com/pls/apex/r/dbpm/livelabs/run-workshop?p210_wid=889&p210_wec=&session=112456050571777 
 
 You can find details for connecting to these services in the Stack's Job Details Output. 
 
@@ -156,13 +177,13 @@ A database user was created during the deployment. You can connect as that user 
 * User: `MOVIESTREAM`, Password: `watchS0meMovies#`
 * User: `ADMIN`, Password: `WlsAtpDb1234#`
 
-**Please change these passwords after deployment.**
+Please change these passwords after deployment.
 
 ## Using database tools and applications
 
-All of the Autonomous Database tools are available to you, including SQL Worksheet, Data Studio, Machine Learning and Graph notebooks, etc. Go to Database Actions to access these tools. 
+All of the Autonomous Database tools are available to you, including SQL worksheet, Data Studio, Machine Learning and Graph notebooks, etc. Go to Database Actions to access these tools. 
 
-* **Database Actions:** Load, explore, transform, model, and catalog your data. Use run queries with the SQL worksheet, build REST interfaces and low-code apps, manage users and connections, load data from multiple sources, build and apply machine learning models, and more! 
+* **Database Actions:** Load, explore, transform, model, and catalog your data. Use an SQL worksheet, build REST interfaces and low-code apps, manage users and connections, build and apply machine learning models. 
 
 Access Link is the graph_studio_url URL from the output. Example:
 https://RDDAINSUH6U1OKC-ORACLEMOVIESTREAM.adb.us-ashburn-1.oraclecloudapps.com/ords/sql-developer
@@ -196,7 +217,7 @@ https://RDDAINSUH6U1OKC-ORACLEMOVIESTREAM.adb.us-ashburn-1.oraclecloudapps.com/o
 Now, you'll want a local copy of this repo. You can make that with the commands:
 
     git clone https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation.git
-    cd terraform-oci-oracle-cloud-foundation/cloud-foundation/solutions/MovieStream_live_lab
+    cd terraform-oci-oracle-cloud-foundation/cloud-foundation/solutions/Deploy-Autonomous-Database-and-the-MovieStream-data-sets-for-Oracle-LiveLabs
     ls
 
 ## Deployment
@@ -285,7 +306,7 @@ You can also get the fingerprint from running the following command on your loca
 
 #### **Getting the Region**
 
-Even though, you may know your region name, you will need its identifier for the variables.tf file (for example, US East Ashburn has us-ashburn-1 as its identifier).
+Even though, you may know your region name, you will needs its identifier for the variables.tf file (for example, US East Ashburn has us-ashburn-1 as its identifier).
 In order to obtain your region identifier, you will need to Navigate in the OCI Console to Administration -> Region Management
 Select the region you are interested in, and save the region identifier.
 
@@ -339,10 +360,10 @@ Also in the modules folder there is a folder called provisioner - that will prov
 * **outputs.tf** - Defines project's outputs that you will see after the code runs successfuly
 * **provider.tf** - The terraform provider that will be used (OCI)
 * **README.md** - This file
-* **schema.yaml** - Schema documents are recommended for Terraform configurations when using Resource Manager. A schema document allows you to extend pages in the Oracle Cloud Infrastructure Console. Facilitate variable entry in the Create Stack page by surfacing SSH key controls and by naming, grouping, dynamically prepopulating values, and more. Define text in the Application Information tab of the stack detail page displayed for a created stack.
+* **schema.yaml** - Schema documents are recommended for Terraform configurations when using Resource Manager. Including a schema document allows you to extend pages in the Oracle Cloud Infrastructure Console. Facilitate variable entry in the Create Stack page by surfacing SSH key controls and by naming, grouping, dynamically prepopulating values, and more. Define text in the Application Information tab of the stack detail page displayed for a created stack.
 * **variables.tf** - Project's global variables
 
-Secondly, populate the `terraform.tf` file with the desired configuration following the information:
+Secondly, populate the `terraform.tf` file with the disared configuration following the information:
 
 
 # Autonomous Data Warehouse
@@ -372,7 +393,7 @@ Below is an example:
 ```
 variable "db_name" {
   type    = string
-  default = "MovieStreamlabseven"
+  default = "MovieStreamWorkshop"
 }
 
 variable "db_password" {
@@ -445,7 +466,7 @@ $ terraform destroy --auto-approve
 ## <a name="After-Deployment-via-Terraform-CLI"></a>What to do after the Deployment via Terraform CLI
 ----------------
 
-- After the solution is deployed successfully from Terraform CLI, you will see screen output that describes your platform.
+- After the solution was deployed successfully from Terraform CLI you will have some outputs on the screen. 
 
 Example of output:
 
@@ -504,20 +525,20 @@ Database_Actions = [
 ]
 adb_admin_password = "WlsAtpDb1234#"
 database_fully_qualified_name = "sz5km3vsrs3lie5-moviestreamlabseven.adb.eu-amsterdam-1.oraclecloudapps.com"
-graph_password = "watchS0meMovies#"
+adb_user_password = "watchS0meMovies#"
 graph_studio_url = [
   "https://SZ5KM3VSRS3LIE5-MOVIESTREAMLABSEVEN.adb.eu-amsterdam-1.oraclecloudapps.com/graphstudio/",
 ]
-graph_username = "MOVIESTREAM"
+adb_user_name = "MOVIESTREAM"
 machine_learning_user_management_url = [
   "https://SZ5KM3VSRS3LIE5-MOVIESTREAMLABSEVEN.adb.eu-amsterdam-1.oraclecloudapps.com/omlusers/",
 ]
 
 ```
 
-## Oracle MovieStream Autonomous Database deployment
+## Oracle MovieStream demonstration deployment
 
-Now that your Autonomous Database is deployed and your required data sets are installed, you can now start on your workshop!
+This stack installs everything required to run the Oracle MovieStream Live Lab. Now you can follow the steps for the MovieStream Live lab 7 from https://apexapps.oracle.com/pls/apex/r/dbpm/livelabs/run-workshop?p210_wid=889&p210_wec=&session=112456050571777 
 
 You can find details for connecting to these services in the Stack's Job Details Output. 
 
