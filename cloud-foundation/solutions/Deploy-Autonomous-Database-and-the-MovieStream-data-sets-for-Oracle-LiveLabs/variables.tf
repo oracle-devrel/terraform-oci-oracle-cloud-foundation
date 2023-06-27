@@ -40,7 +40,7 @@ variable "private_key_path" {
 
 variable "db_name" {
   type    = string
-  default = "MovieStreamlabseven"
+  default = "MovieStreamWorkshop"
 }
 
 variable "db_password" {
@@ -86,12 +86,12 @@ variable "db_license_model" {
 
 variable "tag" {
   type    = string
-  default = "graph-get-started"
-  # default = "movieapp"
+  #default = "graph-get-started"
+  default = "end-to-end"
 }
 
 variable "run_post_load_procedures" {
   type    = bool
-  default = false
-  # default = true
+  #default = false
+  default = true
 }
