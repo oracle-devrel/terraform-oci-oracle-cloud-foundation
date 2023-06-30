@@ -11,8 +11,8 @@ groupings:
     visible: true
     variables:
       - tenancy_ocid
-      - compartment_id
       - region
+      - compartment_id
       - display_name_prefix
   - title: "Autonomous Database Configuration"
     variables:
@@ -41,16 +41,16 @@ variables:
     type: string
     required: true
     visible: false
-  compartment_id:
-    title: Stack Compartment
-    description: Choose the compartment where all resources will be provisioned.
-    type: oci:identity:compartment:id
-    required: true
-    visible: true
   region:
     title: Region
     description: Select Region where all resources will be created.
     type: oci:identity:region:name
+    required: true
+    visible: true
+  compartment_id:
+    title: Compartment
+    description: Choose the compartment where all resources will be provisioned.
+    type: oci:identity:compartment:id
     required: true
     visible: true
   display_name_prefix:
