@@ -1,0 +1,16 @@
+#cloud-config
+
+write_files:
+  # Create file to be used when enabling ip forwarding
+  - path: /etc/sysctl.d/98-ip-forward.conf
+    content: |
+      net.ipv4.ip_forward = 1
+
+runcmd:
+  - firewall-offline-cmd --add-port=80/tcp
+  - firewall-offline-cmd --add-port=22/tcp
+  - systemctl stop firewalld
+  - docker run --name listener-ui -d -p 8000:8000 -it docker.io/library/python:3.7-slim python3 -m http.server --bind 0.0.0.0
+  - docker run --name listener-data -d -p 8088:80 welcome-to-docker:latest
+
+  # docker run --name listener-data -d -p 8008:80 -it docker.io/library/python:3.7-slim python3 -m http.server --bind 0.0.0.0

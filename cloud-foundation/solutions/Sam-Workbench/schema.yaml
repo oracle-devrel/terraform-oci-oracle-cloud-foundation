@@ -1,0 +1,410 @@
+# Copyright © 2023, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+title: "Create the SAM Workbench solution"
+stackDescription: "Use this solution to launch the SAM Workbench solution"
+schemaVersion: 1.1.0
+version: "20230223"
+locale: "en"
+groupings:
+  - title: "General Settings"
+    visible: true
+    variables:
+      - tenancy_ocid
+      - region
+      - compartment_id
+      - show_advanced
+  - title: "Autonomous Database Configuration"
+    variables:
+      - db_name
+      - db_is_free_tier
+      - db_license_model
+      - db_password
+      - db_version
+      - db_size_in_tbs
+      - db_enable_auto_scaling
+      - db_cpu_core_count
+      - db_workload
+  - title: "Bastion VM Configuration"
+    variables:
+      - bastion_server_shape
+      - bastion_display_name
+  - title: "UI Data Server Details"
+    variables:
+      - ui_data_server_shape
+      - ui_data_server_ocpus
+      - ui_data_server_memory_in_gbs
+      - ui_data_server_display_name
+  - title: "Streaming Service"
+    variables:
+      - stream_name
+      - stream_partitions
+      - stream_retention_in_hours
+      - stream_pool_name
+  - title: "Network Configuration"
+    variables:
+      - vcn_cidr
+      - public_subnet_cidr
+      - private_subnet_cidr
+      - show_advanced_options
+  - title: "Load Balancer Configuration"
+    variables:
+      - load_balancer_shape
+      - load_balancer_maximum_bandwidth_in_mbps
+      - load_balancer_minimum_bandwidth_in_mbps
+      - load_balancer_display_name
+  - title: "Hidden Variables"
+    visible: false
+    variables:
+      - user_ocid
+      - fingerprint
+      - private_key_path
+      - ui_data_server
+# General Configuration Variables
+variables:
+  tenancy_ocid:
+    title: Tenancy ID
+    description: The Oracle Cloud Identifier (OCID) for your tenancy.
+    type: string
+    required: true
+    visible: false
+  compartment_id:
+    title: Stack Compartment
+    description: Choose the compartment where all resources will be provisioned.
+    type: oci:identity:compartment:id
+    required: true
+    visible: true
+  region:
+    title: Region
+    description: Select Region where all resources will be created.
+    type: oci:identity:region:name
+    required: true
+    visible: true
+# Autonomous Database Configuration Variables
+  db_name:
+    title: Database Name
+    description: "Provide Database name. Constraints: 12 alphanumeric characters only. No Spaces."
+    required: true
+    type: string
+    maxLength: 30
+  db_is_free_tier:
+    title: Do do want a always Free Oracle Autonomous Database instance?
+    description: "Provision Always Free Oracle Autonomous Database instance (1 OCPU 20 GB Storage)?"
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true
+  db_license_model:
+    title: "Provision Paid Oracle Autonomous Database instance (2 OCPU 1 TB Storage) - License Included or BYOL?"
+    description: "Note: This configuration can be changed later from the OCI console."
+    type: enum
+    enum:
+      - LICENSE_INCLUDED
+      - BRING_YOUR_OWN_LICENSE
+    default: "BRING_YOUR_OWN_LICENSE"
+    required: true
+    visible:
+      eq:
+        - db_is_free_tier
+        - false
+  db_password:
+    title: Database Admin Password
+    description: "Provide admin password. Constraints: 12 - 30 characters. At least one uppercase letter, one lowercase letter, and one number. No special characters."
+    type: password
+    required: true
+    confirmation: true
+    pattern: ((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[%!@^&)(]).{12,20})
+  db_version:
+    title: "A valid Oracle Database version for Autonomous Database"
+    description: "A valid Oracle Database version for Autonomous Database"
+    type: enum
+    enum:
+      - "19c"
+    default: "19c"
+    required: true
+    visible: true
+  db_size_in_tbs:
+    title: "The quantity of data in the database, in terabytes."
+    description: "The quantity of data in the database, in terabytes."
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 4
+      - 6
+      - 8
+      - 10
+      - 12
+      - 16
+      - 24
+      - 36
+      - 52
+      - 128
+    default: 1
+    visible: true
+    required: true
+  db_enable_auto_scaling:
+    title: Indicates if auto scaling is enabled for the Autonomous Database CPU core count. 
+    description: "Indicates if auto scaling is enabled for the Autonomous Database CPU core count. "
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true   
+  db_cpu_core_count:
+    title: The number of OCPU cores to be made available to the database 
+    description: "The number of OCPU cores to enable. Available cores are subject to your tenancy's service limits."
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+      - 10
+      - 11
+      - 12
+    default: 1
+    required: true
+    visible: true
+  db_workload:
+    title: Autonomous Database Type of workload. 
+    description: "Autonomous Database Type of workload."
+    type: enum
+    enum:
+      - "DW"
+      - "OLTP"
+    default: "OLTP"
+    required: true
+    visible: false 
+# "Bastion VM Configuration"
+  bastion_display_name:
+    title: Bastion VM Display Name
+    description: "Enter a name for thhe Bastion VM. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    default:  "sam-bastion"
+    required: true
+    visible: true
+  bastion_server_shape:
+    title: Provide the shape for Bastion VM
+    description: "Provide the shape for Bastion VM"
+    type: oci:core:instanceshape:name
+    default: "VM.Standard2.4"
+    required: true
+    visible: true
+    dependsOn:
+      compartmentId: ${compartment_id}
+# "UI Data Server Configuration"
+  ui_data_server_display_name:
+    title: UI Data Server  Display Name
+    description: "Enter a name for thhe UI Data Server VM. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    default:  "ui_data_server"
+    required: true
+    visible: true
+  ui_data_server_shape:
+    title: Provide the shape for UI Data Server VM
+    description: "Provide the shape for UI Data Server VM"
+    type: oci:core:instanceshape:name
+    default: "VM.Standard.E4.Flex"
+    required: true
+    visible: true
+    dependsOn:
+      compartmentId: ${compartment_id}
+  ui_data_server_ocpus:
+    type: number
+    default: 6
+    visible: true
+    required: true
+    title: "Number of OCPUS for the UI Data Server"
+    description: "Number of OCPUS for the UI Data Server"
+  ui_data_server_memory_in_gbs:
+    type: number
+    default: 196
+    visible: true
+    required: true
+    title: "Number of Memory in gps for the UI Data Server"
+    description: "Number of Memory in gps for the UI Data Server"
+# Streams Variables
+  stream_pool_name:
+    type: string
+    default: "Test_Stream_Pool"
+    visible: true
+    required: true
+    title: "Stream Pool Name for Streaming"
+    description: "Stream Pool Name for Streaming"
+  stream_name:
+    type: string
+    default: "Test_Stream"
+    visible: true
+    required: true
+    title: "Stream Name for Streaming"
+    description: "Stream Name for Streaming"
+  stream_partitions:
+    type: number
+    minimum: 1
+    maximum: 25
+    multipleOf: 1
+    default: 1
+    visible: true
+    required: true
+    title: "Number of Stream Partitions for Streaming"
+    description: "Number of Stream Partitions for Streaming"
+  stream_retention_in_hours:
+    type: number
+    minimum: 24
+    maximum: 168
+    multipleOf: 1
+    default: 24
+    visible: true
+    required: true
+    title: "Stream Retention in Hours"
+    description: "Stream Retention in Hours"
+# Network Configuration
+  vcn_cidr:
+    visible: 
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.0.0/16"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: VCN Network CIDR
+    required: true
+    description: The CIDR to assign to the new Virtual Cloud Network (VCN) to create for this service. This field is not required if you want to use an existing VCN. When using VCN peering ensure that the VCNs being peered have non-overlapping CIDR blocks.
+  public_subnet_cidr:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.0.0/24"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Public Subnet CIDR
+    description: "The CIDR of the new public subnet." 
+  private_subnet_cidr:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.1.0/24"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Private Subnet CIDR
+    description: "The CIDR of the new private subnet."
+  show_advanced_options:
+    title: Show Advanced Options
+    description: Enable advanced options for network.
+    type: boolean
+    default: false
+    visible: true
+# Load Balancer Variables
+  load_balancer_shape:
+    type: string
+    default: "flexible"
+    visible: true
+    required: true
+    title: "Enter the shape type for the load balancer"
+    description: "Enter the shape type for the load balancer"
+  load_balancer_display_name:
+    type: string
+    default: "lbsam"
+    visible: true
+    required: true
+    title: "Enter the display name for the load balancer"
+    description: "Enter the display name for the load balancer"
+  load_balancer_maximum_bandwidth_in_mbps:
+    type: number
+    default: 400
+    visible: true
+    required: true
+    title: "Number of Maximum Bandwidth in Mbps"
+    description: "Number of Maximum Bandwidth in Mbps"
+  load_balancer_minimum_bandwidth_in_mbps:
+    type: number
+    default: 10
+    visible: true
+    required: true
+    title: "Number of Minimum Bandwidth in Mbps"
+    description: "Number of Minimum Bandwidth in Mbps"
+outputs:
+  ADW_LOGIN:
+    type: string
+    title: ADW LOGIN DETAILS
+  ADW_Database_db_connection:
+    type: string
+    title: ADW_Database_db_connection
+  ADW_Database_private_endpoint_ip:
+    type: string
+    title: ADW_Database_private_endpoint_ip
+  Database_Actions:
+    type: link
+    title: url
+  graph_studio_url:
+    type: link
+    title: graph_studio_url
+  machine_learning_user_management_url:
+    type: link
+    title: machine_learning_user_management_url
+  database_fully_qualified_name:
+    type: string
+    title: database_fully_qualified_name
+  Bastion_compute_linux_instances:
+    type: string
+    title: Bastion Compute public IP
+  Bastion_all_private_ips:
+    type: string
+    title: Bastion Compute private IP
+  ui_data_server_compute_linux_instances:
+    type: string
+    title: UI Data Server Compute Instance
+  ui_data_server_all_private_ips:
+    type: string
+    title: UI Data Server Compute Private IP
+  generated_ssh_private_key_for_bastion:
+    type: string
+    title: Generated Ssh Private Key for Bastion
+  streaming_poolID:
+    type: string
+    title: Streaming Pool ID
+  streaming_ID:
+    type: string
+    title: Streamng ID
+  load_balancer_IP:
+    type: string
+    title: Public Load Balancer IP
+  Connect-to-listener-ui-backend:
+    type: string
+    title: How to connect to the Listener UI Backend
+  Connect-to-listener-data-backend:
+    type: string
+    title: How to connect to the Listener Data Backend
+outputGroups:
+  - title: Application
+    outputs:
+      - ADW_LOGIN
+      - ADW_Database_db_connection
+      - ADW_Database_private_endpoint_ip
+      - Database_Actions
+      - graph_studio_url
+      - machine_learning_user_management_url
+      - database_fully_qualified_name
+      - Bastion_compute_linux_instances
+      - Bastion_all_private_ips
+      - ui_data_server_compute_linux_instances
+      - informatica_secure_agent_all_private_ips
+      - ui_data_server_all_private_ips
+      - generated_ssh_private_key_for_bastion
+      - streaming_poolID
+      - streaming_ID
+      - load_balancer_IP
+      - Connect-to-listener-ui-backend
+      - Connect-to-listener-data-backend
