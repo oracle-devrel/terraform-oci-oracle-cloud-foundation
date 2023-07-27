@@ -33,3 +33,10 @@ output "subnets_ids" {
     subnet.display_name => subnet.id
   }
 }
+
+output "vcnss" {
+  value = {
+    for vcn in oci_core_vcn.these :
+    vcn.display_name => tomap({"id" =  vcn.id, "cidr" = vcn.cidr_block})
+  }
+}
