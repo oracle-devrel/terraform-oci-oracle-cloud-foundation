@@ -78,9 +78,9 @@ module "compute" {
   }
 }
 
-resource "time_sleep" "wait_3_mins_for_the_instances_to_be_up_and_running" {
+resource "time_sleep" "wait_7_mins_for_the_instances_to_be_up_and_running" {
   depends_on = [module.compute]
-  create_duration = "3m"
+  create_duration = "7m"
 }
 
 #Calling the network modules that are required for this solution
