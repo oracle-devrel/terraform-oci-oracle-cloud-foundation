@@ -16,7 +16,7 @@ locals {
 # Workers provisioner
 
 resource "null_resource" "Worker1-init-kafka-zk" {
-  depends_on = [module.compute, module.fss, module.keygen, time_sleep.wait_3_mins_for_the_instances_to_be_up_and_running]
+  depends_on = [module.compute, module.fss, module.keygen, time_sleep.wait_7_mins_for_the_instances_to_be_up_and_running]
   provisioner "remote-exec" {
     connection {
       type                = "ssh"
@@ -39,7 +39,7 @@ resource "null_resource" "Worker1-init-kafka-zk" {
 }
 
 resource "null_resource" "Worker2-init-kafka-zk" {
-  depends_on = [module.compute, module.fss, module.keygen, time_sleep.wait_3_mins_for_the_instances_to_be_up_and_running]
+  depends_on = [module.compute, module.fss, module.keygen, time_sleep.wait_7_mins_for_the_instances_to_be_up_and_running]
   provisioner "remote-exec" {
     connection {
       type                = "ssh"
@@ -62,7 +62,7 @@ resource "null_resource" "Worker2-init-kafka-zk" {
 }
 
 resource "null_resource" "Worker3-init-kafka-zk" {
-  depends_on = [module.compute, module.fss, module.keygen, time_sleep.wait_3_mins_for_the_instances_to_be_up_and_running]
+  depends_on = [module.compute, module.fss, module.keygen, time_sleep.wait_7_mins_for_the_instances_to_be_up_and_running]
   provisioner "remote-exec" {
     connection {
       type                = "ssh"
