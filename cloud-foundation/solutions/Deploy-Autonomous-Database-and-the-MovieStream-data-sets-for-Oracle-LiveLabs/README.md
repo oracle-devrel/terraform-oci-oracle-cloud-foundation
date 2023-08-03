@@ -586,7 +586,7 @@ https://RDDAINSUH6U1OKC-ORACLEMOVIESTREAM.adb.us-ashburn-1.oraclecloudapps.com/o
 
 [Autonomous Databases Overview](https://docs.oracle.com/en-us/iaas/Content/Database/Concepts/adboverview.htm)
 
-[Terraform Autonomous Databases Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/database_autonomous_database)
+[Terraform Autonomous Databases Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/database_autonomous_database)
 
 
 ## <a name="team"></a>The Team
