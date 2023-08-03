@@ -1,4 +1,4 @@
-# Copyright © 2022, Oracle and/or its affiliates.
+# Copyright © 2023, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 
@@ -10,6 +10,7 @@ variable "tenancy_ocid" {
   type = string
   default = ""
 }
+
 variable "region" {
     type = string
     default = ""
@@ -35,68 +36,69 @@ variable "private_key_path" {
     default = ""
 }
 
+
 # Object Storage Bucket
 
 variable "data_bucket_name" {
-    type    = string
-    default = "data_bucket"
+  type    = string
+  default = "data_bucket"
 }
 
 variable "data_bucket_access_type" {
-    type    = string
-    default  = "NoPublicAccess"
+  type    = string
+  default = "NoPublicAccess"
 }
 
 variable "data_bucket_storage_tier" {
-    type    = string
-    default = "Standard"
+  type    = string
+  default = "Standard"
 }
-  
+
 variable "data_bucket_events_enabled" {
-    type    = bool
-    default = false
+  type    = bool
+  default = false
 }
 
 variable "dataflow_logs_bucket_name" {
-    type    = string
-    default = "dataflow-logs"
+  type    = string
+  default = "dataflow-logs"
 }
 
 variable "dataflow_logs_bucket_access_type" {
-    type    = string
-    default  = "NoPublicAccess"
+  type    = string
+  default = "NoPublicAccess"
 }
 
 variable "dataflow_logs_bucket_storage_tier" {
-    type    = string
-    default = "Standard"
+  type    = string
+  default = "Standard"
 }
-  
+
 variable "dataflow_logs_bucket_events_enabled" {
-    type    = bool
-    default = false
+  type    = bool
+  default = false
 }
 
 # Streaming
 
 variable "stream_name" {
-    type    = string
-    default = "Test_Stream"
+  type    = string
+  default = "Test_Stream"
 }
 
 variable "stream_partitions" {
-    type    = string
-    default = "1"
+  type    = string
+  default = "1"
 }
 
 variable "stream_retention_in_hours" {
-    type    = string
-    default = "24"
+  type    = string
+  default = "24"
 }
-  
+
 variable "stream_pool_name" {
-    type    = string
-    default = "Test_Stream_Pool"
+  type    = string
+  default = "Test_Stream_Pool"
 }
 
 variable "service_connector_display_name" {
@@ -156,13 +158,13 @@ variable "app_display_name" {
 # Example: decoder 
 
 variable "ocir_repo_name" {
-  default = "decoder"
+  default = "decoder_repo"
 }
 
 # Example: oracleidentitycloudservice/username
 
 variable "ocir_user_name" {
-  default = ""
+  default = "oracleidentitycloudservice/username"
 }
 
 # Example: Q0fn}4DpL8B[WwGbuSYt
@@ -249,12 +251,6 @@ variable "private_subnet_cidr" {
 }
 
 # don't modify any other variables (below) - it may cause that the solution will not work propertly.
-
-variable "use_regional_subnet" {
-  type = bool
-  default = true
-  description = "Indicates use of regional subnets (preferred) instead of AD specific subnets"
-}
 
 variable "service_name" {
   type        = string

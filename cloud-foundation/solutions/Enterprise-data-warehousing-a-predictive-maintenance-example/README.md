@@ -54,28 +54,21 @@ If you don't have the required permissions and quota, contact your tenancy admin
     If you aren't already signed in, when prompted, enter the tenancy and user credentials.
 ---- 
 ### __The Prerequisites before creating the stack are:__
-1. __Get an Auth Token and Create a New Repository__
+1. __Generate an Auth Token for the Container Registry__
   
   - In the top-right corner of the Console, open the User menu (User menu), and then click User Settings.
   - On the Auth Tokens page, click Generate Token.
   - Enter Tutorial auth token as a friendly description for the auth token and click Generate Token. The new auth token is displayed.
   - Copy the auth token immediately to a secure location from where you can retrieve it later, because you won't see the auth token again in the Console.
-  - Close the Generate Token dialog.
-  - In the Console, open the navigation menu. Go to Developer Services and click Container Registry.
-  - Choose the region in which you will be working (for example, us-ashburn-1).
-  - Choose the compartment you have permission to work in.
-  
-  - Create a new repository: - Click Create Repository.
-  - Choose the compartment in which to create the new repository (by default, the same compartment you selected previously).
-  - Enter __decoder__  as the name for the new repository.
-  - Select the Private option to limit access to the new repository.
-  - Click Create Repository to create the new repository
+  - Close the Generate Token dialog. This token will be required for the ocir_user_password variable.
+  - The code will create a repository for your artifacts inside the container registry service. Inside the repository the code will create a docker image that will be used as a function.
 
 2. __Check your username format__ 
  - "tenancy-namespace>/username". For example, ansh81vru1zp/jdoe@acme.com. If your tenancy is federated with Oracle Identity Cloud Service, use the format tenancy-namespace/oracleidentitycloudservice/username. 
  - As the tenancy-namespace terraform will get it automatically, just verify if your tenancy it's federated or not. 
  - If it's federated remember the oracleidentitycloudservice/username format. For example: oracleidentitycloudservice/ionel_panaitescu . This will be required for the ocir_user_name variable.
 ---- 
+
 2. Review and accept the terms and conditions.
 3. Select the region where you want to deploy the stack.
 4. Follow the on-screen prompts and instructions to create the stack.
@@ -246,22 +239,14 @@ exit
 ```
 
 ### __Last additional prerequisites are:__
-1. __Get an Auth Token and Create a New Repository__
+1. __Generate an Auth Token for the Container Registry__
   
   - In the top-right corner of the Console, open the User menu (User menu), and then click User Settings.
   - On the Auth Tokens page, click Generate Token.
   - Enter Tutorial auth token as a friendly description for the auth token and click Generate Token. The new auth token is displayed.
   - Copy the auth token immediately to a secure location from where you can retrieve it later, because you won't see the auth token again in the Console.
-  - Close the Generate Token dialog.
-  - In the Console, open the navigation menu. Go to Developer Services and click Container Registry.
-  - Choose the region in which you will be working (for example, us-ashburn-1).
-  - Choose the compartment you have permission to work in.
-  
-  - Create a new repository: - Click Create Repository.
-  - Choose the compartment in which to create the new repository (by default, the same compartment you selected previously).
-  - Enter __decoder__  as the name for the new repository.
-  - Select the Private option to limit access to the new repository.
-  - Click Create Repository to create the new repository
+  - Close the Generate Token dialog. This token will be required for the ocir_user_password variable.
+  - The code will create a repository for your artifacts inside the container registry service. Inside the repository the code will create a docker image that will be used as a function.
 
 2. __Check your username format__ 
  - "tenancy-namespace>/username". For example, ansh81vru1zp/jdoe@acme.com. If your tenancy is federated with Oracle Identity Cloud Service, use the format tenancy-namespace/oracleidentitycloudservice/username. 
@@ -625,33 +610,33 @@ $ terraform destroy --auto-approve
 
 [Tagging Overview](https://docs.oracle.com/en-us/iaas/Content/Tagging/Concepts/taggingoverview.htm)
 
-[Terraform Object Storage Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/objectstorage_bucket)
+[Terraform Object Storage Service Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/objectstorage_bucket)
 
-[Terraform Streaming Stream Pool Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/streaming_stream_pool)
+[Terraform Streaming Stream Pool Service Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/streaming_stream_pool)
 
-[Terraform Streaming Stream Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/streaming_stream)
+[Terraform Streaming Stream Service Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/streaming_stream)
 
-[Terraform Service Connector Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/sch_service_connector)
+[Terraform Service Connector Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/sch_service_connector)
 
-[Terraform Function Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/functions_function)
+[Terraform Function Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/functions_function)
 
-[Terraform Function Application  Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/functions_application)
+[Terraform Function Application  Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/functions_application)
 
-[Terraform Data Flow Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/dataflow_application)
+[Terraform Data Flow Service Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/dataflow_application)
 
-[Terraform Data Science Project Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/datascience_project)
+[Terraform Data Science Project Service Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/datascience_project)
 
-[Terraform Data Science Notebook Session Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/datascience_notebook_session)
+[Terraform Data Science Notebook Session Service Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/datascience_notebook_session)
 
-[Terraform Vcn resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_vcn)
+[Terraform Vcn resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_vcn)
 
-[Terraform Subnet resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_subnet)
+[Terraform Subnet resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_subnet)
 
-[Terraform Tag Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/identity_tag_namespace)
+[Terraform Tag Service Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/identity_tag_namespace)
 
 
 ## <a name="team"></a>The Team
-- **Owners**: [Panaitescu Ionel](https://github.com/ionelpanaitescu), [Corina Todea](https://github.com/ctodearo)
+- **Owners**: [Panaitescu Ionel](https://github.com/ionelpanaitescu)
 
 ## <a name="feedback"></a>Feedback
 We welcome your feedback. To post feedback, submit feature ideas or report bugs, please use the Issues section on this repository.	

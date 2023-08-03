@@ -1,10 +1,10 @@
-# Copyright © 2022, Oracle and/or its affiliates.
+# Copyright © 2023, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 title: "Create Oracle Streaming Service, Oracle Service Connector Hub, Oracle Data Flow and Oracle Data Science in Oracle Cloud Infrastructure"
 stackDescription: "Deploy Oracle Streaming Service, Oracle Service Connector Hub, Oracle Data Flow and Oracle Data Science in Oracle Cloud Infrastructure."
 schemaVersion: 1.1.0
-version: "2021216"
+version: "2023083"
 locale: "en"
 groupings:
   - title: "General Configuration"
@@ -100,7 +100,6 @@ groupings:
     - user_ocid
     - fingerprint
     - private_key_path
-    - use_regional_subnet
     - app_display_name
     - release
 # General Configuration Variables

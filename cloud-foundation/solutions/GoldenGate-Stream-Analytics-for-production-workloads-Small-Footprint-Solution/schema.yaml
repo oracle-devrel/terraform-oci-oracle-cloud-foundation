@@ -1,10 +1,10 @@
-# Copyright © 2022, Oracle and/or its affiliates.
+# Copyright © 2023, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 title: "Deploy GoldenGate Stream Analytics for production workloads"
 stackDescription: "Deploy GoldenGate Stream Analytics for production workloads"
 schemaVersion: 1.1.0
-version: "20211212"
+version: "20230803"
 locale: "en"
 groupings:
   - title: "General Settings"
