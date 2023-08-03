@@ -679,29 +679,29 @@ $ terraform destroy --auto-approve
 
 [Tagging Overview](https://docs.oracle.com/en-us/iaas/Content/Tagging/Concepts/taggingoverview.htm)
 
-[Terraform Autonomous Databases Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/database_autonomous_database)
+[Terraform Autonomous Databases Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/database_autonomous_database)
 
-[Terraform Analytics Cloud Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/analytics_analytics_instance)
+[Terraform Analytics Cloud Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/analytics_analytics_instance)
 
-[Terraform Object Storage Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/objectstorage_bucket)
+[Terraform Object Storage Service Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/objectstorage_bucket)
 
-[Terraform Data Catalog Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/datacatalog_catalog)
+[Terraform Data Catalog Service Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/datacatalog_catalog)
 
-[Terraform Oracle Cloud Infrastructure File Storage Service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/file_storage_file_system)
+[Terraform Oracle Cloud Infrastructure File Storage Service](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/file_storage_file_system)
 
-[Terraform Certificates - TLS Provider](https://registry.terraform.io/providers/hashicorp/tls/latest/docs)
+[Terraform Certificates - TLS Provider](https://registry.terraform.io/providers/oracle/tls/latest/docs)
 
-[Terraform Oracle Cloud Infrastructure Core Service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_instance)
+[Terraform Oracle Cloud Infrastructure Core Service](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_instance)
 
-[Terraform Vcn resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_vcn)
+[Terraform Vcn resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_vcn)
 
-[Terraform Subnet resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_subnet)
+[Terraform Subnet resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_subnet)
 
-[Terraform Tag Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/identity_tag_namespace)
+[Terraform Tag Service Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/identity_tag_namespace)
 
 
 ## <a name="team"></a>The Team
-- **Owners**: [Panaitescu Ionel](https://github.com/ionelpanaitescu), [Corina Todea](https://github.com/ctodearo)
+- **Owners**: [Panaitescu Ionel](https://github.com/ionelpanaitescu)
 
 ## <a name="feedback"></a>Feedback
 We welcome your feedback. To post feedback, submit feature ideas or report bugs, please use the Issues section on this repository.	
