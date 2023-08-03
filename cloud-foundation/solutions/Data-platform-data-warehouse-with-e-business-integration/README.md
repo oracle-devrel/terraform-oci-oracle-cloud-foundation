@@ -1032,23 +1032,23 @@ If you want to jump on the ODI Instance using your bastion instance or with a ba
 
 [Tagging Overview](https://docs.oracle.com/en-us/iaas/Content/Tagging/Concepts/taggingoverview.htm)
 
-[Terraform Autonomous Databases Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/database_autonomous_database)
+[Terraform Autonomous Databases Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/database_autonomous_database)
 
-[Terraform Analytics Cloud Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/analytics_analytics_instance)
+[Terraform Analytics Cloud Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/analytics_analytics_instance)
 
-[Terraform Data Catalog Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/datacatalog_catalog)
+[Terraform Data Catalog Service Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/datacatalog_catalog)
 
-[Terraform API Gateway Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/apigateway_gateway)
+[Terraform API Gateway Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/apigateway_gateway)
 
-[Terraform Certificates - TLS Provider](https://registry.terraform.io/providers/hashicorp/tls/latest/docs)
+[Terraform Certificates - TLS Provider](https://registry.terraform.io/providers/oracle/tls/latest/docs)
 
-[Terraform Oracle Cloud Infrastructure Core Service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_instance)
+[Terraform Oracle Cloud Infrastructure Core Service](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_instance)
 
-[Terraform Vcn resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_vcn)
+[Terraform Vcn resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_vcn)
 
-[Terraform Subnet resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_subnet)
+[Terraform Subnet resource in Oracle Cloud Infrastructure Core service](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/core_subnet)
 
-[Terraform Tag Service Resource](https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/identity_tag_namespace)
+[Terraform Tag Service Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/identity_tag_namespace)
 
 
 ## <a name="team"></a>The Team
