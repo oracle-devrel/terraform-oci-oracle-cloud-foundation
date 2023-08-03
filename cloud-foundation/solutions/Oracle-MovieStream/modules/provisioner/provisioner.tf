@@ -50,45 +50,6 @@ resource "null_resource" "remote-exec" {
       private_key = var.private_key
     }
   }
-
-  # provisioner "file" {
-  #   destination = "/home/opc/tables.sql"
-  #   content = templatefile("./modules/provisioner/tables.sql.tmpl", {
-  #       tag = var.tag
-  #       run_post_load_procedures = var.run_post_load_procedures
-  #   })
-  #   connection {
-  #     agent       = false
-  #     timeout     = "30m"
-  #     host        = var.host
-  #     user        = "opc"
-  #     private_key = var.private_key
-  #   }
-  # }
-
-  # provisioner "file" {
-  #   source      = "./modules/provisioner/movieapp.zip"
-  #   destination = "/home/opc/movieapp.zip"
-  #   connection {
-  #     agent       = false
-  #     timeout     = "30m"
-  #     host        = var.host
-  #     user        = "opc"
-  #     private_key = var.private_key
-  #   }
-  # }
-
-  # provisioner "file" {
-  #   source      = "./modules/provisioner/oml4py-client-linux-x86_64-1.0.zip"
-  #   destination = "/home/opc/oml4py-client-linux-x86_64-1.0.zip"
-  #   connection {
-  #     agent       = false
-  #     timeout     = "30m"
-  #     host        = var.host
-  #     user        = "opc"
-  #     private_key = var.private_key
-  #   }
-  # }
   
   provisioner "file" {
     destination = "/home/opc/oml_sample.py"
@@ -134,13 +95,10 @@ resource "null_resource" "remote-exec" {
       "sudo chmod 777 /home/opc/init.sql",
       "sudo chmod 777 /home/opc/wallet_${var.db_name}.zip",
       "sudo chmod 777 /home/opc/tables.sql",
-      # "sudo chmod 777 /home/opc/movieapp.zip",
-      # "sudo chmod 777 /home/opc/oml4py-client-linux-x86_64-1.0.zip",
       "sudo chmod 777 /home/opc/finalize.sh",
       "sudo chmod 777 /home/opc/oml_sample.py",
       "sudo wget https://objectstorage.us-ashburn-1.oraclecloud.com/n/oradbclouducm/b/data/o/movieapp.zip -P /home/opc/",
       "sudo chmod 777 /home/opc/movieapp.zip",
-      ## why we are doing this - comment it .
       "sudo wget https://objectstorage.us-ashburn-1.oraclecloud.com/n/oradbclouducm/b/data/o/oml4py-client-linux-x86_64-1.0.zip -P /home/opc/",
       "sudo chmod 777 /home/opc/oml4py-client-linux-x86_64-1.0.zip",
       "sudo systemctl disable firewalld",
