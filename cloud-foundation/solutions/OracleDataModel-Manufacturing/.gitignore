@@ -3,4 +3,3 @@
 
 .terraform
 *tfstate*
-*.pem
