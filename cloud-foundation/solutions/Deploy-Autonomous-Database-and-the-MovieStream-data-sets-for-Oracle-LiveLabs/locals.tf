@@ -33,13 +33,14 @@ data "oci_identity_region_subscriptions" "home_region_subscriptions" {
 
 locals{
   ad_names = compact(data.template_file.ad_names.*.rendered)
-  conn_db  = module.adw_database_private_endpoint.db_connection[0].profiles[1].value
+  conn_db  = module.adw_ecpus.db_connection[0].profiles[1].value
 
 # Create Autonomous Data Warehouse
   adw_params = { 
     adw = {
-      compartment_id              = var.compartment_id,
-      cpu_core_count              = var.db_cpu_core_count
+      compartment_id              = var.compartment_id
+      compute_model               = var.db_compute_model
+      compute_count               = var.db_compute_count
       size_in_tbs                 = var.db_size_in_tbs
       db_name                     = var.db_name
       db_workload                 = var.db_workload
@@ -60,7 +61,3 @@ locals{
 # End
 
 }
-
-
-
-

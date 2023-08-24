@@ -11,30 +11,30 @@ output "adb_user_name" {
   value = "MOVIESTREAM"
 }
 
-output "adb_user__password" {
+output "adb_user_password" {
   value = "watchS0meMovies#"
 }
 
 output "ADW_Database_db_connection" {
-  value = module.adw_database_private_endpoint.db_connection
+  value = module.adw_ecpus.db_connection
 }
 
-output "ADW_Database_private_endpoint_ip" {
-  value = module.adw_database_private_endpoint.private_endpoint_ip
+output "ADW_Database_ip" {
+  value = module.adw_ecpus.private_endpoint_ip
 }
 
 output "Database_Actions" {
-  value = module.adw_database_private_endpoint.url
+  value = module.adw_ecpus.url
 }
 
 output "graph_studio_url" {
-  value = module.adw_database_private_endpoint.graph_studio_url
+  value = module.adw_ecpus.graph_studio_url
 }
 
 output "machine_learning_user_management_url" {
-  value = module.adw_database_private_endpoint.machine_learning_user_management_url
+  value = module.adw_ecpus.machine_learning_user_management_url
 }
 
 output "database_fully_qualified_name" {
-  value = module.adw_database_private_endpoint.database_fully_qualified_name
+  value = module.adw_ecpus.database_fully_qualified_name
 }
