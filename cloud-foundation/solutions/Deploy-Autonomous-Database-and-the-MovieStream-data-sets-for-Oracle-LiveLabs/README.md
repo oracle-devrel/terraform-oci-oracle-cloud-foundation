@@ -232,7 +232,7 @@ Now, you'll want a local copy of this repo. You can make that with the commands:
 
 ## Prerequisites
 
-- Install Terraform v0.13 or greater: https://www.terraform.io/downloads.html
+- Install Terraform v0.15 or greater: https://www.terraform.io/downloads.html
 - Install Python 3.6: https://www.digitalocean.com/community/tutorials/how-to-install-python-3-and-set-up-a-local-programming-environment-on-centos-7
 - Generate an OCI API Key
 - Create your config under \$home*directory/.oci/config (run \_oci setup config* and follow the steps)
@@ -373,7 +373,8 @@ The ADW subsystem / module is able to create ADW/ATP databases.
 * Parameters:
     * __db_name__ - The database name. The name must begin with an alphabetic character and can contain a maximum of 14 alphanumeric characters. Special characters are not permitted. The database name must be unique in the tenancy.
     * __db_password__ - The password must be between 12 and 30 characters long, and must contain at least 1 uppercase, 1 lowercase, and 1 numeric character. It cannot contain the double quote symbol (") or the username "admin", regardless of casing. The password is mandatory if source value is "BACKUP_FROM_ID", "BACKUP_FROM_TIMESTAMP", "DATABASE" or "NONE".
-    * __db_cpu_core_count__ - The number of OCPU cores to be made available to the database. For Autonomous Databases on dedicated Exadata infrastructure, the maximum number of cores is determined by the infrastructure shape. See Characteristics of Infrastructure Shapes for shape details.
+    * __db_compute_model__ - The compute model of the Autonomous Database. This is required if using the computeCount parameter. If using cpuCoreCount then it is an error to specify computeModel to a non-null value.
+    * __db_compute_count__ - The compute amount available to the database. Minimum and maximum values depend on the compute model and whether the database is on Shared or Dedicated infrastructure. For an Autonomous Database on Shared infrastructure, the 'ECPU' compute model requires values in multiples of two. Required when using the computeModel parameter. When using cpuCoreCount parameter, it is an error to specify computeCount to a non-null value.
     * __db_size_in_tbs__ - The size, in gigabytes, of the data volume that will be created and attached to the database. This storage can later be scaled up if needed. The maximum storage value is determined by the infrastructure shape. See Characteristics of Infrastructure Shapes for shape details.
     * __db_workload__ - The Autonomous Database workload type. The following values are valid:
         - OLTP - indicates an Autonomous Transaction Processing database
@@ -398,12 +399,17 @@ variable "db_name" {
 
 variable "db_password" {
   type = string
-  default = "<enter-password-here>"
+  default = "WlsAtpDb1234#"
 }
 
-variable "db_cpu_core_count" {
+variable "db_compute_model" {
+  type    = string
+  default = "ECPU"
+}
+
+variable "db_compute_count" {
   type = number
-  default = 1
+  default = 4
 }
 
 variable "db_size_in_tbs" {
@@ -423,7 +429,7 @@ variable "db_version" {
 
 variable "db_enable_auto_scaling" {
   type = bool
-  default = true
+  default = false
 }
 
 variable "db_is_free_tier" {
@@ -433,21 +439,22 @@ variable "db_is_free_tier" {
 
 variable "db_license_model" {
   type = string
-  default = "LICENSE_INCLUDED"
+  default = "BRING_YOUR_OWN_LICENSE"
 }
 
 variable "tag" {
   type    = string
-  default = "graph-get-started"
   # default = "movieapp"
+  default = "graph-get-started"
+  # default = "end-to-end"
+  # default = "gen-ai"
 }
 
 variable "run_post_load_procedures" {
   type    = bool
-  default = false
-  # default = true
+  #default = false
+  default = true
 }
-
 ```
 
 ## Running the code

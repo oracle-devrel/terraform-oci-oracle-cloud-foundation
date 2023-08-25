@@ -3,7 +3,7 @@
 
 
 terraform {
-  required_version = ">= 0.14.0"
+  required_version = ">= 0.15.0"
 }
 
 variable "tenancy_ocid" {
@@ -48,9 +48,14 @@ variable "db_password" {
   default = "WlsAtpDb1234#"
 }
 
-variable "db_cpu_core_count" {
+variable "db_compute_model" {
+  type    = string
+  default = "ECPU"
+}
+
+variable "db_compute_count" {
   type = number
-  default = 1
+  default = 4
 }
 
 variable "db_size_in_tbs" {
@@ -70,7 +75,7 @@ variable "db_version" {
 
 variable "db_enable_auto_scaling" {
   type = bool
-  default = true
+  default = false
 }
 
 variable "db_is_free_tier" {
@@ -83,11 +88,12 @@ variable "db_license_model" {
   default = "LICENSE_INCLUDED"
 }
 
-
 variable "tag" {
   type    = string
-  #default = "graph-get-started"
-  default = "end-to-end"
+  # default = "movieapp"
+  default = "graph-get-started"
+  # default = "end-to-end"
+  # default = "gen-ai"
 }
 
 variable "run_post_load_procedures" {
