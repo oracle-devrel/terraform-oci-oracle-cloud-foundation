@@ -37,6 +37,19 @@ data "oci_identity_region_subscriptions" "home_region_subscriptions" {
   }
 }
 
+data "template_cloudinit_config" "bastion-config" {
+  gzip          = true
+  base64_encode = true
+  # cloud-config configuration file.
+  # /var/lib/cloud/instance/scripts/*
+  part {
+    filename     = "init.sh"
+    content_type = "text/cloud-config"
+    content      = file("${path.module}/scripts/bastion-bootstrap")
+  }
+}
+
+
 locals{
   oracle_linux                      = lookup(data.oci_core_images.linux_image.images[1],"id")
   ad_names                          = compact(data.template_file.ad_names.*.rendered)
@@ -47,8 +60,9 @@ locals{
 # Create Autonomous Data Warehouse
   adw_params = { 
     adw = {
-      compartment_id              = var.compartment_id,
-      cpu_core_count              = var.db_cpu_core_count
+      compartment_id              = var.compartment_id
+      compute_model               = var.db_compute_model
+      compute_count               = var.db_compute_count
       size_in_tbs                 = var.db_size_in_tbs
       db_name                     = var.db_name
       db_workload                 = var.db_workload
@@ -59,6 +73,9 @@ locals{
       create_local_wallet         = true
       database_admin_password     = var.db_password
       database_wallet_password    = var.db_password
+      data_safe_status            = var.db_data_safe_status
+      operations_insights_status  = var.db_operations_insights_status
+      database_management_status  = var.db_database_management_status
       is_mtls_connection_required = null
       subnet_id                   = null
       nsg_ids                     = null
@@ -90,11 +107,11 @@ locals{
       vnic_display_name = ""
       assign_public_ip  = true
       hostname_label    = ""
-      nsg_ids           = [lookup(module.network-security-groups.nsgs,"public-nsgs-list").id]
       source_type       = "image"
       source_id         = var.bastion_source_image_id[var.region]
       metadata = {
         ssh_authorized_keys = module.keygen.OPCPrivateKey.public_key_openssh
+        user_data           = data.template_cloudinit_config.bastion-config.rendered
       }
       fault_domain = ""
       provisioning_timeout_mins = "30"

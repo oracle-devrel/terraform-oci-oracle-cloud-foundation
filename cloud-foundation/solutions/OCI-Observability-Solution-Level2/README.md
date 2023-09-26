@@ -8,10 +8,8 @@
 1. [Executing Instructions](#instructions)
     1. [Deploy Using the Terraform CLI](#Deploy-Using-the-Terraform-CLI)
 1. [Documentation](#documentation)
-1. [Help](#help)
 1. [The Team](#team)
 1. [Feedback](#feedback)
-1. [Known Issues](#known-issues)
 1. [Contribute](#CONTRIBUTING.md)
 1. [License](#LICENSE.md)
 
@@ -32,36 +30,17 @@ Main services that we will cover here are:
 -	OCI Service Connector Hub
 -	OCI Logging Analytics
 
-To enable the Database Management Service and Operations Insight on a Autonomous Data Warehouse databases we use ansible.
-
-
-For this we are using the ansible oci collections:
-
-__oracle.oci.oci_database_autonomous_database_actions__ – Perform actions on an AutonomousDatabase resource in Oracle Cloud Infrastructure 
-    - For action=enable_autonomous_database_management, enables Database Management for Autonomous Database.
-    - For action=enable_autonomous_database_operations_insights, enables the specified Autonomous Database with Operations Insights.
-
-__oracle.oci.oci_database_management_managed_database_group__ – Manage a ManagedDatabaseGroup resource in Oracle Cloud Infrastructure
-    - For state=present, creates a Managed Database Group. The group does not contain any Managed Databases when it is created, and they must be added later.
-
-__oracle.oci.oci_database_management_managed_database_group_actions__ – Perform actions on a ManagedDatabaseGroup resource in Oracle Cloud Infrastructure
-    - For action=add_managed_database, adds a Managed Database to a specific Managed Database Group. After the database is added, it will be included in the management activities performed on the Managed Database Group.
-
-
 ## <a name="deliverables"></a>Deliverables
  This repository encloses one deliverable:
 
 - A reference implementation written in Terraform HCL (Hashicorp Language) that provisions fully functional resources in an OCI tenancy.
-
-- Oracle Cloud Infrastructure Ansible Collection provide an easy way to create and provision resources in Oracle Cloud Infrastructure (OCI) through Ansible. These modules allow you to author Ansible playbooks that help you automate the provisioning and configuring of Oracle Cloud Infrastructure services and resources, such as Compute, Load Balancing, Database, and other Oracle Cloud Infrastructure services.
-
 
 ## <a name="instructions"></a>Executing Instructions
 
 ## Prerequisites
 
 - Permission to `manage` the following types of resources in your Oracle Cloud Infrastructure tenancy: `vcns`, `nat-gateways`, `route-tables`, `subnets`, `service-gateways`, `security-lists`, `dynamic groups`, `policies`, `network security groups`, `autonomous database`, `object storage`, `oci notifications`, `monitoring alarms`, `oci logging `, `oci events` , `database management`, `oci data safe `, `oci service connector hub `, ` Operations Insights ` and `oci logging analytics `.
-- Quota to create the following resources: 1 ADW database instance , 1 object storage buckets, 1 notification topic with 1 subscription inside it, 2 monitoring alarms, 1 log groups with 3 logging flows, 2 events using OCI events service and enable database management for the autonomous database with Ansible.Also will create 1 log analytics log group, 1 data safe private endpoint for the autonomous database, enable the Opeartions Insights service on the autonomous database, creates 2 service connector hubs, one for the object storage logs and one for the logging service connecting with the Log Analytics Service.
+- Quota to create the following resources: 1 ADW database instance , 1 object storage buckets, 1 notification topic with 1 subscription inside it, 2 monitoring alarms, 1 log groups with 3 logging flows, 2 events using OCI events service and enable database management for the autonomous database. Also will create 1 log analytics log group, 1 data safe private endpoint for the autonomous database, enable the Opeartions Insights service on the autonomous database, creates 2 service connector hubs, one for the object storage logs and one for the logging service connecting with the Log Analytics Service.
 If you don't have the required permissions and quota, contact your tenancy administrator. See [Policy Reference](https://docs.cloud.oracle.com/en-us/iaas/Content/Identity/Reference/policyreference.htm), [Service Limits](https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/servicelimits.htm), [Compartment Quotas](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/resourcequotas.htm).
 
 # <a name="Deploy-Using-the-Terraform-CLI"></a>Deploy Using the Terraform CLI
@@ -87,9 +66,6 @@ Now, you'll want a local copy of this repo. You can make that with the commands:
 
 - Install Terraform v0.13 or greater: https://www.terraform.io/downloads.html
 - Install Python 3.6: https://www.digitalocean.com/community/tutorials/how-to-install-python-3-and-set-up-a-local-programming-environment-on-centos-7
-- Ansible>=2.9 
-- oci>=2.57.0
-- OCI Ansible Collection 
 - Generate an OCI API Key
 - Create your config under \$home*directory/.oci/config (run \_oci setup config* and follow the steps)
 - Gather Tenancy related variables (tenancy_id, user_id, local path to the oci_api_key private key, fingerprint of the oci_api_key_public key, and region)
@@ -200,39 +176,10 @@ variable "private_key_path" {
     default = ""  (the path of your local oci api key - ex: /root/.ssh/oci_api_key.pem)
 }
 ```
-### Ansible collection installation
-
-#### Oracle Linux 7
-
-```
-sudo yum-config-manager --enable ol7_developer
-sudo yum-config-manager --enable ol7_developer_EPEL
-sudo yum install oci-ansible-collection
-```
-#### Oracle Linux 8
-
-```
-sudo yum-config-manager --enable ol8_developer
-sudo yum-config-manager --enable ol8_developer_EPEL
-sudo yum install oci-ansible-collection
-```
-
-#### Linux/macOS
-
-```
-curl -L https://raw.githubusercontent.com/oracle/oci-ansible-collection/master/scripts/install.sh | bash -s -- --verbose
-```
-#### For more info about installation and troubleshooting check the [Installation Guide](InstallationGuide).
-
 
 ## Repository files
 
-* **COMMON_ISSUES.md** - OCI Ansible Collections common issues
 * **CONTRIBUTING.md** - Contributing guidelines, also called Contribution guidelines, the CONTRIBUTING.md file, or software contribution guidelines, is a text file which project managers include in free and open-source software packages or other open media packages for the purpose of describing how others may contribute user-generated content to the project.The file explains how anyone can engage in activities such as formatting code for submission or submitting patches
-* **db_monitoring_create.yaml** - The Ansible File that will deploy/create/enable the Monitoring solution for Database Management Service
-* **FAQ.md** - Frequently Asked Questions Page
-* **InstallationGuide.md** - Info about installation and troubleshooting guide the Ansible Installation
-* **KNOWN_ISSUES.md** - OCI Ansible Modules Knows Issues
 * **LICENSE** - The Universal Permissive License (UPL), Version 1.0 
 * **local.tf** - Local values can be helpful to avoid repeating the same values or expressions multiple times in a configuration, but if overused they can also make a configuration hard to read by future maintainers by hiding the actual values used.Here is the place where all the resources are defined.
 * **main.tf** - Main Terraform script used for instantiating the Oracle Cloud Infrastructure provider and all subsystems modules
@@ -240,8 +187,6 @@ curl -L https://raw.githubusercontent.com/oracle/oci-ansible-collection/master/s
 * **provider.tf** - The terraform provider that will be used (OCI)
 * **README.md** - This file
 * **variables.tf** - Project's global variables
-* **variables.ini** - Project's global variables for ansible that will store the database group ID.
-
 
 Now, populate the `variable.tf` file with the disared configuration following the information:
 
@@ -251,86 +196,92 @@ Now, populate the `variable.tf` file with the disared configuration following th
 The ADW subsystem / module is able to create ADW/ATP databases.
 
 * Parameters:
-    * __adw_cpu_core_count__ - The number of OCPU cores to be made available to the database. For Autonomous Databases on dedicated Exadata infrastructure, the maximum number of cores is determined by the infrastructure shape. See Characteristics of Infrastructure Shapes for shape details.
-    * __adw_size_in_tbss__ - The size, in gigabytes, of the data volume that will be created and attached to the database. This storage can later be scaled up if needed. The maximum storage value is determined by the infrastructure shape. See Characteristics of Infrastructure Shapes for shape details.
-    * __adw_db_name__ - The database name. The name must begin with an alphabetic character and can contain a maximum of 14 alphanumeric characters. Special characters are not permitted. The database name must be unique in the tenancy.
-    * __adw_db_workload__ - The Autonomous Database workload type. The following values are valid:
+    * __db_name__ - The database name. The name must begin with an alphabetic character and can contain a maximum of 14 alphanumeric characters. Special characters are not permitted. The database name must be unique in the tenancy.
+    * __db_password__ - The password must be between 12 and 30 characters long, and must contain at least 1 uppercase, 1 lowercase, and 1 numeric character. It cannot contain the double quote symbol (") or the username "admin", regardless of casing. The password is mandatory if source value is "BACKUP_FROM_ID", "BACKUP_FROM_TIMESTAMP", "DATABASE" or "NONE".
+    * __db_compute_model__ - The compute model of the Autonomous Database. This is required if using the computeCount parameter. If using cpuCoreCount then it is an error to specify computeModel to a non-null value.
+    * __db_compute_count__ - The compute amount available to the database. Minimum and maximum values depend on the compute model and whether the database is on Shared or Dedicated infrastructure. For an Autonomous Database on Shared infrastructure, the 'ECPU' compute model requires values in multiples of two. Required when using the computeModel parameter. When using cpuCoreCount parameter, it is an error to specify computeCount to a non-null value.
+    * __db_size_in_tbs__ - The size, in gigabytes, of the data volume that will be created and attached to the database. This storage can later be scaled up if needed. The maximum storage value is determined by the infrastructure shape. See Characteristics of Infrastructure Shapes for shape details.
+    * __db_workload__ - The Autonomous Database workload type. The following values are valid:
         - OLTP - indicates an Autonomous Transaction Processing database
         - DW - indicates an Autonomous Data Warehouse database
         - AJD - indicates an Autonomous JSON Database
         - APEX - indicates an Autonomous Database with the Oracle APEX Application Development workload type. *Note: db_workload can only be updated from AJD to OLTP or from a free OLTP to AJD.
-    * __adw_db_version__ - A valid Oracle Database version for Autonomous Database.db_workload AJD and APEX are only supported for db_version 19c and above.
-    * __adw_enable_auto_scaling__ - Indicates if auto scaling is enabled for the Autonomous Database OCPU core count. The default value is FALSE.
-    * __adw_is_free_tier__ - Indicates if this is an Always Free resource. The default value is false. Note that Always Free Autonomous Databases have 1 CPU and 20GB of memory. For Always Free databases, memory and CPU cannot be scaled. When db_workload is AJD or APEX it cannot be true.
-    * __adw_license_model__ - The Oracle license model that applies to the Oracle Autonomous Database. Bring your own license (BYOL) allows you to apply your current on-premises Oracle software licenses to equivalent, highly automated Oracle PaaS and IaaS services in the cloud. License Included allows you to subscribe to new Oracle Database software licenses and the Database service. Note that when provisioning an Autonomous Database on dedicated Exadata infrastructure, this attribute must be null because the attribute is already set at the Autonomous Exadata Infrastructure level. When using shared Exadata infrastructure, if a value is not specified, the system will supply the value of BRING_YOUR_OWN_LICENSE. It is a required field when db_workload is AJD and needs to be set to LICENSE_INCLUDED as AJD does not support default license_model value BRING_YOUR_OWN_LICENSE.
-    * __database_admin_password__ - The password must be between 12 and 30 characters long, and must contain at least 1 uppercase, 1 lowercase, and 1 numeric character. It cannot contain the double quote symbol (") or the username "admin", regardless of casing. The password is mandatory if source value is "BACKUP_FROM_ID", "BACKUP_FROM_TIMESTAMP", "DATABASE" or "NONE".
-    * __database_wallet_password__ - (Required) The password to encrypt the keys inside the wallet. The password must be at least 8 characters long and must include at least 1 letter and either 1 numeric character or 1 special character.
-    * __adw_data_safe_status__ - (Optional) (Updatable) Status of the Data Safe registration for this Autonomous Database. Could be REGISTERED or NOT_REGISTERED.
+    * __db_version__ - A valid Oracle Database version for Autonomous Database.db_workload AJD and APEX are only supported for db_version 19c and above.
+    * __db_enable_auto_scaling__ - Indicates if auto scaling is enabled for the Autonomous Database OCPU core count. The default value is FALSE.
+    * __db_is_free_tier__ - Indicates if this is an Always Free resource. The default value is false. Note that Always Free Autonomous Databases have 1 CPU and 20GB of memory. For Always Free databases, memory and CPU cannot be scaled. When db_workload is AJD or APEX it cannot be true.
+    * __db_license_model__ - The Oracle license model that applies to the Oracle Autonomous Database. Bring your own license (BYOL) allows you to apply your current on-premises Oracle software licenses to equivalent, highly automated Oracle PaaS and IaaS services in the cloud. License Included allows you to subscribe to new Oracle Database software licenses and the Database service. Note that when provisioning an Autonomous Database on dedicated Exadata infrastructure, this attribute must be null because the attribute is already set at the Autonomous Exadata Infrastructure level. When using shared Exadata infrastructure, if a value is not specified, the system will supply the value of BRING_YOUR_OWN_LICENSE. It is a required field when db_workload is AJD and needs to be set to LICENSE_INCLUDED as AJD does not support default license_model value BRING_YOUR_OWN_LICENSE.
+    * __db_data_safe_status__ - (Updatable) Status of the Data Safe registration for this Autonomous Database. Could be REGISTERED or NOT_REGISTERED.
+    * __db_operations_insights_status__ - (Updatable) Status of Operations Insights for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED
+    * __db_database_management_status__ - Status of Database Management for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED
 
 
 Below is an example:
 
 ```
-variable "adw_cpu_core_count" {
-    type = number
-    default = 1
+variable "db_name" {
+  type    = string
+  default = "ADWipna"
 }
 
-variable "adw_size_in_tbs" {
-    type = number
-    default = 1
-}
-
-variable "adw_db_name" {
-    type = string
-    default = "ADWoipna"
-}
-
-variable "adw_db_workload" {
-    type = string
-    default = "DW"
-}
-
-variable "adw_db_version" {
-    type = string
-    default = "19c"
-}
-
-variable "adw_enable_auto_scaling" {
-    type = bool
-    default = true
-}
-
-variable "adw_is_free_tier" {
-    type = bool
-    default = false
-}
-
-variable "adw_license_model" {
-    type = string
-    default = "BRING_YOUR_OWN_LICENSE"
-}
-
-variable "adw_license_model" {
-    type = string
-    default = "LICENSE_INCLUDED"
-}
-
-variable "database_admin_password" {
+variable "db_password" {
   type = string
-  default = "<enter-password-here>"
+  default = "<your-passwsord-here>"
 }
 
-variable "database_wallet_password" {
+variable "db_compute_model" {
+  type    = string
+  default = "ECPU"
+}
+
+variable "db_compute_count" {
+  type = number
+  default = 4
+}
+
+variable "db_size_in_tbs" {
+  type = number
+  default = 1
+}
+
+variable "db_workload" {
   type = string
-  default = "<enter-password-here>"
+  default = "DW"
 }
 
-variable "adw_data_safe_status" {
+variable "db_version" {
+  type = string
+  default = "19c"
+}
+
+variable "db_enable_auto_scaling" {
+  type = bool
+  default = true
+}
+
+variable "db_is_free_tier" {
+  type = bool
+  default = false
+}
+
+variable "db_license_model" {
+  type = string
+  default = "BRING_YOUR_OWN_LICENSE"
+}
+
+variable "db_data_safe_status" {
   type = string
   default = "REGISTERED"
 }
 
+variable "db_operations_insights_status" {
+  type = string
+  default = "ENABLED"
+}
+
+variable "db_database_management_status" {
+  type = string
+  default = "ENABLED"
+}
 ```
 
 # Object Storage
@@ -389,16 +340,6 @@ variable "sch_logs_events_enabled" {
     default = false
 }
 ```
-# Database management service - managed group - required for the ansible module
-
-Here you need to put what name you want to use for the Database Group Name inside the Database Management Service.
-
-```
-variable "managed_database_group_name" {
-  type    = string
-  default = "My_manage_Group"
-}
-```
 
 # Network
 This resource provides the Vcn resource in Oracle Cloud Infrastructure Core service anso This resource provides the Subnet resource in Oracle Cloud Infrastructure Core service.
@@ -434,7 +375,6 @@ variable "service_name" {
   description = "A prefix for policies and dynamic groups names - scope: to be unique names not duplicates"
 }
 ```
-Don't modify any other variables in the variable.tf file - it may cause that the solution will not work propertly. The use_regional_subnet variable is for the subnets to be regional, not AD specific. Also the release variable it's used in the tagging concept.
 
 Secondly, populate the `local.tf` file with the disared configuration following the information:
 
@@ -670,19 +610,6 @@ events_params = {
 }
 ```
 
-# Enable Database Management Service and Operations Insights Service
-After the Autonomous Database it's deployed, it will run the ansible script that will enable the Database Management Service on it and also the Operations Insights Service.
-
-```
-resource "null_resource" "enable-monitoring" {
-depends_on = [module.adw]
-provisioner "local-exec" {
-  when    = create
-  command = "ansible-playbook db_monitoring_create.yaml -e managed_database_group_name=${var.managed_database_group_name} -e compartment_id=${var.compartment_id} -e autonomous_database_id=${local.autonomous_database_id}"
-  } 
-}
-```
-
 # Log Analytics Service
 This resource provides the Log Analytics Log Group resource in Oracle Cloud Infrastructure Log Analytics service.
 
@@ -851,37 +778,12 @@ $ terraform destroy --auto-approve
 
 [Service Connector Hub Service Resource](https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/sch_service_connector)
 
-Module HTML documentation is available on [readthedocs.io](https://oci-ansible-collection.readthedocs.io/en/latest/collections/oracle/oci/index.html).
-
-To view the module documentation, use this command:
-  ``` bash
-ansible-doc oracle.oci.[module_name]
-  ```
-General documentation can be found [here](https://docs.cloud.oracle.com/iaas/Content/API/SDKDocs/ansible.htm).
-
-Related documentation for the Ansible modules:
-
-[oracle.oci.oci_database_autonomous_database_actions](https://oci-ansible-collection.readthedocs.io/en/latest/collections/oracle/oci/oci_database_autonomous_database_actions_module.html#examples)
-
-[oracle.oci.oci_database_management_managed_database_group](https://oci-ansible-collection.readthedocs.io/en/latest/collections/oracle/oci/oci_database_management_managed_database_group_module.html#ansible-collections-oracle-oci-oci-database-management-managed-database-group-module)
-
-[oracle.oci.oci_database_management_managed_database_group_actions](https://oci-ansible-collection.readthedocs.io/en/latest/collections/oracle/oci/oci_database_management_managed_database_group_actions_module.html#ansible-collections-oracle-oci-oci-database-management-managed-database-group-actions-module)
-
-## <a name="Help"></a>Help
-- For FAQs, check the [Frequently Asked Questions](FAQ) page.
-- For commmon issues, check the [Common Issues](COMMON_ISSUES) page.
-- To file bugs or feature requests, use [GitHub issues](https://github.com/oracle/oci-ansible-collections/issues).
-- For other channels, check the ["Questions or Feedback"](https://docs.cloud.oracle.com/en-us/iaas/Content/API/SDKDocs/ansible.htm#questions) section.
-
 ## <a name="team"></a>The Team
 - **Owners**: [Panaitescu Ionel](https://github.com/ionelpanaitescu)
 
 ## <a name="feedback"></a>Feedback
 We welcome your feedback. To post feedback, submit feature ideas or report bugs, please use the Issues section on this repository.	
 
-## <a name="known-issues"></a>Known Issues
-**At the moment, there are no known issues for this solution**
-You can find information on any known issues about Ansible in general on [Known Issues](KNOWN_ISSUES) or [GitHub issues](https://github.com/oracle/oci-ansible-collections/issues) page.
 
 ## Contributing
 If you enhance a module or build a new module and you would like to share your work via the library, please contact us - we are always open to improving and extending the library.

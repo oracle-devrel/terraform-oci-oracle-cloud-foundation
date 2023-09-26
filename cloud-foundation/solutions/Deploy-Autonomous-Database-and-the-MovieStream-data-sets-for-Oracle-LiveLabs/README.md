@@ -385,6 +385,9 @@ The ADW subsystem / module is able to create ADW/ATP databases.
     * __db_enable_auto_scaling__ - Indicates if auto scaling is enabled for the Autonomous Database OCPU core count. The default value is FALSE.
     * __db_is_free_tier__ - Indicates if this is an Always Free resource. The default value is false. Note that Always Free Autonomous Databases have 1 CPU and 20GB of memory. For Always Free databases, memory and CPU cannot be scaled. When db_workload is AJD or APEX it cannot be true.
     * __db_license_model__ - The Oracle license model that applies to the Oracle Autonomous Database. Bring your own license (BYOL) allows you to apply your current on-premises Oracle software licenses to equivalent, highly automated Oracle PaaS and IaaS services in the cloud. License Included allows you to subscribe to new Oracle Database software licenses and the Database service. Note that when provisioning an Autonomous Database on dedicated Exadata infrastructure, this attribute must be null because the attribute is already set at the Autonomous Exadata Infrastructure level. When using shared Exadata infrastructure, if a value is not specified, the system will supply the value of BRING_YOUR_OWN_LICENSE. It is a required field when db_workload is AJD and needs to be set to LICENSE_INCLUDED as AJD does not support default license_model value BRING_YOUR_OWN_LICENSE.
+    * __db_data_safe_status__ - (Updatable) Status of the Data Safe registration for this Autonomous Database. Could be REGISTERED or NOT_REGISTERED.
+    * __db_operations_insights_status__ - (Updatable) Status of Operations Insights for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED
+    * __db_database_management_status__ - Status of Database Management for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED
     * __tag__ - Pick the datasets to load. movieapp for the full movieapp appliction or graph-get-started for the graph lab. The default is graph-get-started to start the graph lab.
     * __run_post_load_procedures__ - Run procedures after loading data
 
@@ -392,6 +395,7 @@ The ADW subsystem / module is able to create ADW/ATP databases.
 Below is an example:
 
 ```
+
 variable "db_name" {
   type    = string
   default = "MovieStreamWorkshop"
@@ -439,7 +443,25 @@ variable "db_is_free_tier" {
 
 variable "db_license_model" {
   type = string
-  default = "BRING_YOUR_OWN_LICENSE"
+  default = "LICENSE_INCLUDED"
+}
+
+variable "db_data_safe_status" {
+  type = string
+  default = "NOT_REGISTERED"
+  # default = "REGISTERED"
+}
+
+variable "db_operations_insights_status" {
+  type = string
+  default = "NOT_ENABLED"
+  # default = "ENABLED"
+}
+
+variable "db_database_management_status" {
+  type = string
+  default = "NOT_ENABLED"
+  # default = "ENABLED"
 }
 
 variable "tag" {

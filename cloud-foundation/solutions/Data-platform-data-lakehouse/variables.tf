@@ -3,7 +3,7 @@
 
 
 terraform {
-  required_version = ">= 0.14.0"
+  required_version = ">= 0.15.0"
 }
 
 variable "tenancy_ocid" {
@@ -36,8 +36,7 @@ variable "private_key_path" {
     default = ""
 }
 
-
-# ADW Database Variables:
+# Autonomous Database Configuration Variables
 
 variable "db_name" {
   type    = string
@@ -49,9 +48,14 @@ variable "db_password" {
   default = "<enter-password-here>"
 }
 
-variable "db_cpu_core_count" {
+variable "db_compute_model" {
+  type    = string
+  default = "ECPU"
+}
+
+variable "db_compute_count" {
   type = number
-  default = 1
+  default = 4
 }
 
 variable "db_size_in_tbs" {
@@ -82,6 +86,25 @@ variable "db_is_free_tier" {
 variable "db_license_model" {
   type = string
   default = "BRING_YOUR_OWN_LICENSE"
+}
+
+variable "db_data_safe_status" {
+  type = string
+  default = "NOT_REGISTERED"
+  # default = "REGISTERED"
+}
+
+variable "db_operations_insights_status" {
+  type = string
+  default = "NOT_ENABLED"
+  # default = "ENABLED"
+}
+
+variable "db_database_management_status" {
+  type = string
+  # default = "NOT_ENABLED"
+  # default = "ENABLED"
+  default = "ENABLED"
 }
 
 
@@ -256,6 +279,12 @@ variable "app_display_name" {
   default = "DecoderApp"
 }
 
+variable "application_shape" {
+  # default = "GENERIC_ARM"
+  # default = "GENERIC_X86"
+  default = "GENERIC_X86_ARM"
+}
+
 # Example: decoder 
 variable "ocir_repo_name" {
   default = "decoder_repo"
@@ -290,7 +319,7 @@ variable "private_bastion_service_name" {
 # Analytics Cloud Instance Variables:
 
 variable "Oracle_Analytics_Instance_Name" {
-  default = "DataLakeHousev"
+  default = "DataLakeHouse"
 }
 
 variable "analytics_instance_feature_set" {

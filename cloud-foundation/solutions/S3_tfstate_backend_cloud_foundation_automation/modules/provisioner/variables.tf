@@ -9,6 +9,6 @@ variable "atp_url" {
     default = ""
 }
 
-variable "db_password" {
+variable "database_admin_password" {
     default = ""
 }

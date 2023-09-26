@@ -3,8 +3,8 @@
 
 
 # Create ADW Database 
-module "adw_database" {
-  source = "../../../cloud-foundation/modules/cloud-foundation-library/database/adw_private_endpoint"
+module "adb" {
+  source = "../../../cloud-foundation/modules/cloud-foundation-library/database/adb"
   adw_params = local.adw_params 
 }
 
@@ -12,7 +12,7 @@ module "adw_database" {
 # Calling the Object Storage module
 module "os" {
   source = "../../../cloud-foundation/modules/cloud-foundation-library/object-storage"
-  depends_on = [module.adw_database]
+  depends_on = [module.adb]
   tenancy_ocid = var.tenancy_ocid
   bucket_params = {
     for k,v in local.bucket_params : k => v if v.compartment_id != "" 
@@ -30,7 +30,7 @@ module "keygen" {
 
 module "informatica_secure_agent" {
   source = "../../../cloud-foundation/modules/cloud-foundation-library/instance_with_out_flexible"
-  depends_on = [ module.adw_database , module.os]
+  depends_on = [ module.adb , module.os]
   tenancy_ocid = var.tenancy_ocid
   instance_params = local.informatica_secure_agent_params 
 }

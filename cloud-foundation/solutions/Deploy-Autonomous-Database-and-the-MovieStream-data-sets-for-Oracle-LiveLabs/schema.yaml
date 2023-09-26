@@ -26,6 +26,9 @@ groupings:
       - db_compute_model
       - db_compute_count
       - db_workload
+      - db_data_safe_status
+      - db_operations_insights_status
+      - db_database_management_status
       - tag
       - run_post_load_procedures
   - title: "Hidden Variables"
@@ -173,7 +176,37 @@ variables:
       - "DW"
     default: "DW"
     required: true
-    visible: false 
+    visible: false
+  db_data_safe_status:
+    title: "Status of the Data Safe registration for this Autonomous Database"
+    description: "Status of the Data Safe registration for this Autonomous Database. Could be REGISTERED or NOT_REGISTERED."
+    type: enum
+    enum:
+      - "NOT_REGISTERED"
+      - "REGISTERED"
+    default: "NOT_REGISTERED"
+    required: true
+    visible: true 
+  db_database_management_status:
+    title: "Status of Database Management for this Autonomous Database"
+    description: "Status of Database Management for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED"
+    type: enum
+    enum:
+      - "NOT_ENABLED"
+      - "ENABLED"
+    default: "NOT_ENABLED"
+    required: true
+    visible: true 
+  db_operations_insights_status:
+    title: "Status of Operations Insights for this Autonomous Database"
+    description: "Status of Operations Insights for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED"
+    type: enum
+    enum:
+      - "NOT_ENABLED"
+      - "ENABLED"
+    default: "NOT_ENABLED"
+    required: true
+    visible: true 
   tag:
     title: Pick the datasets to load. 
     description: "Pick one from below"

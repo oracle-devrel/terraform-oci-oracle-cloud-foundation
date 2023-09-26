@@ -4,8 +4,8 @@
 
 # Create ADW Database with Endpoint in private subnet
 
-module "adw_database_private_endpoint" {
-  source = "../../../cloud-foundation/modules/cloud-foundation-library/database/adw_private_endpoint"
+module "adb" {
+  source = "../../../cloud-foundation/modules/cloud-foundation-library/database/adb"
   adw_params = local.adw_params 
 }
 

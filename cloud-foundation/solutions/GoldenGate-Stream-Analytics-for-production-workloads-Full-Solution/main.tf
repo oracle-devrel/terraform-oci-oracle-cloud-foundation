@@ -3,8 +3,8 @@
 
 # Calling the Autonomous Data Warehouse module
 
-module "adw" {
-  source = "../../../cloud-foundation/modules/cloud-foundation-library/database/adw"
+module "adb" {
+  source = "../../../cloud-foundation/modules/cloud-foundation-library/database/adb"
   adw_params = {
     for k,v in local.adw_params : k => v if v.compartment_id != "" 
   }

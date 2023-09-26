@@ -20,16 +20,19 @@ groupings:
       - compartment_id
   - title: "Autonomous Database Configuration"
     variables:
-      - adw_db_name
-      - adw_is_free_tier
-      - adw_license_model
-      - database_admin_password
-      - database_wallet_password
-      - adw_db_version
-      - adw_size_in_tbs
-      - adw_enable_auto_scaling
-      - adw_cpu_core_count
-      - adw_db_workload
+      - db_name
+      - db_is_free_tier
+      - db_license_model
+      - db_password
+      - db_version
+      - db_size_in_tbs
+      - db_enable_auto_scaling
+      - db_compute_model
+      - db_compute_count
+      - db_workload
+      - db_data_safe_status
+      - db_operations_insights_status
+      - db_database_management_status
   - title: "Oracle Analytics Cloud Configuration"
     variables:
       - analytics_instance_hostname
@@ -110,13 +113,13 @@ variables:
     required: true
     visible: true
 # Autonomous Database Configuration Variables
-  adw_db_name:
+  db_name:
     title: Database Name
     description: "Provide Database name. Constraints: 12 alphanumeric characters only. No Spaces."
     required: true
     type: string
-    maxLength: 14
-  adw_is_free_tier:
+    maxLength: 30
+  db_is_free_tier:
     title: Do do want a always Free Oracle Autonomous Database instance?
     description: "Provision Always Free Oracle Autonomous Database instance (1 OCPU 20 GB Storage)?"
     type: enum
@@ -126,34 +129,27 @@ variables:
     default: "false"
     required: true
     visible: true
-  adw_license_model:
+  db_license_model:
     title: "Provision Paid Oracle Autonomous Database instance (2 OCPU 1 TB Storage) - License Included or BYOL?"
     description: "Note: This configuration can be changed later from the OCI console."
     type: enum
     enum:
       - LICENSE_INCLUDED
       - BRING_YOUR_OWN_LICENSE
-    default: LICENSE_INCLUDED
+    default: BRING_YOUR_OWN_LICENSE
     required: true
     visible:
       eq:
-        - adw_is_free_tier
+        - db_is_free_tier
         - "false"
-  database_admin_password:
+  db_password:
     title: Database Admin Password
     description: "Provide admin password. Constraints: 12 - 30 characters. At least one uppercase letter, one lowercase letter, and one number. No special characters."
     type: password
     required: true
     confirmation: true
     pattern: ((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[%!@^&)(]).{12,20})
-  database_wallet_password:
-    title: Database Wallet Password
-    description: Provide database wallet password. Must be a minimum 12 characters, contain at least one uppercase letter, one lowercase letter, one number. Do not include special characters.
-    type: password
-    required: true
-    confirmation: true
-    pattern: ((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[%!@^&)(]).{12,20})
-  adw_db_version:
+  db_version:
     title: "A valid Oracle Database version for Autonomous Database"
     description: "A valid Oracle Database version for Autonomous Database"
     type: enum
@@ -162,7 +158,7 @@ variables:
     default: "19c"
     required: true
     visible: true
-  adw_size_in_tbs:
+  db_size_in_tbs:
     title: "The quantity of data in the database, in terabytes."
     description: "The quantity of data in the database, in terabytes."
     type: enum
@@ -182,37 +178,39 @@ variables:
     default: 1
     visible: true
     required: true
-  adw_enable_auto_scaling:
+  db_enable_auto_scaling:
     title: Indicates if auto scaling is enabled for the Autonomous Database CPU core count. 
     description: "Indicates if auto scaling is enabled for the Autonomous Database CPU core count. "
     type: enum
     enum:
       - "true"
       - "false"
-    default: "true"
+    default: "false"
     required: true
     visible: true   
-  adw_cpu_core_count:
-    title: The number of OCPU cores to be made available to the database 
-    description: "The number of OCPU cores to enable. Available cores are subject to your tenancy's service limits."
+  db_compute_model:
+    title: "The compute model of the Autonomous Database ECPUs"
+    description: "The compute model of the Autonomous Database ECPUs"
     type: enum
     enum:
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
-      - 6
-      - 7
-      - 8
-      - 9
-      - 10
-      - 11
-      - 12
-    default: 1
+      - "ECPU"
+    default: "ECPU"
     required: true
-    visible: true
-  adw_db_workload:
+    visible:
+      eq:
+        - db_is_free_tier
+        - false
+  db_compute_count:
+    title: The number of ECPUs cores to be made available to the database 
+    description: "The number of ECPU cores to enable. For ECPUs count needs to be minimum 2 and maximum 512 ECPUs"
+    type: string
+    default: 4
+    required: true
+    visible:
+      eq:
+        - db_is_free_tier
+        - false
+  db_workload:
     title: Autonomous Database Type of workload. 
     description: "Autonomous Database Type of workload."
     type: enum
@@ -220,7 +218,37 @@ variables:
       - "DW"
     default: "DW"
     required: true
-    visible: false   
+    visible: false
+  db_data_safe_status:
+    title: "Status of the Data Safe registration for this Autonomous Database"
+    description: "Status of the Data Safe registration for this Autonomous Database. Could be REGISTERED or NOT_REGISTERED."
+    type: enum
+    enum:
+      - "NOT_REGISTERED"
+      - "REGISTERED"
+    default: "NOT_REGISTERED"
+    required: true
+    visible: true 
+  db_database_management_status:
+    title: "Status of Database Management for this Autonomous Database"
+    description: "Status of Database Management for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED"
+    type: enum
+    enum:
+      - "NOT_ENABLED"
+      - "ENABLED"
+    default: "NOT_ENABLED"
+    required: true
+    visible: true 
+  db_operations_insights_status:
+    title: "Status of Operations Insights for this Autonomous Database"
+    description: "Status of Operations Insights for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED"
+    type: enum
+    enum:
+      - "NOT_ENABLED"
+      - "ENABLED"
+    default: "NOT_ENABLED"
+    required: true
+    visible: true  
  # Oracle Analytics Cloud Configuration
   analytics_instance_hostname:
     title: Analytics Instance Name

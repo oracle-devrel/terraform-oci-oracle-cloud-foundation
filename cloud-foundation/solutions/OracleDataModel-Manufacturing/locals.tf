@@ -57,8 +57,9 @@ locals{
 # Create Autonomous Data Warehouse
   adw_params = { 
     adw = {
-      compartment_id              = var.compartment_id,
-      cpu_core_count              = var.db_cpu_core_count
+      compartment_id              = var.compartment_id
+      compute_model               = var.db_compute_model
+      compute_count               = var.db_compute_count
       size_in_tbs                 = var.db_size_in_tbs
       db_name                     = var.db_name
       db_workload                 = var.db_workload
@@ -67,15 +68,17 @@ locals{
       is_free_tier                = var.db_is_free_tier
       license_model               = var.db_license_model
       create_local_wallet         = true
-      is_mtls_connection_required = null
-      nsg_ids                     = null
-      subnet_id                   = null
       database_admin_password     = var.db_password
       database_wallet_password    = var.db_password
+      data_safe_status            = var.db_data_safe_status
+      operations_insights_status  = var.db_operations_insights_status
+      database_management_status  = var.db_database_management_status
+      is_mtls_connection_required = true
+      subnet_id                   = null
+      nsg_ids                     = null
       defined_tags                = {}
   },
 }
-
 
 # Create Oracle Analytics Cloud
   oac_params = { 

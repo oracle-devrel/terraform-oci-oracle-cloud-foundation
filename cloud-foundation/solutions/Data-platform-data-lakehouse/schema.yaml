@@ -24,8 +24,12 @@ groupings:
       - db_version
       - db_size_in_tbs
       - db_enable_auto_scaling
-      - db_cpu_core_count
+      - db_compute_model
+      - db_compute_count
       - db_workload
+      - db_data_safe_status
+      - db_operations_insights_status
+      - db_database_management_status
   - title: "Object Storage"
     variables:
       - bronze_bucket_name
@@ -69,6 +73,7 @@ groupings:
   - title: "Functions and OCIR Configuration"
     variables:
       - app_display_name
+      - application_shape
       - ocir_repo_name
       - ocir_user_name
       - ocir_user_password
@@ -186,12 +191,12 @@ variables:
     enum:
       - LICENSE_INCLUDED
       - BRING_YOUR_OWN_LICENSE
-    default: "BRING_YOUR_OWN_LICENSE"
+    default: BRING_YOUR_OWN_LICENSE
     required: true
     visible:
       eq:
         - db_is_free_tier
-        - false
+        - "false"
   db_password:
     title: Database Admin Password
     description: "Provide admin password. Constraints: 12 - 30 characters. At least one uppercase letter, one lowercase letter, and one number. No special characters."
@@ -238,26 +243,28 @@ variables:
     default: "false"
     required: true
     visible: true   
-  db_cpu_core_count:
-    title: The number of OCPU cores to be made available to the database 
-    description: "The number of OCPU cores to enable. Available cores are subject to your tenancy's service limits."
+  db_compute_model:
+    title: "The compute model of the Autonomous Database ECPUs"
+    description: "The compute model of the Autonomous Database ECPUs"
     type: enum
     enum:
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
-      - 6
-      - 7
-      - 8
-      - 9
-      - 10
-      - 11
-      - 12
-    default: 1
+      - "ECPU"
+    default: "ECPU"
     required: true
-    visible: true
+    visible:
+      eq:
+        - db_is_free_tier
+        - false
+  db_compute_count:
+    title: The number of ECPUs cores to be made available to the database 
+    description: "The number of ECPU cores to enable. For ECPUs count needs to be minimum 2 and maximum 512 ECPUs"
+    type: string
+    default: 4
+    required: true
+    visible:
+      eq:
+        - db_is_free_tier
+        - false
   db_workload:
     title: Autonomous Database Type of workload. 
     description: "Autonomous Database Type of workload."
@@ -266,7 +273,37 @@ variables:
       - "DW"
     default: "DW"
     required: true
-    visible: false 
+    visible: false
+  db_data_safe_status:
+    title: "Status of the Data Safe registration for this Autonomous Database"
+    description: "Status of the Data Safe registration for this Autonomous Database. Could be REGISTERED or NOT_REGISTERED."
+    type: enum
+    enum:
+      - "NOT_REGISTERED"
+      - "REGISTERED"
+    default: "NOT_REGISTERED"
+    required: true
+    visible: true 
+  db_database_management_status:
+    title: "Status of Database Management for this Autonomous Database"
+    description: "Status of Database Management for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED"
+    type: enum
+    enum:
+      - "NOT_ENABLED"
+      - "ENABLED"
+    default: "ENABLED"
+    required: true
+    visible: true 
+  db_operations_insights_status:
+    title: "Status of Operations Insights for this Autonomous Database"
+    description: "Status of Operations Insights for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED"
+    type: enum
+    enum:
+      - "NOT_ENABLED"
+      - "ENABLED"
+    default: "NOT_ENABLED"
+    required: true
+    visible: true   
 # Object Storage Configuration  
   bronze_bucket_name:
     title: Object Storage Bucket Name
@@ -576,6 +613,17 @@ variables:
     default: "DecoderApp"
     title: "Function Display Name"
     description: "Set the name of the function application"
+  application_shape:
+    title: "Select the shape of your application"
+    description: "Valid values are GENERIC_X86, GENERIC_ARM and GENERIC_X86_ARM"
+    type: enum
+    enum:
+      - "GENERIC_X86"
+      - "GENERIC_ARM"
+      - "GENERIC_X86_ARM"
+    default: "GENERIC_X86"
+    required: true
+    visible: true 
   ocir_repo_name:
     type: string
     required: true

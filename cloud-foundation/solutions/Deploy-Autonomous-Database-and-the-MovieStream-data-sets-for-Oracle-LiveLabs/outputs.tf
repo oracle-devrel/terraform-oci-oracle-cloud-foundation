@@ -16,25 +16,25 @@ output "adb_user_password" {
 }
 
 output "ADW_Database_db_connection" {
-  value = module.adw_ecpus.db_connection
+  value = module.adb.db_connection
 }
 
 output "ADW_Database_ip" {
-  value = module.adw_ecpus.private_endpoint_ip
+  value = module.adb.private_endpoint_ip
 }
 
 output "Database_Actions" {
-  value = module.adw_ecpus.url
+  value = module.adb.url
 }
 
 output "graph_studio_url" {
-  value = module.adw_ecpus.graph_studio_url
+  value = module.adb.graph_studio_url
 }
 
 output "machine_learning_user_management_url" {
-  value = module.adw_ecpus.machine_learning_user_management_url
+  value = module.adb.machine_learning_user_management_url
 }
 
 output "database_fully_qualified_name" {
-  value = module.adw_ecpus.database_fully_qualified_name
+  value = module.adb.database_fully_qualified_name
 }

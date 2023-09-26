@@ -14,6 +14,8 @@ groupings:
       - display_name_prefix
       - region
       - compartment_id
+      - app_display_name
+      - application_shape
       - ocir_repo_name
       - ocir_user_name
       - ocir_user_password
@@ -100,7 +102,6 @@ groupings:
     - user_ocid
     - fingerprint
     - private_key_path
-    - app_display_name
     - release
 # General Configuration Variables
 variables:
@@ -454,6 +455,24 @@ variables:
     title: "Task Batch Time in Seconds"
     description: "Setting task batch time in seconds."
 #OCIR Variables
+  app_display_name:
+    type: string
+    required: true
+    visibile: true
+    default: "DecoderApp"
+    title: "Function Display Name"
+    description: "Set the name of the function application"
+  application_shape:
+    title: "Select the shape of your application"
+    description: "Valid values are GENERIC_X86, GENERIC_ARM and GENERIC_X86_ARM"
+    type: enum
+    enum:
+      - "GENERIC_X86"
+      - "GENERIC_ARM"
+      - "GENERIC_X86_ARM"
+    default: "GENERIC_X86"
+    required: true
+    visible: true 
   ocir_repo_name:
     type: string
     required: true

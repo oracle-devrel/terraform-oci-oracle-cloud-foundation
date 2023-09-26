@@ -257,21 +257,11 @@ module "keygen" {
 }
 
 #Create ATP Database with Endpoint in private subnet
-module "database-atp" {
-
-  source = "../../../cloud-foundation/modules/cloud-foundation-library/database/atp"
-
-  tenancy_ocid     = var.tenancy_ocid
-  compartment_ocid = var.compartment_id
-
-  autonomous_database_cpu_core_count="2"
-  autonomous_database_db_name="helloAtp"
-  autonomous_database_admin_password="V2xzQXRwRGIxMjM0Iw=="
-  autonomous_database_data_storage_size_in_tbs="1"
-
-  nsg_ids                                = [lookup(module.network-nsgs.nsgs,"atp-nsg").id]
-  subnet_id                             = lookup(module.network-vcn-subnets-gw.subnets,"hello-atp-endpoint-subnet").id
-
+module "adb" {
+  source = "../../../cloud-foundation/modules/cloud-foundation-library/database/adb"
+  adw_params = {
+    for k,v in local.adw_params : k => v if v.compartment_id != "" 
+  }
 }
 
 #Create Web Server - compute instance
@@ -323,6 +313,6 @@ module "provisioner" {
 
   host = module.web-instance.InstancePublicIPs[0]
   private_key = module.keygen.OPCPrivateKey["private_key_pem"]
-  atp_url = module.database-atp.url
-  db_password = base64decode("V2xzQXRwRGIxMjM0Iw==")
+  atp_url = module.adb.url
+  database_admin_password = "V2xzQXRwRGIxMjM0Iw=="
 } 

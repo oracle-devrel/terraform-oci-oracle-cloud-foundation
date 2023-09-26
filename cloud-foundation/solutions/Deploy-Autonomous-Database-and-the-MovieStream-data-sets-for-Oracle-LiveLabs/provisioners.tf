@@ -16,7 +16,7 @@ resource "null_resource" "sqlcl-create-usr" {
                 rm -rf tables.sql     
             EOT
         }
-depends_on = [module.adw_ecpus]
+depends_on = [module.adb]
 }
 
 resource "local_file" "this" {

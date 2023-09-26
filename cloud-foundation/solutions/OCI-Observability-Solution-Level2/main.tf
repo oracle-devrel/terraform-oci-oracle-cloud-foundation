@@ -4,8 +4,8 @@
 
 # Calling the Autonomous Data Warehouse module
 
-module "adw" {
-  source = "../../../cloud-foundation/modules/cloud-foundation-library/database/adw_data_safe"
+module "adb" {
+  source = "../../../cloud-foundation/modules/cloud-foundation-library/database/adb"
   depends_on = [module.oci_data_safe]
   adw_params = {
     for k,v in local.adw_params : k => v if v.compartment_id != "" 

@@ -3,7 +3,7 @@
 
 
 terraform {
-  required_version = ">= 0.14.0"
+  required_version = ">= 0.15.0"
 }
 
 variable "tenancy_ocid" {
@@ -49,8 +49,7 @@ variable "Authorization_Token" {
   default = ""
 }
 
-
-# ADW Database Variables:
+# Autonomous Database Configuration Variables
 
 variable "db_name" {
   type    = string
@@ -59,12 +58,17 @@ variable "db_name" {
 
 variable "db_password" {
   type = string
-  default = "WlsAtpDb1234#"
+  default = "<enter-password-here>"
 }
 
-variable "db_cpu_core_count" {
+variable "db_compute_model" {
+  type    = string
+  default = "ECPU"
+}
+
+variable "db_compute_count" {
   type = number
-  default = 1
+  default = 4
 }
 
 variable "db_size_in_tbs" {
@@ -97,11 +101,29 @@ variable "db_license_model" {
   default = "BRING_YOUR_OWN_LICENSE"
 }
 
+variable "db_data_safe_status" {
+  type = string
+  default = "NOT_REGISTERED"
+  # default = "REGISTERED"
+}
+
+variable "db_operations_insights_status" {
+  type = string
+  default = "NOT_ENABLED"
+  # default = "ENABLED"
+}
+
+variable "db_database_management_status" {
+  type = string
+  # default = "NOT_ENABLED"
+  # default = "ENABLED"
+  default = "ENABLED"
+}
 
 # # Analytics Cloud Instance Variables:
 
 variable "Oracle_Analytics_Instance_Name" {
-  default = "DataModelsManufacturingl"
+  default = "DataModelsManufacturing"
 }
 
 variable "analytics_instance_feature_set" {

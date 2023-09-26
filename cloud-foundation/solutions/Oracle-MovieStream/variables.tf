@@ -3,7 +3,7 @@
 
 
 terraform {
-  required_version = ">= 0.14.0"
+  required_version = ">= 0.15.0"
 }
 
 variable "tenancy_ocid" {
@@ -48,9 +48,14 @@ variable "db_password" {
   default = "WlsAtpDb1234#"
 }
 
-variable "db_cpu_core_count" {
+variable "db_compute_model" {
+  type    = string
+  default = "ECPU"
+}
+
+variable "db_compute_count" {
   type = number
-  default = 1
+  default = 4
 }
 
 variable "db_size_in_tbs" {
@@ -83,15 +88,38 @@ variable "db_license_model" {
   default = "LICENSE_INCLUDED"
 }
 
+variable "db_data_safe_status" {
+  type = string
+  default = "NOT_REGISTERED"
+  # default = "REGISTERED"
+}
+
+variable "db_operations_insights_status" {
+  type = string
+  default = "NOT_ENABLED"
+  # default = "ENABLED"
+}
+
+variable "db_database_management_status" {
+  type = string
+  default = "NOT_ENABLED"
+  # default = "ENABLED"
+}
+
 # variable "tag" {
 #   type    = string
 #   default = "movieapp"
+#   # default = "graph-get-started"
+#   # default = "end-to-end"
+#   # default = "gen-ai"
 # }
 
 # variable "run_post_load_procedures" {
 #   type    = bool
+#   #default = false
 #   default = true
 # }
+
 
 # Data Catalog Variables:
 
@@ -99,7 +127,6 @@ variable "db_license_model" {
 #     type    = string
 #     default = "OracleMovieStream"
 # }
-
 
 # Bastion Instance Variables: 
 # Oracle-Linux-Cloud-Developer-8.5-2022.05.22-0 image  
@@ -143,7 +170,7 @@ variable "bastion_source_image_id" {
 
 variable "bastion_instance_display_name" {
   type    = string
-  default = "Oracle-MovieStream"
+  default = "Oracle-MovieStreama"
 }
 
 variable "bastion_instance_shape" {

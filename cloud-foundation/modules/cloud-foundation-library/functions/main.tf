@@ -7,6 +7,7 @@ resource "oci_functions_application" "this" {
   subnet_ids     = each.value.subnet_ids
   display_name   = each.value.display_name
   defined_tags   = each.value.defined_tags
+  shape          = each.value.application_shape
 }
 
 data "oci_functions_applications" "existing" {
