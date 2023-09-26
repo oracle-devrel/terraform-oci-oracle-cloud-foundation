@@ -8,7 +8,7 @@ resource "null_resource" "upload_files_to_object_storage" {
               oci os object put -ns ${data.oci_identity_tenancy.tenancy.name} -bn ${var.bucket_name} --force --file wallet_${var.db_name}.zip
             EOT
         }
-depends_on = [module.adw_database_private_endpoint]
+depends_on = [module.adb]
 }
 
 resource "null_resource" "delete_files_from_object_storage" {

@@ -47,7 +47,7 @@ data "template_file" "bootstrap" {
   template = file("${path.module}/userdata/odi-bootstrap.tpl")
   vars = {
     odi_vnc_password     = var.odi_vnc_password
-    adw_instance         = lookup(module.adw.adw,var.adw_db_name)
+    adw_instance         = lookup(module.adb.adw,var.db_name)
     adw_username         = var.adw_username
     adw_password         = var.adw_password
     odi_password         = var.odi_password
@@ -79,20 +79,29 @@ locals {
 # Create Autonomous Data Warehouse
   adw_params = { 
     adw = {
-      compartment_id              = var.compartment_id,
-      adw_cpu_core_count          = var.adw_cpu_core_count,
-      adw_size_in_tbs             = var.adw_size_in_tbs,
-      adw_db_name                 = var.adw_db_name,
-      adw_db_workload             = var.adw_db_workload,
-      adw_db_version              = var.adw_db_version,
-      adw_enable_auto_scaling     = var.adw_enable_auto_scaling,
-      adw_is_free_tier            = var.adw_is_free_tier,
-      adw_license_model           = var.adw_license_model,
-      database_admin_password     = var.database_admin_password,
-      database_wallet_password    = var.database_wallet_password,
+      compartment_id              = var.compartment_id
+      compute_model               = var.db_compute_model
+      compute_count               = var.db_compute_count
+      size_in_tbs                 = var.db_size_in_tbs
+      db_name                     = var.db_name
+      db_workload                 = var.db_workload
+      db_version                  = var.db_version
+      enable_auto_scaling         = var.db_enable_auto_scaling
+      is_free_tier                = var.db_is_free_tier
+      license_model               = var.db_license_model
+      create_local_wallet         = true
+      database_admin_password     = var.db_password
+      database_wallet_password    = var.db_password
+      data_safe_status            = var.db_data_safe_status
+      operations_insights_status  = var.db_operations_insights_status
+      database_management_status  = var.db_database_management_status
+      is_mtls_connection_required = true
+      subnet_id                   = null
+      nsg_ids                     = null
       defined_tags                = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
   },
 }
+
 
 # Create Oracle Analytics Cloud
   oac_params = { 

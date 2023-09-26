@@ -20,11 +20,11 @@ output "Instructions" {
 
 
 output "ADW_Database_db_connection" {
-  value = module.adw_database_private_endpoint.db_connection
+  value = module.adb.db_connection
 }
 
-output "ADW_Database_private_endpoint_ip" {
-  value = module.adw_database_private_endpoint.private_endpoint_ip
+output "Adb_ip" {
+  value = module.adb.private_endpoint_ip
 }
 
 

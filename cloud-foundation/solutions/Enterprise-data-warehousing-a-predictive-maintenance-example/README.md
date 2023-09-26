@@ -427,12 +427,13 @@ variable "service_connector_tasks_batch_time_in_sec" {
 }
 ```
 
-# Functions
+# Functions Service
 
 This data source provides the list of Functions in Oracle Cloud Infrastructure Functions service. To not break the deployment please don't modify any variables in the functions sections as it's needed to be like this to work for ocir_repo_name.
 
 * Parameters:
     * __app_display_name__ - The display name of the function. The display name must be unique within the application containing the function. Avoid entering confidential information.
+    * __application_shape__ - Valid values are GENERIC_X86, GENERIC_ARM and GENERIC_X86_ARM. Default is GENERIC_X86. Setting this to GENERIC_X86, will run the functions in the application on X86 processor architecture. Setting this to GENERIC_ARM, will run the functions in the application on ARM processor architecture. When set to GENERIC_X86_ARM, functions in the application are run on either X86 or ARM processor architecture. Accepted values are: GENERIC_X86, GENERIC_ARM, GENERIC_X86_ARM
     * __ocir_repo_name__ - The repo name where you will store the image in the Container Registry.
     * __ocir_user_name__ - The username that will push the image in the Container Registry. The user should be in this format: "oracleidentitycloudservice/username"
     * __ocir_user_password__ - The auth token generated for your user.
@@ -442,6 +443,12 @@ Below is an example:
 ```
 variable "app_display_name" {
   default = "DecoderApp"
+}
+
+variable "application_shape" {
+  default = "GENERIC_ARM"
+  # default = "GENERIC_X86"
+  # default = "GENERIC_X86_ARM"
 }
 
 variable "ocir_repo_name" {

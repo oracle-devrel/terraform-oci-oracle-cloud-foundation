@@ -4,8 +4,8 @@
 
 # Calling the Autonomous Data Warehouse module
 
-module "adw" {
-  source = "../../../cloud-foundation/modules/cloud-foundation-library/database/adw"
+module "adb" {
+  source = "../../../cloud-foundation/modules/cloud-foundation-library/database/adb"
   adw_params = {
     for k,v in local.adw_params : k => v if v.compartment_id != "" 
   }
@@ -56,7 +56,7 @@ module "keygen" {
 
 module "bastion" {
   source = "../../../cloud-foundation/modules/cloud-foundation-library/instance_with_out_flexible"
-  depends_on = [module.keygen, module.adw]
+  depends_on = [module.keygen, module.adb]
   tenancy_ocid = var.tenancy_ocid
   instance_params = {
     for k,v in local.bastion_instance_params : k => v if v.compartment_id != ""  
@@ -68,7 +68,7 @@ module "bastion" {
 
 module "odi" {
   source = "../../../cloud-foundation/modules/cloud-foundation-library/instance_with_out_flexible"
-  depends_on = [module.keygen, module.bastion, module.adw]
+  depends_on = [module.keygen, module.bastion, module.adb]
   tenancy_ocid = var.tenancy_ocid
   instance_params = local.odi_instance_params 
 }

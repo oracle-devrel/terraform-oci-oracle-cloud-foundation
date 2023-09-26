@@ -159,7 +159,8 @@ locals {
     application = {
       compartment_id = var.compartment_id,
       subnet_ids     = [lookup(module.network-subnets.subnets, "public-subnet").id]
-      display_name   = var.app_display_name,
+      display_name      = var.app_display_name
+      application_shape = var.application_shape
       defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
     }
   }

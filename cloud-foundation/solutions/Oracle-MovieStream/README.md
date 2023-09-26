@@ -116,7 +116,7 @@ You can find details for connecting to these services in the Stack's Job Details
 ## Connecting to the MovieStream application
 The Oracle MovieStream application is deployed to the compute instance. It automatically connects to your Autonomous Database. You can access it using the `web-instance-all_public_ips` IP address:
 
-https://<`web-instance-all_public_ips`>
+http://<`web-instance-all_public_ips`>
 
 ## Connect to Autonomous Database
 Go to Autonomous Database in the OCI console. The default name given to the database instance is: **OracleMovieStream**. You specified the ADMIN password when deploying the Oracle MovieStream stack. 
@@ -331,6 +331,7 @@ variable "private_key_path" {
 
 * **modules(folder)** - ( this folder will be pressent only for the Resource Manager zipped files) Contains folders with subsystems and modules for each section of the project: networking, autonomous database, analytics cloud, object storage, data catalog etc.
 Also in the modules folder there is a folder called provisioner - that will provision your full infrastructure with the data model.
+* **scripts(folder)** - this folder contains the necessary scripts that will run on the compute instances for the web instance vm.
 * **CONTRIBUTING.md** - Contributing guidelines, also called Contribution guidelines, the CONTRIBUTING.md file, or software contribution guidelines, is a text file which project managers include in free and open-source software packages or other open media packages for the purpose of describing how others may contribute user-generated content to the project.The file explains how anyone can engage in activities such as formatting code for submission or submitting patches
 * **LICENSE** - The Universal Permissive License (UPL), Version 1.0 
 * **local.tf** - Local values can be helpful to avoid repeating the same values or expressions multiple times in a configuration, but if overused they can also make a configuration hard to read by future maintainers by hiding the actual values used.Here is the place where all the resources are defined.
@@ -351,7 +352,8 @@ The ADW subsystem / module is able to create ADW/ATP databases.
 * Parameters:
     * __db_name__ - The database name. The name must begin with an alphabetic character and can contain a maximum of 14 alphanumeric characters. Special characters are not permitted. The database name must be unique in the tenancy.
     * __db_password__ - The password must be between 12 and 30 characters long, and must contain at least 1 uppercase, 1 lowercase, and 1 numeric character. It cannot contain the double quote symbol (") or the username "admin", regardless of casing. The password is mandatory if source value is "BACKUP_FROM_ID", "BACKUP_FROM_TIMESTAMP", "DATABASE" or "NONE".
-    * __db_cpu_core_count__ - The number of OCPU cores to be made available to the database. For Autonomous Databases on dedicated Exadata infrastructure, the maximum number of cores is determined by the infrastructure shape. See Characteristics of Infrastructure Shapes for shape details.
+    * __db_compute_model__ - The compute model of the Autonomous Database. This is required if using the computeCount parameter. If using cpuCoreCount then it is an error to specify computeModel to a non-null value.
+    * __db_compute_count__ - The compute amount available to the database. Minimum and maximum values depend on the compute model and whether the database is on Shared or Dedicated infrastructure. For an Autonomous Database on Shared infrastructure, the 'ECPU' compute model requires values in multiples of two. Required when using the computeModel parameter. When using cpuCoreCount parameter, it is an error to specify computeCount to a non-null value.
     * __db_size_in_tbs__ - The size, in gigabytes, of the data volume that will be created and attached to the database. This storage can later be scaled up if needed. The maximum storage value is determined by the infrastructure shape. See Characteristics of Infrastructure Shapes for shape details.
     * __db_workload__ - The Autonomous Database workload type. The following values are valid:
         - OLTP - indicates an Autonomous Transaction Processing database
@@ -362,6 +364,9 @@ The ADW subsystem / module is able to create ADW/ATP databases.
     * __db_enable_auto_scaling__ - Indicates if auto scaling is enabled for the Autonomous Database OCPU core count. The default value is FALSE.
     * __db_is_free_tier__ - Indicates if this is an Always Free resource. The default value is false. Note that Always Free Autonomous Databases have 1 CPU and 20GB of memory. For Always Free databases, memory and CPU cannot be scaled. When db_workload is AJD or APEX it cannot be true.
     * __db_license_model__ - The Oracle license model that applies to the Oracle Autonomous Database. Bring your own license (BYOL) allows you to apply your current on-premises Oracle software licenses to equivalent, highly automated Oracle PaaS and IaaS services in the cloud. License Included allows you to subscribe to new Oracle Database software licenses and the Database service. Note that when provisioning an Autonomous Database on dedicated Exadata infrastructure, this attribute must be null because the attribute is already set at the Autonomous Exadata Infrastructure level. When using shared Exadata infrastructure, if a value is not specified, the system will supply the value of BRING_YOUR_OWN_LICENSE. It is a required field when db_workload is AJD and needs to be set to LICENSE_INCLUDED as AJD does not support default license_model value BRING_YOUR_OWN_LICENSE.
+    * __db_data_safe_status__ - (Updatable) Status of the Data Safe registration for this Autonomous Database. Could be REGISTERED or NOT_REGISTERED.
+    * __db_operations_insights_status__ - (Updatable) Status of Operations Insights for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED
+    * __db_database_management_status__ - Status of Database Management for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED
 
 
 Below is an example:
@@ -374,12 +379,17 @@ variable "db_name" {
 
 variable "db_password" {
   type = string
-  default = "<enter-password-here>"
+  default = "WlsAtpDb1234#"
 }
 
-variable "db_cpu_core_count" {
+variable "db_compute_model" {
+  type    = string
+  default = "ECPU"
+}
+
+variable "db_compute_count" {
   type = number
-  default = 1
+  default = 4
 }
 
 variable "db_size_in_tbs" {
@@ -411,6 +421,39 @@ variable "db_license_model" {
   type = string
   default = "LICENSE_INCLUDED"
 }
+
+variable "db_data_safe_status" {
+  type = string
+  default = "NOT_REGISTERED"
+  # default = "REGISTERED"
+}
+
+variable "db_operations_insights_status" {
+  type = string
+  default = "NOT_ENABLED"
+  # default = "ENABLED"
+}
+
+variable "db_database_management_status" {
+  type = string
+  default = "NOT_ENABLED"
+  # default = "ENABLED"
+}
+
+# variable "tag" {
+#   type    = string
+#   default = "movieapp"
+#   # default = "graph-get-started"
+#   # default = "end-to-end"
+#   # default = "gen-ai"
+# }
+
+# variable "run_post_load_procedures" {
+#   type    = bool
+#   #default = false
+#   default = true
+# }
+
 
 ```
 
@@ -696,7 +739,7 @@ You can find details for connecting to these services in the Stack's Job Details
 ## Connecting to the MovieStream application
 The Oracle MovieStream application is deployed to the compute instance. It automatically connects to your Autonomous Database. You can access it using the `web-instance-all_public_ips` IP address:
 
-https://<`web-instance-all_public_ips`>
+http://<`web-instance-all_public_ips`>
 
 ## Connect to Autonomous Database
 Go to Autonomous Database in the OCI console. The default name given to the database instance is: **OracleMovieStream**. You specified the ADMIN password when deploying the Oracle MovieStream stack. 

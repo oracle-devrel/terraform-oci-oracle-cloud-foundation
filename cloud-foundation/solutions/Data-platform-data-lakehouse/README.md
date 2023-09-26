@@ -285,7 +285,8 @@ The ADW subsystem / module is able to create ADW/ATP databases.
 * Parameters:
     * __db_name__ - The database name. The name must begin with an alphabetic character and can contain a maximum of 14 alphanumeric characters. Special characters are not permitted. The database name must be unique in the tenancy.
     * __db_password__ - The password must be between 12 and 30 characters long, and must contain at least 1 uppercase, 1 lowercase, and 1 numeric character. It cannot contain the double quote symbol (") or the username "admin", regardless of casing. The password is mandatory if source value is "BACKUP_FROM_ID", "BACKUP_FROM_TIMESTAMP", "DATABASE" or "NONE".
-    * __db_cpu_core_count__ - The number of OCPU cores to be made available to the database. For Autonomous Databases on dedicated Exadata infrastructure, the maximum number of cores is determined by the infrastructure shape. See Characteristics of Infrastructure Shapes for shape details.
+    * __db_compute_model__ - The compute model of the Autonomous Database. This is required if using the computeCount parameter. If using cpuCoreCount then it is an error to specify computeModel to a non-null value.
+    * __db_compute_count__ - The compute amount available to the database. Minimum and maximum values depend on the compute model and whether the database is on Shared or Dedicated infrastructure. For an Autonomous Database on Shared infrastructure, the 'ECPU' compute model requires values in multiples of two. Required when using the computeModel parameter. When using cpuCoreCount parameter, it is an error to specify computeCount to a non-null value.
     * __db_size_in_tbs__ - The size, in gigabytes, of the data volume that will be created and attached to the database. This storage can later be scaled up if needed. The maximum storage value is determined by the infrastructure shape. See Characteristics of Infrastructure Shapes for shape details.
     * __db_workload__ - The Autonomous Database workload type. The following values are valid:
         - OLTP - indicates an Autonomous Transaction Processing database
@@ -296,8 +297,12 @@ The ADW subsystem / module is able to create ADW/ATP databases.
     * __db_enable_auto_scaling__ - Indicates if auto scaling is enabled for the Autonomous Database OCPU core count. The default value is FALSE.
     * __db_is_free_tier__ - Indicates if this is an Always Free resource. The default value is false. Note that Always Free Autonomous Databases have 1 CPU and 20GB of memory. For Always Free databases, memory and CPU cannot be scaled. When db_workload is AJD or APEX it cannot be true.
     * __db_license_model__ - The Oracle license model that applies to the Oracle Autonomous Database. Bring your own license (BYOL) allows you to apply your current on-premises Oracle software licenses to equivalent, highly automated Oracle PaaS and IaaS services in the cloud. License Included allows you to subscribe to new Oracle Database software licenses and the Database service. Note that when provisioning an Autonomous Database on dedicated Exadata infrastructure, this attribute must be null because the attribute is already set at the Autonomous Exadata Infrastructure level. When using shared Exadata infrastructure, if a value is not specified, the system will supply the value of BRING_YOUR_OWN_LICENSE. It is a required field when db_workload is AJD and needs to be set to LICENSE_INCLUDED as AJD does not support default license_model value BRING_YOUR_OWN_LICENSE.
+    * __db_data_safe_status__ - (Updatable) Status of the Data Safe registration for this Autonomous Database. Could be REGISTERED or NOT_REGISTERED.
+    * __db_operations_insights_status__ - (Updatable) Status of Operations Insights for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED
+    * __db_database_management_status__ - Status of Database Management for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED
 
 Below is an example:
+
 
 ```
 variable "db_name" {
@@ -310,9 +315,14 @@ variable "db_password" {
   default = "<enter-password-here>"
 }
 
-variable "db_cpu_core_count" {
+variable "db_compute_model" {
+  type    = string
+  default = "ECPU"
+}
+
+variable "db_compute_count" {
   type = number
-  default = 1
+  default = 4
 }
 
 variable "db_size_in_tbs" {
@@ -343,6 +353,24 @@ variable "db_is_free_tier" {
 variable "db_license_model" {
   type = string
   default = "BRING_YOUR_OWN_LICENSE"
+}
+
+variable "db_data_safe_status" {
+  type = string
+  default = "NOT_REGISTERED"
+  # default = "REGISTERED"
+}
+
+variable "db_operations_insights_status" {
+  type = string
+  default = "NOT_ENABLED"
+  # default = "ENABLED"
+}
+
+variable "db_database_management_status" {
+  type = string
+  default = "NOT_ENABLED"
+  # default = "ENABLED"
 }
 ```
 
@@ -682,6 +710,7 @@ This data source provides the list of Functions in Oracle Cloud Infrastructure F
 
 * Parameters:
     * __app_display_name__ - The display name of the function. The display name must be unique within the application containing the function. Avoid entering confidential information.
+    * __application_shape__ - Valid values are GENERIC_X86, GENERIC_ARM and GENERIC_X86_ARM. Default is GENERIC_X86. Setting this to GENERIC_X86, will run the functions in the application on X86 processor architecture. Setting this to GENERIC_ARM, will run the functions in the application on ARM processor architecture. When set to GENERIC_X86_ARM, functions in the application are run on either X86 or ARM processor architecture. Accepted values are: GENERIC_X86, GENERIC_ARM, GENERIC_X86_ARM
     * __ocir_repo_name__ - The repo name where you will store the image in the Container Registry. The Repo name must be unique inside your tenancy.
     * __ocir_user_name__ - The username that will push the image in the Container Registry. The user should be in this format: "oracleidentitycloudservice/username"
     * __ocir_user_password__ - The auth token generated for your user.
@@ -691,6 +720,12 @@ Below is an example:
 ```
 variable "app_display_name" {
   default = "DecoderApp"
+}
+
+variable "application_shape" {
+  default = "GENERIC_ARM"
+  # default = "GENERIC_X86"
+  # default = "GENERIC_X86_ARM"
 }
 
 # Example: decoder 

@@ -13,8 +13,28 @@ output "Spark_UI" {
   value = "Access Spark UI using https://<Web-Tier-and-Bastion>/spark"
 }
 
-output "ADW_Service_Console_URL" {
-  value = module.adw.ADW_Service_Console_URL
+output "Adb_db_connection" {
+  value = module.adb.db_connection
+}
+
+output "Adb_endpoint_ip" {
+  value = module.adb.private_endpoint_ip
+}
+
+output "Database_Actions" {
+  value = module.adb.url
+}
+
+output "graph_studio_url" {
+  value = module.adb.graph_studio_url
+}
+
+output "machine_learning_user_management_url" {
+  value = module.adb.machine_learning_user_management_url
+}
+
+output "database_fully_qualified_name" {
+  value = module.adb.database_fully_qualified_name
 }
 
 output "ADW_LOGIN" {

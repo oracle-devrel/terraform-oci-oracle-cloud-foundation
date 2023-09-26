@@ -3,28 +3,28 @@
 
 # Autonomous Database Outputs:
 
-output "ADW_Database_db_connection" {
-  value = module.adw_database.db_connection
+output "Adb_db_connection" {
+  value = module.adb.db_connection
 }
 
-output "ADW_Database_endpoint_ip" {
-  value = module.adw_database.private_endpoint_ip
+output "Adb_endpoint_ip" {
+  value = module.adb.private_endpoint_ip
 }
 
 output "Database_Actions" {
-  value = module.adw_database.url
+  value = module.adb.url
 }
 
 output "graph_studio_url" {
-  value = module.adw_database.graph_studio_url
+  value = module.adb.graph_studio_url
 }
 
 output "machine_learning_user_management_url" {
-  value = module.adw_database.machine_learning_user_management_url
+  value = module.adb.machine_learning_user_management_url
 }
 
 output "database_fully_qualified_name" {
-  value = module.adw_database.database_fully_qualified_name
+  value = module.adb.database_fully_qualified_name
 }
 
 output "ADW_LOGIN" {

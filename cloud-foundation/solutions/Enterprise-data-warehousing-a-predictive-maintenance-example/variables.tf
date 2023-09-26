@@ -3,7 +3,7 @@
 
 
 terraform {
-  required_version = ">= 0.14.0"
+  required_version = ">= 0.15.0"
 }
 
 variable "tenancy_ocid" {
@@ -153,6 +153,12 @@ variable "service_connector_tasks_batch_time_in_sec" {
 
 variable "app_display_name" {
   default = "DecoderApp"
+}
+
+variable "application_shape" {
+  default = "GENERIC_ARM"
+  # default = "GENERIC_X86"
+  # default = "GENERIC_X86_ARM"
 }
 
 # Example: decoder 

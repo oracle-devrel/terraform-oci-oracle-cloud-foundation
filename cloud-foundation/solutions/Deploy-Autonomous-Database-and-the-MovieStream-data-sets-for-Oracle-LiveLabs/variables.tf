@@ -88,6 +88,24 @@ variable "db_license_model" {
   default = "LICENSE_INCLUDED"
 }
 
+variable "db_data_safe_status" {
+  type = string
+  default = "NOT_REGISTERED"
+  # default = "REGISTERED"
+}
+
+variable "db_operations_insights_status" {
+  type = string
+  default = "NOT_ENABLED"
+  # default = "ENABLED"
+}
+
+variable "db_database_management_status" {
+  type = string
+  default = "NOT_ENABLED"
+  # default = "ENABLED"
+}
+
 variable "tag" {
   type    = string
   # default = "movieapp"

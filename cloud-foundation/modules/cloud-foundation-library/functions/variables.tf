@@ -4,8 +4,9 @@
 variable "app_params" {
   type = map(object({
     compartment_id = string
-    subnet_ids     = list(string)
     display_name   = string
+    subnet_ids     = list(string)
+    application_shape = string
     defined_tags   = map(string)
   }))
 }

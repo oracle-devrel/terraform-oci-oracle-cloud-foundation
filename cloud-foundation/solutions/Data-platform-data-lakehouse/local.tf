@@ -83,13 +83,12 @@ locals {
   ocir_docker_repository = join("", [lower(lookup(data.oci_identity_regions.oci_regions.regions[0], "key")), ".ocir.io"])
   ocir_namespace         = lookup(data.oci_identity_tenancy.tenancy, "name")
 
-
 # Create Autonomous Data Warehouse
-
   adw_params = { 
     adw = {
-      compartment_id              = var.compartment_id,
-      cpu_core_count              = var.db_cpu_core_count
+      compartment_id              = var.compartment_id
+      compute_model               = var.db_compute_model
+      compute_count               = var.db_compute_count
       size_in_tbs                 = var.db_size_in_tbs
       db_name                     = var.db_name
       db_workload                 = var.db_workload
@@ -100,9 +99,12 @@ locals {
       create_local_wallet         = true
       database_admin_password     = var.db_password
       database_wallet_password    = var.db_password
+      data_safe_status            = var.db_data_safe_status
+      operations_insights_status  = var.db_operations_insights_status
+      database_management_status  = var.db_database_management_status
       is_mtls_connection_required = true
       subnet_id                   = lookup(module.network-subnets.subnets,"private_subnet_data").id
-      nsg_ids                     = []
+      nsg_ids                     = null
       defined_tags                = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
   },
 }
@@ -257,7 +259,8 @@ app_params = {
     application = {
       compartment_id    = var.compartment_id,
       subnet_ids        = [lookup(module.network-subnets.subnets,"private_subnet_application").id]
-      display_name      = var.app_display_name,
+      display_name      = var.app_display_name
+      application_shape = var.application_shape
       defined_tags      = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
   }
 }  
@@ -279,7 +282,7 @@ fn_params = {
       compartment_id                = var.compartment_id,
       catalog_display_name          = var.catalog_display_name
       defined_tags                  = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
-      private_endpoint_dns_zones    = ["vcn.oraclevcn.com", module.adw_database_private_endpoint.private_endpoint[0]]
+      private_endpoint_dns_zones    = ["vcn.oraclevcn.com", module.adb.private_endpoint[0]]
       subnet_id                     = lookup(module.network-subnets.subnets,"private_subnet_midtier").id
       adw_data_asset_display_name   = "${var.db_name}_data_asset"
       object_storage_data_asset_display_name = "${var.gold_bucket_name}_data_asset"
@@ -384,7 +387,7 @@ dataflow_params = {
       defined_tags               = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
       freeform_tags  = {}
       logs_bucket_uri            = "oci://${var.dataflow_logs_bucket_name}@${lookup(data.oci_identity_tenancy.tenancy, "name")}/"
-      dns_zones      = ["vcn.oraclevcn.com", module.adw_database_private_endpoint.private_endpoint[0]]
+      dns_zones      = ["vcn.oraclevcn.com", module.adb.private_endpoint[0]]
       subnet_id      = lookup(module.network-subnets.subnets,"private_subnet_midtier").id
       description    = "dataflowapp"
       display_name   = var.dataflow_display_name

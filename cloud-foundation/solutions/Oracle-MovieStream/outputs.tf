@@ -19,27 +19,27 @@ output "Instructions" {
 # Autonomous Database Outputs:
 
 output "ADW_Database_db_connection" {
-  value = module.adw_database_private_endpoint.db_connection
+  value = module.adb.db_connection
 }
 
-output "ADW_Database_private_endpoint_ip" {
-  value = module.adw_database_private_endpoint.private_endpoint_ip
+output "Adb_ip" {
+  value = module.adb.private_endpoint_ip
 }
 
 output "Database_Actions" {
-  value = module.adw_database_private_endpoint.url
+  value = module.adb.url
 }
 
 output "graph_studio_url" {
-  value = module.adw_database_private_endpoint.graph_studio_url
+  value = module.adb.graph_studio_url
 }
 
 output "machine_learning_user_management_url" {
-  value = module.adw_database_private_endpoint.machine_learning_user_management_url
+  value = module.adb.machine_learning_user_management_url
 }
 
 output "database_fully_qualified_name" {
-  value = module.adw_database_private_endpoint.database_fully_qualified_name
+  value = module.adb.database_fully_qualified_name
 }
 
 output "Connect-to-Autonomous-Database-MovieStream-User" {

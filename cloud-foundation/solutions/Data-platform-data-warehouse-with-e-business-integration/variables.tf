@@ -3,7 +3,7 @@
 
 
 terraform {
-  required_version = ">= 0.14.0"
+  required_version = ">= 0.15.0"
 }
 
 variable "tenancy_ocid" {
@@ -36,57 +36,74 @@ variable "private_key_path" {
     default = ""
 }
 
-
 # Autonomous Database Configuration Variables
 
-variable "adw_cpu_core_count" {
-    type = number
-    default = 1
+variable "db_name" {
+  type    = string
+  default = "ADWEBS"
 }
 
-variable "adw_size_in_tbs" {
-    type = number
-    default = 1
-}
-
-variable "adw_db_name" {
-    type = string
-    default = "ADWipnEBS"
-}
-
-variable "adw_db_workload" {
-    type = string
-    default = "DW"
-}
-
-variable "adw_db_version" {
-    type = string
-    default = "19c"
-}
-
-variable "adw_enable_auto_scaling" {
-    type = bool
-    default = true
-}
-
-variable "adw_is_free_tier" {
-    type = bool
-    default = false
-}
-
-variable "adw_license_model" {
-    type = string
-    default = "LICENSE_INCLUDED"
-}
-
-variable "database_admin_password" {
+variable "db_password" {
   type = string
-  default = "" # Example password: Par0laMea123
+  default = "<enter-password-here>"
 }
 
-variable "database_wallet_password" {
+variable "db_compute_model" {
+  type    = string
+  default = "ECPU"
+}
+
+variable "db_compute_count" {
+  type = number
+  default = 4
+}
+
+variable "db_size_in_tbs" {
+  type = number
+  default = 1
+}
+
+variable "db_workload" {
   type = string
-  default = "" # Example password: Par0laMea123
+  default = "DW"
+}
+
+variable "db_version" {
+  type = string
+  default = "19c"
+}
+
+variable "db_enable_auto_scaling" {
+  type = bool
+  default = true
+}
+
+variable "db_is_free_tier" {
+  type = bool
+  default = false
+}
+
+variable "db_license_model" {
+  type = string
+  default = "BRING_YOUR_OWN_LICENSE"
+}
+
+variable "db_data_safe_status" {
+  type = string
+  default = "NOT_REGISTERED"
+  # default = "REGISTERED"
+}
+
+variable "db_operations_insights_status" {
+  type = string
+  default = "NOT_ENABLED"
+  # default = "ENABLED"
+}
+
+variable "db_database_management_status" {
+  type = string
+  # default = "NOT_ENABLED"
+  default = "ENABLED"
 }
 
 
@@ -104,7 +121,7 @@ variable "analytics_instance_license_type" {
 
 variable "analytics_instance_hostname" {
     type    = string
-    default = "AnalyicSDEBS"
+    default = "AnalyicsEBS"
 }
 
 variable "analytics_instance_idcs_access_token" {

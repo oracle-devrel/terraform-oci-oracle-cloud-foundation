@@ -4,7 +4,7 @@
 # OCI API authentification credentials
 
 terraform {
-  required_version = ">= 0.14.0"
+  required_version = ">= 0.15.0"
 }
 
 variable "tenancy_ocid" {

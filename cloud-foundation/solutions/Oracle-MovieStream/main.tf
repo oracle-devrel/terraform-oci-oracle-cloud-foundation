@@ -1,9 +1,9 @@
 # Copyright © 2023, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-# Create ADW Database with Endpoint in private subnet
-module "adw_database_private_endpoint" {
-  source = "../../../cloud-foundation/modules/cloud-foundation-library/database/adw_private_endpoint"
+# Create ADW Database
+module "adb" {
+  source = "../../../cloud-foundation/modules/cloud-foundation-library/database/adb"
   adw_params = local.adw_params 
 }
 
@@ -11,9 +11,9 @@ module "adw_database_private_endpoint" {
 # module "datacatalog" {
 #   source = "../../../cloud-foundation/modules/cloud-foundation-library/database/datacatalog_private_endpoint"
 #   datacatalog_params = local.datacatalog_params
-#   depends_on = [module.adw_database_private_endpoint]
+#   depends_on = [module.adb]
 #   db_name = var.db_name
-#   wallet = module.adw_database_private_endpoint.adb_wallet_content
+#   wallet = module.adb.adb_wallet_content
 #   count = var.bastion_instance_shape == "VM.Standard.E2.1.Micro" ? 0 : 1
 # }
 
@@ -34,14 +34,14 @@ module "web-instance" {
 # Connect to instance and execute provision of server
 module "provisioner" {
   source = "./modules/provisioner"
-  depends_on = [module.adw_database_private_endpoint, module.web-instance]
+  depends_on = [module.adb, module.web-instance]
   host = module.web-instance.InstancePublicIPs[0]
   private_key = module.keygen.OPCPrivateKey["private_key_pem"]
-  atp_url = module.adw_database_private_endpoint.url
+  atp_url = module.adb.url
   db_password = var.db_password
   db_name = var.db_name
-  conn_db = module.adw_database_private_endpoint.db_connection[0].profiles[1].value
-  dbhostname = module.adw_database_private_endpoint.database_fully_qualified_name
+  conn_db = module.adb.db_connection[0].profiles[1].value
+  dbhostname = module.adb.database_fully_qualified_name
   # tag = var.tag
   # run_post_load_procedures = var.run_post_load_procedures
 } 
