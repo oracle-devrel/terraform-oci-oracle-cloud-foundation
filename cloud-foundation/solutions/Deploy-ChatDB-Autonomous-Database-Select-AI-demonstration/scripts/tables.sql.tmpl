@@ -1,0 +1,22 @@
+-- **Copyright © 2023, Oracle and/or its affiliates.
+-- **All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+    -- Tables will be installed in the current schema
+    -- Connect as the MOVIESTREAM user
+
+    begin
+        workshop.add_dataset 
+            (
+            tag => '${tag}', 
+            run_post_load_procedures => ${run_post_load_procedures}
+            );
+
+        DBMS_CLOUD.CREATE_CREDENTIAL (
+            credential_name  => 'OPENAI_CRED',
+            username         => 'OPENAI',
+            password         => '${llm_secret}'
+            );
+    
+    end;
+    /
+
