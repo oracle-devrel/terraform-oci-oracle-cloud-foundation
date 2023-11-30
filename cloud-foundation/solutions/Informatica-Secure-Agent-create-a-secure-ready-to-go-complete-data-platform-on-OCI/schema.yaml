@@ -1,7 +1,7 @@
 # Copyright © 2023, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-title: "Create the Informatica Secure Agent – create a secure ready to go complete data platform on OCI"
+title: "Create the Informatica Secure Agent a secure ready to go complete data platform on OCI"
 stackDescription: "Use this solution to launch, configure, and run the virtual machines, virtual network, and other services
 required like ADW and object storage to deploy Informatica Intelligent Data Management Cloud (IDMC) on Oracle Cloud Infrastructure. You can
 connect to the IDMC services using the Informatica Secure Agent to leverage your computing needs."
@@ -44,16 +44,15 @@ groupings:
   - title: "Informatica Intelligent Data Management Cloud (IDMC) Details"
     variables:
       - informatica_instance_shape
-      - hostname_label
+      - informatica_secure_agent_display_name
       - iics_user
       - iics_token
       - iics_gn
-      - iics_dc
+      - iics_provider
   - title: "Network Configuration"
     variables:
       - vcn_cidr
       - public_subnet_cidr
-      - private_subnet_cidr
       - show_advanced_options
   - title: "Hidden Variables"
     visible: false
@@ -62,7 +61,8 @@ groupings:
       - fingerprint
       - private_key_path
       - bastion_instance_image_ocid
-      - iics_dc_enum
+      - iics_provider_enum
+      - mp_subscription_enabled
 # General Configuration Variables
 variables:
   tenancy_ocid:
@@ -86,7 +86,7 @@ variables:
   display_name_prefix:
     title: Display Name Prefix
     type: string
-    default: "Create the Informatica Intelligent Data Management Cloud Secure Agent solution"
+    default: "Create the Informatica Secure Agent a secure ready to go complete data platform on OCI"
     description: Enter the Display name for the solution.
     required: true
     visible: true
@@ -226,14 +226,14 @@ variables:
       - "ENABLED"
     default: "NOT_ENABLED"
     required: true
-    visible: true 
+    visible: true
 # Object Storage Configuration  
   bucket_name:
     title: Object Storage Bucket Name
     description: "Enter a unique name for this object storage bucket. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
     type: string
     maxLength: 30
-    default: "InformaticaSecureAgent"
+    default: "InformaticaSecureAgentOCI"
     required: true
     visible: true
   bucket_access_type:
@@ -266,7 +266,7 @@ variables:
       - "false"
     default: "false"
     required: true
-    visible: true 
+    visible: true
 # "Bastion VM Configuration"
   bastion_shape:
     title: Provide the shape for Bastion VM
@@ -287,11 +287,11 @@ variables:
     visible: true
     dependsOn:
       compartmentId: ${compartment_id}
-  hostname_label:
+  informatica_secure_agent_display_name:
     type: string
     required: true
-    title: DNS hostname label
-    description: DNS hostname label. Make sure that the DNS hostname label is unique and complies with RFC 952 and RFC 1123  
+    title: Instance Name
+    description: The instance name to identify the VM 
   iics_user:
     type: string
     required: true
@@ -307,18 +307,18 @@ variables:
     required: false
     default: ""
     title: IDMC Secure Agent Group Name
-  iics_dc:
+  iics_provider:
     visible: true
     type: enum
-    title: IDMC Data Center Location
-    description: The data center location for the deployment. Choose the data center location based on the user details registered in Informatica Intelligent Data Management Cloud
+    title: IDMC Cloud Provider Location
+    description: he Cloud Provider where you have your IDMC account. Choose the cloud provider based on the user details registered in Informatica Intelligent Data Management Cloud
     enum:
-      - "United States of America"
-      - "Singapore"
-      - "Germany"
-      - "Japan"
+      - "Oracle Cloud Infrastructure"
+      - "Amazon Web Services"
+      - "Microsoft Azure"
+      - "Google Cloud"
     required: true
-    default: "United States of America"
+    default: "Oracle Cloud Infrastructure"
 # Network Configuration
   vcn_cidr:
     visible: 
@@ -340,16 +340,6 @@ variables:
     required: true
     title: Public Subnet CIDR
     description: "The CIDR of the new public subnet." 
-  private_subnet_cidr:
-    visible:
-      and:
-        - show_advanced_options
-    type: string
-    default: "10.0.1.0/24"
-    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
-    required: true
-    title: Private Subnet CIDR
-    description: "The CIDR of the new private subnet."
   show_advanced_options:
     title: Show Advanced Options
     description: Enable advanced options for network.
@@ -381,19 +371,13 @@ outputs:
   Buckets:
     type: string
     title: Buckets
-  Bastion_compute_linux_instances:
-    type: string
-    title: Bastion Compute public IP
-  Bastion_all_private_ips:
-    type: string
-    title: Bastion Compute private IP
   informatica_secure_agent_compute_linux_instances:
     type: string
     title: Informatica Secure Agent Compute public IP
   informatica_secure_agent_all_private_ips:
     type: string
     title: Informatica Secure Agent Compute private IP
-  generated_ssh_private_key_for_bastion:
+  generated_ssh_private_key_for_instances:
     type: string
     title: Generated Ssh Private Key for Bastion
 outputGroups:
@@ -407,8 +391,6 @@ outputGroups:
       - machine_learning_user_management_url
       - database_fully_qualified_name
       - Buckets
-      - Bastion_compute_linux_instances
-      - Bastion_all_private_ips
       - informatica_secure_agent_compute_linux_instances
       - informatica_secure_agent_all_private_ips
-      - generated_ssh_private_key_for_bastion
+      - generated_ssh_private_key_for_instances

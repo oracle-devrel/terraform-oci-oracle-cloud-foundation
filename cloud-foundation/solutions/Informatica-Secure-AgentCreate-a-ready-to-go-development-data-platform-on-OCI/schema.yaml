@@ -41,11 +41,11 @@ groupings:
   - title: "Informatica Intelligent Data Management Cloud (IDMC) Details"
     variables:
       - informatica_instance_shape
-      - hostname_label
+      - informatica_secure_agent_display_name
       - iics_user
       - iics_token
       - iics_gn
-      - iics_dc
+      - iics_provider
   - title: "Network Configuration"
     variables:
       - vcn_cidr
@@ -57,7 +57,8 @@ groupings:
       - user_ocid
       - fingerprint
       - private_key_path
-      - iics_dc_enum
+      - iics_provider_enum
+      - mp_subscription_enabled
 # General Configuration Variables
 variables:
   tenancy_ocid:
@@ -81,7 +82,7 @@ variables:
   display_name_prefix:
     title: Display Name Prefix
     type: string
-    default: "Create the Informatica Intelligent Data Management Cloud Secure Agent solution"
+    default: "Create the Informatica Secure Agent – create a ready to go development data platform on OCI"
     description: Enter the Display name for the solution.
     required: true
     visible: true
@@ -228,7 +229,7 @@ variables:
     description: "Enter a unique name for this object storage bucket. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
     type: string
     maxLength: 30
-    default: "InformaticaSecureAgent"
+    default: "InformaticaSecureAgentOCI"
     required: true
     visible: true
   bucket_access_type:
@@ -272,11 +273,11 @@ variables:
     visible: true
     dependsOn:
       compartmentId: ${compartment_id}
-  hostname_label:
+  informatica_secure_agent_display_name:
     type: string
     required: true
-    title: DNS hostname label
-    description: DNS hostname label. Make sure that the DNS hostname label is unique and complies with RFC 952 and RFC 1123  
+    title: Instance Name
+    description: The instance name to identify the VM 
   iics_user:
     type: string
     required: true
@@ -292,18 +293,18 @@ variables:
     required: false
     default: ""
     title: IDMC Secure Agent Group Name
-  iics_dc:
+  iics_provider:
     visible: true
     type: enum
-    title: IDMC Data Center Location
-    description: The data center location for the deployment. Choose the data center location based on the user details registered in Informatica Intelligent Data Management Cloud
+    title: IDMC Cloud Provider Location
+    description: he Cloud Provider where you have your IDMC account. Choose the cloud provider based on the user details registered in Informatica Intelligent Data Management Cloud
     enum:
-      - "United States of America"
-      - "Singapore"
-      - "Germany"
-      - "Japan"
+      - "Oracle Cloud Infrastructure"
+      - "Amazon Web Services"
+      - "Microsoft Azure"
+      - "Google Cloud"
     required: true
-    default: "United States of America"
+    default: "Oracle Cloud Infrastructure"
 # Network Configuration
   vcn_cidr:
     visible: 

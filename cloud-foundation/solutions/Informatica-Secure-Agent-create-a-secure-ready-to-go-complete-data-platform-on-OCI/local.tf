@@ -48,21 +48,23 @@ data "template_cloudinit_config" "bastion-config" {
 }
 
 locals {
-  informatica_image = "ocid1.image.oc1..aaaaaaaal2pawq4ysiekxkf7jbk2i5x5ctolj22a2gfsw576mx7kjfu4xyha"
+  # Local to control subscription to Marketplace image.
+  mp_subscription_enabled = var.mp_subscription_enabled ? 1 : 0
+  informatica_image = "ocid1.image.oc1..aaaaaaaa7cz5dtoycldn2362uitvswgoozfxeahfpxusky67nsd6vxhxcvua"
   mp_listing_id = "ocid1.appcataloglisting.oc1..aaaaaaaanfkuyh67srgtyxv7lfzrec3yaauspa5petil2clgizlarqgkmxwa"
-  mp_listing_resource_id = "ocid1.image.oc1..aaaaaaaal2pawq4ysiekxkf7jbk2i5x5ctolj22a2gfsw576mx7kjfu4xyha"
-  mp_listing_resource_version = "August_2022.03"
+  mp_listing_resource_id = "ocid1.image.oc1..aaaaaaaa7cz5dtoycldn2362uitvswgoozfxeahfpxusky67nsd6vxhxcvua"
+  mp_listing_resource_version = "November_2023.11"
 
   ad_names                          = compact(data.template_file.ad_names.*.rendered)
   public_subnet_availability_domain = local.ad_names[0]
 
   #Secure agent data
-  iics_dc_usa = var.iics_dc == var.iics_dc_enum["USA"] ? true : false
-  iics_dc_sgp = var.iics_dc == var.iics_dc_enum["SGP"] ? true : false
-  iics_dc_ger = var.iics_dc == var.iics_dc_enum["GER"] ? true : false
-  iics_dc_jpn = var.iics_dc == var.iics_dc_enum["JPN"] ? true : false
+  iics_provider_oci   = var.iics_provider == var.iics_provider_enum["OCI"] ? true : false
+  iics_provider_aws   = var.iics_provider == var.iics_provider_enum["AWS"] ? true : false
+  iics_provider_azure = var.iics_provider == var.iics_provider_enum["Azure"] ? true : false
+  iics_provider_gcp   = var.iics_provider == var.iics_provider_enum["GCP"] ? true : false
   
-  iics_dc = (local.iics_dc_usa == true) ? "USA" : (local.iics_dc_sgp == true) ? "SGP" : (local.iics_dc_ger == true) ? "GER" : (local.iics_dc_jpn == true) ? "JPN" : "USA" 
+  iics_provider = (local.iics_provider_oci == true) ? "OCI" : (local.iics_provider_aws == true) ? "AWS" : (local.iics_provider_azure == true) ? "Azure" : (local.iics_provider_gcp == true) ? "GCP" : "OCI" 
 
 # Create Autonomous Data Warehouse
   adw_params = { 
@@ -128,34 +130,33 @@ bastion_instance_params = {
   }
 }
 
-
 #create Informatica Secure Agent instance
   informatica_secure_agent_params = {
   informatica_secure_agent = {
     availability_domain = 1
     compartment_id = var.compartment_id
-    display_name   = "informatica_secure_agent"
+    display_name   = var.informatica_secure_agent_display_name
     shape          = var.informatica_instance_shape
     defined_tags   = {}
     freeform_tags  = {}
     subnet_id        = lookup(module.network-subnets.subnets,"private-subnet").id
     vnic_display_name = ""
     assign_public_ip = false
-    hostname_label   = var.hostname_label
+    hostname_label = ""
     source_type = "image"
     source_id   = local.informatica_image
     metadata = {
       ssh_authorized_keys = module.keygen.OPCPrivateKey.public_key_openssh
       user_data = base64encode(templatefile(format("%s/%s", "./scripts", "install.sh"),
       {
-        iics_dc      = local.iics_dc
-        iics_un      = var.iics_user
-        iics_tk      = var.iics_token
-        iics_gn      = var.iics_gn
-        region       = var.region
-        bucket_name  = var.bucket_name
-        tenancy      = data.oci_identity_tenancy.tenancy.name
-        db_name      = var.db_name
+        iics_provider = local.iics_provider
+        iics_un       = var.iics_user
+        iics_tk       = var.iics_token
+        iics_gn       = var.iics_gn
+        region        = var.region
+        bucket_name   = var.bucket_name
+        tenancy       = data.oci_identity_tenancy.tenancy.name
+        db_name       = var.db_name
     }))
     }
     fault_domain = ""

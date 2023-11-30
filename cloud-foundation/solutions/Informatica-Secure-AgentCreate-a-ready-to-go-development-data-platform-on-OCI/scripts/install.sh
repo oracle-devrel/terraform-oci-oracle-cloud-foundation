@@ -9,17 +9,17 @@ then
 else
   echo "Starting IICS secure agent installation..." >> /opt/agent_setup.log
   cd /opt/infaagent/
-  if [[ ${iics_dc} == "SGP" ]]
+  if [[ ${iics_provider} == "AWS" ]]
   then
-    sed -i s/dm-us/dm-apse/g /opt/infaagent/apps/agentcore/conf/infaagent.ini
-  elif [[ ${iics_dc} == "GER" ]]
-  then
-    sed -i s/dm-us/dm-em/g /opt/infaagent/apps/agentcore/conf/infaagent.ini
-  elif [[ ${iics_dc} == "JPN" ]]
-  then
-    sed -i s/dm-us/dm-ap/g /opt/infaagent/apps/agentcore/conf/infaagent.ini
-  else
     sed -i s/dm-us/dm-us/g /opt/infaagent/apps/agentcore/conf/infaagent.ini
+  elif [[ ${iics_provider} == "Azure" ]]
+  then
+    sed -i s/dm-us/dm1-us/g /opt/infaagent/apps/agentcore/conf/infaagent.ini
+  elif [[ ${iics_provider} == "GCP" ]]
+  then
+    sed -i s/dm-us/dm2-us/g /opt/infaagent/apps/agentcore/conf/infaagent.ini
+  else
+    sed -i s/dm-us/dm3-us/g /opt/infaagent/apps/agentcore/conf/infaagent.ini
   fi
   echo "Starting agent registration..." >> /opt/agent_setup.log
   sed -i s/^InfaAgent.UseToken=.*/InfaAgent.UseToken=true/ /opt/infaagent/apps/agentcore/conf/infaagent.ini

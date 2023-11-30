@@ -36,11 +36,12 @@ variable "private_key_path" {
     default = ""
 }
 
+
 # Autonomous Database Configuration Variables
 
 variable "db_name" {
   type    = string
-  default = "ADWSecureAgent"
+  default = "ADWSecureAgentOCI"
 }
 
 variable "db_password" {
@@ -106,11 +107,12 @@ variable "db_database_management_status" {
   # default = "ENABLED"
 }
 
+
 # Object Storage Variables:
 
 variable "bucket_name" {
   type    = string
-  default = "InformaticaSecure"
+  default = "InformaticaSecureAgentOCI"
 }
 
 variable "bucket_access_type" {
@@ -184,8 +186,8 @@ variable "informatica_instance_shape" {
   default = "VM.Standard2.4" # Example instance shape: VM.Standard2.4
 }
 
-variable "hostname_label" {
-  default = "secureag"
+variable "informatica_secure_agent_display_name" {
+  default = "InformaticaVMOCI"
 }
 
 #  Informatica Intelligent Data Management Cloud Variables 
@@ -205,20 +207,31 @@ variable "iics_gn" {
   default     = ""
 }
 
-variable "iics_dc" {
+variable "iics_provider" {
   description = "The data center location for the deployment. Choose the data center location based on the user details registered in Informatica Intelligent Data Management Cloud"
-  default = "United States of America"
+  default = "Oracle Cloud Infrastructure"
+    # default = "Amazon Web Services"
+    # default = "Microsoft Azure"
+    # default = "Google Cloud"
 }
 
-variable "iics_dc_enum" {
+variable "iics_provider_enum" {
   type = map
   default = {
-    USA  = "United States of America"
-    SGP  = "Singapore"
-    GER  = "Germany"
-    JPN  = "Japan"
+    OCI    = "Oracle Cloud Infrastructure"
+    AWS    = "Amazon Web Services"
+    Azure  = "Microsoft Azure"
+    GCP    = "Google Cloud"
   }
 }
+
+variable "mp_subscription_enabled" {
+  description = "Subscribe to Marketplace listing?"
+  type        = bool
+  //default     = false
+  default     = true
+}
+
 
 # Networking variables
 

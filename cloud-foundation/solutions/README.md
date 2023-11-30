@@ -27,4 +27,3 @@ For the moment we have implemented the following solutions:
 - Deploy-Exadata-Database-Service-with-cross-region-Data-Guard
 - Deploy-Exadata-Database-Service-with-in-region-Data-Guard
 - Deploy-ChatDB-Autonomous-Database-Select-AI-demonstration
-
