@@ -71,7 +71,7 @@ If you don't have the required permissions and quota, contact your tenancy admin
 Now, you'll want a local copy of this repo. You can make that with the commands:
 
     git clone https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation.git
-    cd terraform-oci-oracle-cloud-foundation/cloud-foundation/solutions/Informatica-Secure-Agent–create-a-ready-to-go-development-data-platform-on-OCI
+    cd terraform-oci-oracle-cloud-foundation/cloud-foundation/solutions/Informatica-Secure-AgentCreate-a-ready-to-go-development-data-platform-on-OCI
     ls
 
 ## Deployment
@@ -245,7 +245,7 @@ Below is an example:
 ```
 variable "db_name" {
   type    = string
-  default = "ADWSecureAgent"
+  default = "ADWSecureAgentOCI"
 }
 
 variable "db_password" {
@@ -327,7 +327,7 @@ Below is an example:
 ```
 variable "bucket_name" {
   type    = string
-  default = "InformaticaSecureAgent"
+  default = "InformaticaSecureAgentOCI"
 }
 
 variable "bucket_access_type" {
@@ -369,12 +369,13 @@ The compute module will create the informatica VM's one VM.
 
 * Parameters for the Infromatica Secure Agent VM Configuration
     * __informatica_instance_shape__ - (Required) (Updatable) The shape of an instance. The shape determines the number of CPUs, amount of memory, and other resources allocated to the instance.
-    * __hostname_label__ - Required. The hostname/dns name for the Informatica VM.
+    * __informatica_secure_agent_display_name__ - A user-friendly name. Does not have to be unique, and it's changeable. Avoid entering confidential information.
     * __iics_user__ - Required. The user name to access IDMC.
     * __iics_token__ - Required. Paste the Secure Agent install token that you get from the IDMC Administrator service. To get the install token, perform the following steps: 1. Log in to IDMC. 2. Select Administrator, and then click Runtime Environments. 3. Click Generate Install Token. 4. Click Copy to copy the install token string.
     * __iics_gn__ - Optional. Name of the Secure Agent group.If your account does not contain the group specified or if you do not specify a group name, the Secure Agent is assigned to an unnamed group.
-    * __iics_dc__ - Required. The data center location for the deployment. Choose the data center location based on the user details registered in IDMC.
-    * __iics_dc_enum__ - the available center locations for Informatica.
+    * __iics_provider__ - Required. The Cloud Provider where you have your IDMC account. Choose the cloud provider based on the user details registered in IDMC.
+    * __iics_provider_enum__ - the available cloud providers for Informatica.
+    * __mp_subscription_enabled__ - As the Informatica VM image it's a narketplace image you need to subscribe to it - as the default it's true.
 
 
 # Infromatica Secure Agent VM Configuration
@@ -384,8 +385,8 @@ variable "informatica_instance_shape" {
   default = "VM.Standard2.4" # Example instance shape: VM.Standard2.4
 }
 
-variable "hostname_label" {
-  default = "iopanait-nl" #
+variable "informatica_secure_agent_display_name" {
+  default = "InformaticaVMOCI"
 }
 
 variable "iics_user" {
@@ -403,19 +404,29 @@ variable "iics_gn" {
   default     = "" <enter your group (optional)>
 }
 
-variable "iics_dc" {
+variable "iics_provider" {
   description = "The data center location for the deployment. Choose the data center location based on the user details registered in Informatica Intelligent Data Management Cloud"
-  default = "United States of America"
+  default = "Oracle Cloud Infrastructure"
+    # default = "Amazon Web Services"
+    # default = "Microsoft Azure"
+    # default = "Google Cloud"
 }
 
-variable "iics_dc_enum" {
+variable "iics_provider_enum" {
   type = map
   default = {
-    USA  = "United States of America"
-    SGP  = "Singapore"
-    GER  = "Germany"
-    JPN  = "Japan"
+    OCI    = "Oracle Cloud Infrastructure"
+    AWS    = "Amazon Web Services"
+    Azure  = "Microsoft Azure"
+    GCP    = "Google Cloud"
   }
+}
+
+variable "mp_subscription_enabled" {
+  description = "Subscribe to Marketplace listing?"
+  type        = bool
+  //default     = false
+  default     = true
 }
 ```
 
@@ -487,21 +498,38 @@ __Step #2:__ - You can access the log files at the following locations:
 When the installation and configuration it's done the output will look like the one below.
 
 ```
-[root@securenl ~]# cat /opt/infaagent/apps/agentcore/infaagent.log
+[infa@informaticagcp agentcore]$ cat /opt/infaagent/apps/agentcore/agentcore.log
+2023-11-16 11:27:10,385 GMT  tid="1" tn="main" INFO [com.informatica.runtime.common.util.NetworkUtil] - Determining network interface used for device based encryption
+2023-11-16 11:27:10,782 GMT  tid="1" tn="main" INFO [com.informatica.runtime.common.util.AgentIdUtil] - Successfully created agent_nwid.dat
+2023-11-16 11:27:12,070 GMT  tid="1" tn="main" INFO [com.informatica.saas.infaagent.agentcore.admin.Administrator] - Ignore agentcore packages package-agentcoreupgrade.6713, package-agentcoreupgradefips.6713
+2023-11-16 11:27:12,080 GMT  tid="1" tn="main" INFO [com.informatica.saas.infaagent.agentcore.impls.MainApp] - Regular agent configuration with token
+2023-11-16 11:27:12,095 GMT  tid="1" tn="main" INFO [com.informatica.saas.infaagentv3.agentcore.AgentCorePublisher] - Starting RMI server...
+2023-11-16 11:27:12,129 GMT  tid="1" tn="main" INFO [com.informatica.saas.infaagent.agentcore.impls.MainApp] - Agent Core's RMI started up.
+2023-11-16 11:29:09,985 GMT  tid="25" tn="RMI TCP Connection(2)-127.0.0.1" INFO [com.informatica.saas.infaagent.agentcore.impls.AgentConfiguratorTokenImpl] - Register agent to org 8ee6nPfuGAakd7TjaRFXEh with name informaticagcp
+2023-11-16 11:29:11,743 GMT  tid="25" tn="RMI TCP Connection(2)-127.0.0.1" INFO [com.informatica.runtime.common.security.DeviceEncryption] - Key file required for device based encryption doesn't exists
+2023-11-16 11:29:11,744 GMT  tid="25" tn="RMI TCP Connection(2)-127.0.0.1" INFO [com.informatica.runtime.common.security.DeviceEncryption] - Generating a new key for device based encryption
+2023-11-16 11:29:14,708 GMT  tid="27" tn="LifecycleManagerFactoryDefault-akka.actor.default-dispatcher-2" INFO [com.informatica.saas.lcm.lcmnative.LCMComponents] - \tlcm.app.path = /opt/infaagent/apps
+2023-11-16 11:29:14,708 GMT  tid="27" tn="LifecycleManagerFactoryDefault-akka.actor.default-dispatcher-2" INFO [com.informatica.saas.lcm.lcmnative.LCMComponents] - \tlcm.port.low = 14000
+2023-11-16 11:29:14,708 GMT  tid="27" tn="LifecycleManagerFactoryDefault-akka.actor.default-dispatcher-2" INFO [com.informatica.saas.lcm.lcmnative.LCMComponents] - \tlcm.port.high = 14999
+2023-11-16 11:29:14,709 GMT  tid="27" tn="LifecycleManagerFactoryDefault-akka.actor.default-dispatcher-2" INFO [com.informatica.saas.lcm.lcmnative.LCMComponents] - \tlcm.cache.charset.name = UTF-8
+2023-11-16 11:29:14,709 GMT  tid="27" tn="LifecycleManagerFactoryDefault-akka.actor.default-dispatcher-2" INFO [com.informatica.saas.lcm.lcmnative.LCMComponents] - \tlcm.manifest.threads = 1
+2023-11-16 11:29:14,709 GMT  tid="27" tn="LifecycleManagerFactoryDefault-akka.actor.default-dispatcher-2" INFO [com.informatica.saas.lcm.lcmnative.LCMComponents] - \twait_for_apps_to_stop = false
+2023-11-16 11:29:14,709 GMT  tid="27" tn="LifecycleManagerFactoryDefault-akka.actor.default-dispatcher-2" INFO [com.informatica.saas.lcm.lcmnative.LCMComponents] - \tlcm.temp.dir = /opt/infaagent/apps/agentcore/logs/temp
+
+[infa@informaticagcp agentcore]$ cat /opt/infaagent/apps/agentcore/infaagent.log
 Successfully started up InfaAgent.
 InfaAgent is starting up... Please ensure InfaAgent has come up successfully on the web page.
-63.17
+[2023-11-16T11:27:08+0000]: Starting agent core
+67.13
 /opt/infaagent/apps/agentcore
-SLF4J: Class path contains multiple SLF4J bindings.
-SLF4J: Found binding in [jar:file:/opt/infaagent/apps/agentcore/63.17/org.apache.logging.log4j.log4j-slf4j-impl-2.17.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
-SLF4J: Found binding in [jar:file:/opt/infaagent/apps/agentcore/63.17/org.slf4j.slf4j-log4j12-1.7.21.jar!/org/slf4j/impl/StaticLoggerBinder.class]
-SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
-SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
 ConfigProperties: Loading properties from /opt/infaagent/apps/agentcore/../../apps/agentcore/conf/infaagent.ini
 ConfigProperties: Done loading properties from /opt/infaagent/apps/agentcore/../../apps/agentcore/conf/infaagent.ini
 ConfigProperties: Loading properties from /opt/infaagent/apps/agentcore/../../apps/agentcore/conf/proxy.ini
 ConfigProperties: Done loading properties from /opt/infaagent/apps/agentcore/../../apps/agentcore/conf/proxy.ini
-[root@securenl ~]# cat /opt/agent_setup.log
+[infa@informaticagcp agentcore]$ 
+
+
+[infa@informaticagcp agentcore]$ cat /opt/agent_setup.log
 Starting IICS secure agent installation...
 Starting agent registration...
 Setting Data Center location...
@@ -509,7 +537,7 @@ Adding secure agent to group
 Starting IICS Agent
 Registering IICS Agent
 Execution complete
-[root@securenl ~]# 
+
 [root@securenl ~]# cat /opt/DO_NOT_DELETE_INFA_IICS_SA.txt
 Secure agent installation script completed.
 [root@securenl ~]# 
