@@ -7,7 +7,7 @@ DECLARE
     l_schema_name VARCHAR2(100) := 'MOVIESTREAM';
     l_workspace_usr_pwd VARCHAR2(100) := 'watchS0meMovies#';
 begin
-    admin.workshop.write('install Ask-Oracle', 1);
+    admin.workshop.write('install APEX workspace', 1);
     admin.workshop.write('add workspace as admin', 2);
     apex_instance_admin.add_workspace(
      p_workspace_id   => null,

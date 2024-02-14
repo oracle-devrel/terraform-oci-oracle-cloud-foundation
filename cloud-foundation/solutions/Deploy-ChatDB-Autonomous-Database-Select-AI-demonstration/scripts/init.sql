@@ -24,8 +24,11 @@ begin
         p_schema                => 'MOVIESTREAM',
         p_url_mapping_type      => 'BASE_PATH',
         p_auto_rest_auth        => TRUE   
-    );    
+    ); 
     
+    -- Allow MOVIESTREAM to use the resource principal
+    dbms_cloud_admin.enable_resource_principal(username  => 'MOVIESTREAM');
+
 end;
 /
 
