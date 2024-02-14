@@ -216,7 +216,7 @@ variables:
     description: "Enter your secret API key"
     type: string
     default: null
-    required: true
+    required: false
     visible: true     
   tag:
     title: Pick the datasets to load. 
