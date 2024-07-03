@@ -40,3 +40,13 @@ resource "oci_database_autonomous_database" "adw" {
   operations_insights_status  = each.value.operations_insights_status
   database_management_status  = each.value.database_management_status
 }
+
+terraform {
+  required_providers {
+    oci = {
+      source  = "oracle/oci"
+      version = ">= 5.30.0"
+    }
+  }
+  required_version = ">= 1.5.5"
+}

@@ -28,6 +28,7 @@ resource "oci_core_instance" "instance" {
     source_details {
       source_type = each.value.source_type
       source_id   = each.value.source_id
+      boot_volume_size_in_gbs = each.value.boot_volume_size_in_gbs
     }
 
     metadata = each.value.metadata

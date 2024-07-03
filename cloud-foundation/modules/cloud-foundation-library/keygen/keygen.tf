@@ -40,3 +40,13 @@ resource "tls_self_signed_cert" "demo_cert" {
     "crl_signing",
   ]
 }
+
+terraform {
+  required_providers {
+    oci = {
+      source  = "oracle/oci"
+      version = ">= 5.30.0"
+    }
+  }
+  required_version = ">= 1.5.5"
+}

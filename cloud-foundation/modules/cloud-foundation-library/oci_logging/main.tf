@@ -25,3 +25,13 @@ resource "oci_logging_log" "this" {
   is_enabled         = each.value.is_enabled
   retention_duration = each.value.retention_duration
 }
+
+terraform {
+  required_providers {
+    oci = {
+      source  = "oracle/oci"
+      version = ">= 5.30.0"
+    }
+  }
+  required_version = ">= 1.5.5"
+}

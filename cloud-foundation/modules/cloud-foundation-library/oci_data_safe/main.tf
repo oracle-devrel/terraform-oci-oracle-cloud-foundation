@@ -11,3 +11,13 @@ resource "oci_data_safe_data_safe_private_endpoint" "this" {
     description    = each.value.description
     nsg_ids        = each.value.nsg_ids
 }
+
+terraform {
+  required_providers {
+    oci = {
+      source  = "oracle/oci"
+      version = ">= 5.30.0"
+    }
+  }
+  required_version = ">= 1.5.5"
+}

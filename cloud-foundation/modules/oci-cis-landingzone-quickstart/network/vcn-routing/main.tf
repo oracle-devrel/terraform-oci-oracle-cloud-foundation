@@ -31,3 +31,13 @@ resource "oci_core_route_table_attachment" "these" {
   subnet_id = each.value.subnet_id
   route_table_id = each.key != "" ? oci_core_route_table.these[each.key].id : each.value.route_table_id
 }
+
+terraform {
+  required_providers {
+    oci = {
+      source  = "oracle/oci"
+      version = ">= 5.30.0"
+    }
+  }
+  required_version = ">= 1.5.5"
+}

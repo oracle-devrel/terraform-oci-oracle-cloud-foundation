@@ -8,3 +8,13 @@ resource  "oci_identity_policy" "these" {
       description    = each.value.description
       statements     = each.value.statements 
 }
+
+terraform {
+  required_providers {
+    oci = {
+      source  = "oracle/oci"
+      version = ">= 5.30.0"
+    }
+  }
+  required_version = ">= 1.5.5"
+}
