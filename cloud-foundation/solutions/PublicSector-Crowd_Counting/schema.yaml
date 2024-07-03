@@ -1,0 +1,480 @@
+# Copyright © 2024, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+title: "Create the PublicSector-Crowd_Counting-RM solution"
+stackDescription: "Use this solution to launch the PublicSector-Crowd_Counting-RM solution"
+schemaVersion: 1.1.0
+version: "20240612"
+locale: "en"
+groupings:
+  - title: "General Settings"
+    visible: true
+    variables:
+      - tenancy_ocid
+      - region
+      - compartment_id
+      - ociPrivateKeyWrapped
+      - user_ocid
+      - fingerprint
+      - Authorization_Token
+  - title: "Autonomous Database Configuration"
+    variables:
+      - db_name
+      - db_is_free_tier
+      - db_license_model
+      - db_password
+      - db_version
+      - db_size_in_tbs
+      - db_enable_auto_scaling
+      - db_compute_model
+      - db_compute_count
+      - db_workload
+      - db_data_safe_status
+      - db_operations_insights_status
+      - db_database_management_status
+      - llmpw
+  - title: "Oracle Analytics Cloud Configuration"
+    variables:
+      - Oracle_Analytics_Instance_Name
+      - analytics_instance_feature_set
+      - analytics_instance_license_type
+      - analytics_instance_idcs_access_token
+      - analytics_instance_capacity_capacity_type
+      - analytics_instance_capacity_value
+  - title: "Object Storage"
+    variables:
+      - bucket_name
+      - bucket_access_type
+      - bucket_storage_tier
+      - bucket_events_enabled
+  - title: "UI Data Server Details"
+    variables:
+      - ui_data_server_display_name
+      - ui_data_server_shape
+  - title: "Network Configuration"
+    variables:
+      - vcn_cidr
+      - public_subnet_cidr
+      - private_subnet_cidr
+      - show_advanced_options
+  - title: "Hidden Variables"
+    visible: false
+    variables:
+      - private_key_path
+      - ui_data_server
+# General Configuration Variables
+variables:
+  tenancy_ocid:
+    title: Tenancy ID
+    description: The Oracle Cloud Identifier (OCID) for your tenancy.
+    type: string
+    required: true
+    visible: false
+  compartment_id:
+    title: Stack Compartment
+    description: Choose the compartment where all resources will be provisioned.
+    type: oci:identity:compartment:id
+    required: true
+    visible: true
+  region:
+    title: Region
+    description: Select Region where all resources will be created.
+    type: oci:identity:region:name
+    required: true
+    visible: true
+  user_ocid:
+    title: "The User Ocid of your username"
+    type: string
+    default: "copy-paste User Ocid of your username"
+    description: Enter The OCID of your user for example ocid1.user.oc1..aaaaaaaa4bjez27pyslznrrk5g24yiev24ld3ketha6tqj36f34lbbaddhib
+    required: true
+    visible: true
+  fingerprint:
+    title: Your fingerprint of your user
+    type: string
+    default: "copy-paste fingerprint Ocid of your username"
+    description: Enter Your fingerprint of your user for Example 12:1d:7d:18:6d:a7:e3:fc:17:4c:30:a9:44:65:7d:12
+    required: true
+    visible: true
+  ociPrivateKeyWrapped:
+    title: The OCI ociPrivateKeyWrapped
+    type: string
+    default: "copy-paste your oci PrivateKey Wrapped"
+    description: "You must pass this signing key in the payload for some snapshot APIs. Before you add it to the payload, you must Base64 encode the private key (ociPrivateKeyWrapped). For example, to generate a Base64 encoded string from your private key: / On Mac: cat myprivate-key.pem | base64 -o mywrapped-private-key.pem / On Linux: cat myprivate-key.pem | base64 -w 0 > mywrapped-private-key.pem / Note: Ensure that the private key file that you encode includes -----BEGIN and -----END tags."
+    required: true
+    visible: true
+  Authorization_Token:
+    title: Authorization_Token
+    type: string
+    default: ""
+    description: Authorization_Token
+    required: false
+    visible: false
+# Autonomous Database Configuration Variables
+  db_name:
+    title: Database Name
+    description: "Provide Database name. Constraints: 12 alphanumeric characters only. No Spaces."
+    required: true
+    type: string
+    maxLength: 30
+  db_is_free_tier:
+    title: Do do want a always Free Oracle Autonomous Database instance?
+    description: "Provision Always Free Oracle Autonomous Database instance (1 OCPU 20 GB Storage)?"
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true
+  db_license_model:
+    title: "Provision Paid Oracle Autonomous Database instance (2 OCPU 1 TB Storage) - License Included or BYOL?"
+    description: "Note: This configuration can be changed later from the OCI console."
+    type: enum
+    enum:
+      - LICENSE_INCLUDED
+      - BRING_YOUR_OWN_LICENSE
+    default: "BRING_YOUR_OWN_LICENSE"
+    required: true
+    visible:
+      eq:
+        - db_is_free_tier
+        - false
+  db_password:
+    title: Database Admin Password
+    description: "Provide admin password. Constraints: 12 - 30 characters. At least one uppercase letter, one lowercase letter, and one number. No special characters."
+    type: password
+    required: true
+    confirmation: true
+    pattern: ((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[%!@^&)(]).{12,20})
+  db_version:
+    title: "A valid Oracle Database version for Autonomous Database"
+    description: "A valid Oracle Database version for Autonomous Database"
+    type: enum
+    enum:
+      - "19c"
+    default: "19c"
+    required: true
+    visible: true
+  db_size_in_tbs:
+    title: "The quantity of data in the database, in terabytes."
+    description: "The quantity of data in the database, in terabytes."
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 4
+      - 6
+      - 8
+      - 10
+      - 12
+      - 16
+      - 24
+      - 36
+      - 52
+      - 128
+    default: 1
+    visible: true
+    required: true
+  db_enable_auto_scaling:
+    title: Indicates if auto scaling is enabled for the Autonomous Database CPU core count. 
+    description: "Indicates if auto scaling is enabled for the Autonomous Database CPU core count. "
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true   
+  db_compute_model:
+    title: "The compute model of the Autonomous Database ECPUs"
+    description: "The compute model of the Autonomous Database ECPUs"
+    type: enum
+    enum:
+      - "ECPU"
+    default: "ECPU"
+    required: true
+    visible:
+      eq:
+        - db_is_free_tier
+        - false
+  db_compute_count:
+    title: The number of ECPUs cores to be made available to the database 
+    description: "The number of ECPU cores to enable. For ECPUs count needs to be minimum 2 and maximum 512 ECPUs"
+    type: string
+    default: 4
+    required: true
+    visible:
+      eq:
+        - db_is_free_tier
+        - false
+  db_workload:
+    title: Autonomous Database Type of workload. 
+    description: "Autonomous Database Type of workload."
+    type: enum
+    enum:
+      - "DW"
+      - "OLTP"
+    default: "DW"
+    required: true
+    visible: true
+  db_data_safe_status:
+    title: "Status of the Data Safe registration for this Autonomous Database"
+    description: "Status of the Data Safe registration for this Autonomous Database. Could be REGISTERED or NOT_REGISTERED."
+    type: enum
+    enum:
+      - "NOT_REGISTERED"
+      - "REGISTERED"
+    default: "NOT_REGISTERED"
+    required: true
+    visible: true 
+  db_database_management_status:
+    title: "Status of Database Management for this Autonomous Database"
+    description: "Status of Database Management for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED"
+    type: enum
+    enum:
+      - "NOT_ENABLED"
+      - "ENABLED"
+    default: "NOT_ENABLED"
+    required: true
+    visible: true 
+  db_operations_insights_status:
+    title: "Status of Operations Insights for this Autonomous Database"
+    description: "Status of Operations Insights for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED"
+    type: enum
+    enum:
+      - "NOT_ENABLED"
+      - "ENABLED"
+    default: "NOT_ENABLED"
+    required: true
+    visible: true
+  llmpw:
+    title: LLM token provided by your openai account
+    description: "Provide the LLM token provided by your openai account"
+    required: false
+    type: string
+# Oracle Analytics Cloud Configuration
+  Oracle_Analytics_Instance_Name:
+    title: Analytics Instance Name
+    description: "Enter a unique name for this instance. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    maxLength: 30
+    default: "Crowdcount"
+    required: true
+    visible: true
+  analytics_instance_feature_set:
+    title: Analytics Instance Type
+    description: Choose the Analytics Product Type.
+    type: enum
+    enum:
+      - SELF_SERVICE_ANALYTICS
+      - ENTERPRISE_ANALYTICS
+    default: "ENTERPRISE_ANALYTICS"
+    visible: create_analytics_instance
+    required: true
+  analytics_instance_license_type:
+    title: Analytics License
+    description: Choose your Oracle Analytics Cloud License Type.
+    type: enum
+    enum:
+      - LICENSE_INCLUDED
+      - BRING_YOUR_OWN_LICENSE
+    default: LICENSE_INCLUDED
+    visible: true
+    required: true
+  analytics_instance_idcs_access_token:
+    title: IDCS Access Token
+    description: Provide IDCS Access token. See Pre-req section in the Installation Document.
+    type: string
+    default: "copy-paste your token instead"
+    visible: true
+    required: true
+  analytics_instance_capacity_capacity_type:
+    title: Analytics Instance Capacity Type
+    description: The capacity value selected (OLPU count, number of users, …etc…). This parameter affects the number of CPUs, amount of memory or other resources allocated to the instance. 
+    type: enum
+    enum:
+      - "OLPU_COUNT"
+      - "USERS_COUNT"
+    default: "OLPU_COUNT"
+    visible: true
+    required: true
+  analytics_instance_capacity_value:
+    title: Analytics Instance Capacity
+    description: Provide the number of OCPUs for the Oracle Analytics Instance.
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 4
+      - 6
+      - 8
+      - 10
+      - 12
+      - 16
+      - 24
+      - 36
+      - 52
+    default: "1"
+    visible: true
+    required: true
+# Object Storage Configuration  
+  bucket_name:
+    title: Object Storage Bucket Name
+    description: "Enter a unique name for this object storage bucket. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    maxLength: 30
+    default: "CrowdCounting"
+    required: true
+    visible: true
+  bucket_access_type:
+    title: Object Storage Access Type
+    description: "Select the Access Type of the bucket."
+    type: enum
+    enum:
+      - NoPublicAccess
+      - ObjectReadWithoutList
+      - ObjectRead
+    default: "NoPublicAccess"
+    required: true
+    visible: true
+  bucket_storage_tier:
+    title: Object Storage Bucket Name
+    description: "Select the storage Tier of the bucket."
+    type: enum
+    enum:
+      - Standard
+      - Archive
+    default: "Standard"
+    required: true
+    visible: true
+  bucket_events_enabled:
+    title: Indicates if bucket events are enabled or not. 
+    description: "Indicates if bucket events are enabled or not "
+    type: enum
+    enum:
+      - "true"
+      - "false"
+    default: "false"
+    required: true
+    visible: true
+# "UI Data Server Configuration"
+  ui_data_server_display_name:
+    title: UI Data Server  Display Name
+    description: "Enter a name for thhe UI Data Server VM. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    default:  "CrowdCountServerIP"
+    required: true
+    visible: true
+  ui_data_server_shape:
+    title: Provide the shape for UI Data Server VM
+    description: "Provide the shape for UI Data Server VM"
+    type: oci:core:instanceshape:name
+    default: "VM.Standard2.8"
+    required: true
+    visible: true
+    dependsOn:
+      compartmentId: ${compartment_id}
+# Network Configuration
+  vcn_cidr:
+    visible: 
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.0.0/16"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: VCN Network CIDR
+    required: true
+    description: The CIDR to assign to the new Virtual Cloud Network (VCN) to create for this service. This field is not required if you want to use an existing VCN. When using VCN peering ensure that the VCNs being peered have non-overlapping CIDR blocks.
+  public_subnet_cidr:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.0.0/24"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Public Subnet CIDR
+    description: "The CIDR of the new public subnet." 
+  private_subnet_cidr:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.1.0/24"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Private Subnet CIDR
+    description: "The CIDR of the new private subnet."
+  show_advanced_options:
+    title: Show Advanced Options
+    description: Enable advanced options for network.
+    type: boolean
+    default: false
+    visible: true
+outputs:
+  ADW_Database_db_connection:
+    type: string
+    title: ADW_Database_db_connection
+  Adb_ip:
+    type: string
+    title: Adb_ip
+  Database_Actions:
+    type: link
+    title: url
+  graph_studio_url:
+    type: link
+    title: graph_studio_url
+  machine_learning_user_management_url:
+    type: link
+    title: machine_learning_user_management_url
+  database_fully_qualified_name:
+    type: string
+    title: database_fully_qualified_name
+  ADW_LOGIN:
+    type: string
+    title: ADW LOGIN DETAILS
+  Analytics_URL:
+    type: string
+    title: Analytics URL
+  Buckets:
+    type: string
+    title: Buckets
+  ui_data_server_compute_linux_instances:
+    type: string
+    title: UI Data Server Compute Instance
+  ui_data_server_all_private_ips:
+    type: string
+    title: UI Data Server Compute Private IP
+  ui_data_server_public_ip:
+    type: string
+    title: UI Data Server Compute Public IP
+  Connect-to-Crowdcount-AI-Server-Crowd_Counting_Demo_with_Pre-Captured_Video:
+    type: string
+    title: "* Open a browser and connect to : `http://<ui_data_server_public_ip>:5000"
+  Connect-to-Crowdcount-AI-Server-Crowd_Monitoring_Demo_with_IP_Camera_and_Autonomous-DB:
+    type: string
+    title: "* Open a browser and connect to : `http://<ui_data_server_public_ip>:5001 ; and wait for a couple of minutes so the AI will count the people from the cameras and will inject the data inside the database. For more information what to do next and how to use select AI please refer to the readme.md file."
+  generated_ssh_private_key_for_bastion:
+    type: string
+    title: Generated Ssh Private Key for Bastion
+outputGroups:
+  - title: Application
+    outputs:
+      - ADW_Database_db_connection
+      - Adb_ip
+      - Database_Actions
+      - graph_studio_url
+      - machine_learning_user_management_url
+      - database_fully_qualified_name
+      - ADW_LOGIN
+      - Analytics_URL
+      - Buckets
+      - ui_data_server_compute_linux_instances
+      - ui_data_server_all_private_ips
+      - ui_data_server_public_ip
+      - Connect-to-Crowdcount-AI-Server
+      - generated_ssh_private_key_for_bastion
+      - Connect-to-Crowdcount-AI-Server-Crowd_Counting_Demo_with_Pre-Captured_Video
+      - Connect-to-Crowdcount-AI-Server-Crowd_Monitoring_Demo_with_IP_Camera_and_Autonomous-DB
+

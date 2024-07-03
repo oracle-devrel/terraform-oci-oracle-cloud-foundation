@@ -35,3 +35,13 @@ resource "oci_bastion_session" "these" {
 
   display_name = each.value.display_name
 }
+
+terraform {
+  required_providers {
+    oci = {
+      source  = "oracle/oci"
+      version = ">= 5.30.0"
+    }
+  }
+  required_version = ">= 1.5.5"
+}

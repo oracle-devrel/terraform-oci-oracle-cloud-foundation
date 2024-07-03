@@ -92,3 +92,13 @@ resource "oci_core_subnet" "these" {
     defined_tags                = each.value.defined_tags
     freeform_tags               = each.value.freeform_tags
 }
+
+terraform {
+  required_providers {
+    oci = {
+      source  = "oracle/oci"
+      version = ">= 5.30.0"
+    }
+  }
+  required_version = ">= 1.5.5"
+}

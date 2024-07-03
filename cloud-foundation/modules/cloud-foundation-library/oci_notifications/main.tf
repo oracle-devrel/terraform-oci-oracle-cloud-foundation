@@ -15,3 +15,13 @@ resource "oci_ons_subscription" "this" {
   protocol       = each.value.protocol
   topic_id       = oci_ons_notification_topic.this[each.value.topic_name].id
 }
+
+terraform {
+  required_providers {
+    oci = {
+      source  = "oracle/oci"
+      version = ">= 5.30.0"
+    }
+  }
+  required_version = ">= 1.5.5"
+}

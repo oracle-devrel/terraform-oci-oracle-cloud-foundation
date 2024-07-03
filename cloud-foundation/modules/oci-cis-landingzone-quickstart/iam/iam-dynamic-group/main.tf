@@ -14,3 +14,13 @@ resource "oci_identity_dynamic_group" "these" {
   # defined_tags = each.defined_tags
   # freeform_tags = each.freeform_tags
 }
+
+terraform {
+  required_providers {
+    oci = {
+      source  = "oracle/oci"
+      version = ">= 5.30.0"
+    }
+  }
+  required_version = ">= 1.5.5"
+}
