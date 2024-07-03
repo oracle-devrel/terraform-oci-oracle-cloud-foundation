@@ -1,0 +1,1 @@
+impdp admin/${db_password}@${db_name}_high directory=data_pump_dir credential=def_cred_name dumpfile= https://objectstorage.us-ashburn-1.oraclecloud.com/p/ik3Htc9z7y8trQKZp-Vq_mQoNIeR9irJtE-GzO-S3w6ElcVyGI-ZaYJgmTMqwnom/n/oradbclouducm/b/DataModelsTelco/o/LISA_JONES_25th_Aug_2022.dmp parallel=16 encryption_pwd_prompt=no exclude=cluster,indextype,db_link

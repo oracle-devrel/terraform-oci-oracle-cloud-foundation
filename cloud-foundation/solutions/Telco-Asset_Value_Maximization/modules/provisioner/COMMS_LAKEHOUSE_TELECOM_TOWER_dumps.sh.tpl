@@ -1,0 +1,1 @@
+impdp admin/${db_password}@${db_name}_high directory=data_pump_dir credential=def_cred_name dumpfile= https://objectstorage.us-ashburn-1.oraclecloud.com/p/9Htb-Ow20G0IbIv1DocvOepScBD-uFlxbK0c5rK0cjddM9xgJQIus_q9Xqa4J9If/n/oradbclouducm/b/DataModelsTelco/o/COMMS_LAKEHOUSE_TELECOM_TOWER_25th_Aug_2022.dmp parallel=16 encryption_pwd_prompt=no exclude=cluster,indextype,db_link
