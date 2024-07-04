@@ -996,7 +996,7 @@ SQL> select count(*) from personcount;
 
 
 ## <a name="team"></a>The Team
-- **Owners**: [Panaitescu Ionel](https://github.com/ionelpanaitescu) 
+- **Owners**: [Panaitescu Ionel](https://github.com/ionelpanaitescu) , [Tetsuo Ichikawa](https://github.com/t-ichika) and [Oracle Solution Center](https://www.oracle.com/corporate/osc/)
 
 ## <a name="feedback"></a>Feedback
 We welcome your feedback. To post feedback, submit feature ideas or report bugs, please use the Issues section on this repository.	
