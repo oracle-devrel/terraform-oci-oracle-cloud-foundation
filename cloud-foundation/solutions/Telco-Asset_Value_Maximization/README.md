@@ -1,4 +1,4 @@
-# Oracle Cloud Foundation Terraform Solution - Deploy Telco Asset Value Maximization - Data Driven, Business-like Management of Tower - Platform to enable Maximizing Fixed Asset Returns to increase - Monetization, Shareholder Value and Operational Effectiveness
+# Oracle Cloud Foundation Terraform Solution - Deploy Telco Fixed Asset Value Maximization
 
 ## Table of Contents
 1. [Overview](#overview)
@@ -1236,7 +1236,8 @@ select * from COMMS_LAKEHOUSE_TELECOM_TOWER_HIVE.BLACKSPOTS_HIVE  limit 2;
 
 
 ## <a name="team"></a>The Team
-- **Owners**: [Panaitescu Ionel](https://github.com/ionelpanaitescu) 
+- **Owners**: [Panaitescu Ionel](https://github.com/ionelpanaitescu) , [Deepak Mishra](https://github.com/DeepakMishra1108)
+
 
 ## <a name="feedback"></a>Feedback
 We welcome your feedback. To post feedback, submit feature ideas or report bugs, please use the Issues section on this repository.	
