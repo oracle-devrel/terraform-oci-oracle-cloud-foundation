@@ -2,7 +2,18 @@
 
 
 ## <a name="Solutions"></a>Overview
-For the moment we have implemented the following solutions:
+Solutions implemented:
+
+DEMOS and AI:
+
+- Telco-Asset_Value_Maximization - Data in Industry - VERTICAL DEMO - (https://mysites.oracle.com/db-outbound/ai-and-ml---the-art-of-possible/ai-and-ml-demos-and-examples.html)
+- PublicSector-Crowd_Counting - Data in Industry - VERTICAL DEMO - (https://mysites.oracle.com/db-outbound/ai-and-ml---the-art-of-possible/ai-and-ml-demos-and-examples.html)
+ - OracleDataModel-Manufacturing -  Data in Industry - VERTICAL DEMO - (https://mysites.oracle.com/Data-In-Industry/)
+- Deploy-ChatDB-Autonomous-Database-Select-AI-demonstration  
+- Deploy-ChatDB-Autonomous-Database-oci-genai-demonstration
+
+Architecture Center:
+
 - Data platform - data lakehouse
 - Data platform - departmental data warehouse for line of business (LOB)
 - Data platform - data warehouse with e-business integration
@@ -19,11 +30,17 @@ For the moment we have implemented the following solutions:
 - Machine learning platform on Autonomous Data Warehouse
 - Modern data warehousing a polyglot integration example
 - ATP Deployment
+- S3_tfstate_backend_cloud_foundation_automation
+- Sam-Workbench
+
+
+Exadata:
+
+- Deploy-Exadata-Database-Service-with-cross-region-Data-Guard
+- Deploy-Exadata-Database-Service-with-in-region-Data-Guard
+
+
+Monitoring:
 - OCI-Observability-Solution-Level1
 - OCI-Observability-Solution-Level2
 - OCI-Observability-Hybrid-Configurations-monitoring-on-prem-DBs-from-the-cloud
-- S3_tfstate_backend_cloud_foundation_automation
-- Sam-Workbench
-- Deploy-Exadata-Database-Service-with-cross-region-Data-Guard
-- Deploy-Exadata-Database-Service-with-in-region-Data-Guard
-- Deploy-ChatDB-Autonomous-Database-Select-AI-demonstration  
