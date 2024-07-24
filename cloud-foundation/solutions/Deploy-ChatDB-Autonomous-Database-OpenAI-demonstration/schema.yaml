@@ -1,4 +1,4 @@
-# Copyright © 2024, Oracle and/or its affiliates.
+# Copyright © 2023, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 title: "Deploy ChatDB - Autonomous Database Select AI demonstration"
@@ -31,6 +31,7 @@ groupings:
       - db_database_management_status
   - title: "Workshop Settings"
     variables:
+      - llm_secret
       - tag
       - run_post_load_procedures
   - title: "Hidden Variables"
@@ -109,7 +110,6 @@ variables:
     type: enum
     enum:
       - "19c"
-      - "23ai"
     default: "19c"
     required: true
     visible: true
@@ -211,6 +211,13 @@ variables:
     required: true
     visible: true  
 # Workshop Settings
+  llm_secret:
+    title: Secret API key used to connect to AI model 
+    description: "Enter your secret API key"
+    type: string
+    default: null
+    required: false
+    visible: true     
   tag:
     title: Pick the datasets to load. 
     description: "Pick one from below"

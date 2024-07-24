@@ -77,7 +77,7 @@ If you don't have the required permissions and quota, contact your tenancy admin
 
 # <a name="Deploy-Using-Oracle-Resource-Manager"></a>Deploy Using Oracle Resource Manager
 
-1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation/releases/download/v1.0.0/Deploy-ChatDB-Autonomous-Database-Select-AI-demonstration-RM.zip)
+1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation/releases/download/v1.0.0/Deploy-ChatDB-Autonomous-Database-OpenAI-demonstration-RM.zip)
 
 
     If you aren't already signed in, when prompted, enter the tenancy and user credentials.
@@ -396,6 +396,7 @@ The ADW subsystem / module is able to create ADW/ATP databases.
 The Workshop Settings are:
 
 * Parameters:    
+    * __llm_secret__ - Secret API key used to connect to AI model
     * __tag__ - Pick the datasets to load. The default is gen-ai to start the graph lab.
     * __run_post_load_procedures__ - Run procedures after loading data
 
@@ -473,6 +474,11 @@ variable "db_database_management_status" {
 }
 
 # Workshop Settings
+
+variable "llm_secret" {
+  type    = string
+  default = "null"
+}
 
 variable "tag" {
   type    = string

@@ -44,16 +44,17 @@ begin
     
     -- Chat
     dbms_cloud_ai.drop_profile(
-        profile_name => 'genai',
+        profile_name => 'openai_gpt35',
         force => true
         );
 
     dbms_cloud_ai.create_profile(
-        profile_name => 'genai',
+        profile_name => 'openai_gpt35',
         attributes =>       
-            '{"provider": "oci",
-            "credential_name": "OCI$RESOURCE_PRINCIPAL",
-            "comments":"true",            
+            '{"provider": "openai",
+            "credential_name": "OPENAI_CRED",
+            "comments":"true",
+            "temperature":0.2,
             "object_list": [
                 {"owner": "MOVIESTREAM", "name": "GENRE"},
                 {"owner": "MOVIESTREAM", "name": "CUSTOMER"},
@@ -64,6 +65,22 @@ begin
             ]
             }'
         );
+
+    admin.workshop.write('Setup GenAI projects AI profile', 2);
+    
+    -- GenAI projects
+    dbms_cloud_ai.drop_profile(
+        profile_name => 'genai',
+        force => true
+        );
+
+    dbms_cloud_ai.create_profile(
+        profile_name => 'genai',
+        attributes =>       
+            '{"provider": "oci",
+            "credential_name": "OCI$RESOURCE_PRINCIPAL"
+            }'
+        );        
         
 end;
 /

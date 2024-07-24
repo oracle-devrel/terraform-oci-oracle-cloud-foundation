@@ -31,6 +31,6 @@ depends_on = [module.adb]
 }
 
 resource "local_file" "this" {
-  content  = templatefile("./scripts/tables.sql.tmpl", { tag = var.tag, run_post_load_procedures = var.run_post_load_procedures })
+  content  = templatefile("./scripts/tables.sql.tmpl", { tag = var.tag, run_post_load_procedures = var.run_post_load_procedures, llm_secret = var.llm_secret  })
   filename = "./tables.sql"
 }

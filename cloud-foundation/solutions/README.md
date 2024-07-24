@@ -3,6 +3,12 @@
 
 ## <a name="Solutions"></a>Overview
 For the moment we have implemented the following solutions:
+
+- Telco-Asset_Value_Maximization - Data in Industry - VERTICAL DEMO - (https://mysites.oracle.com/db-outbound/ai-and-ml---the-art-of-possible/ai-and-ml-demos-and-examples.html)
+- PublicSector-Crowd_Counting - Data in Industry - VERTICAL DEMO - (https://mysites.oracle.com/db-outbound/ai-and-ml---the-art-of-possible/ai-and-ml-demos-and-examples.html)
+- Utilities - Vegetation Management - IN PROGRESS ! Data in Industry - VERTICAL DEMO - (https://mysites.oracle.com/db-outbound/ai-and-ml---the-art-of-possible/ai-and-ml-demos-and-examples.html)
+- OracleDataModel-Manufacturing - Data in Industry - VERTICAL DEMO - (https://mysites.oracle.com/Data-In-Industry/)
+
 - Data platform - data lakehouse
 - Data platform - departmental data warehouse for line of business (LOB)
 - Data platform - data warehouse with e-business integration
@@ -27,3 +33,5 @@ For the moment we have implemented the following solutions:
 - Deploy-Exadata-Database-Service-with-cross-region-Data-Guard
 - Deploy-Exadata-Database-Service-with-in-region-Data-Guard
 - Deploy-ChatDB-Autonomous-Database-Select-AI-demonstration
+- Deploy-ChatDB-Autonomous-Database-OpenAI-demonstration
+

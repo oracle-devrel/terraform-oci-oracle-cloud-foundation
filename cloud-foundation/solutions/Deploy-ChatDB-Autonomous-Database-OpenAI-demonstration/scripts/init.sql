@@ -1,4 +1,4 @@
--- **Copyright © 2024, Oracle and/or its affiliates.
+-- **Copyright © 2023, Oracle and/or its affiliates.
 -- **All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 
@@ -30,5 +30,18 @@ begin
     dbms_cloud_admin.enable_resource_principal(username  => 'MOVIESTREAM');
 
 end;
+/
+
+-- Open up access to openai for moviestream user
+BEGIN
+ DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE (
+  host         => 'api.openai.com',
+  lower_port   => 443,
+  upper_port   => 443,
+  ace          => xs$ace_type(
+      privilege_list => xs$name_list('http'),
+      principal_name => 'MOVIESTREAM',
+      principal_type => xs_acl.ptype_db));
+END;
 /
 
