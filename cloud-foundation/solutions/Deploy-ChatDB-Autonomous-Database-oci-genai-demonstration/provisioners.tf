@@ -8,8 +8,8 @@ resource "null_resource" "sqlcl-create-usr" {
 
                 echo 'Download the apex applications'
                 chmod 777 ./scripts/
-                wget https://objectstorage.us-ashburn-1.oraclecloud.com/p/JnW5Gl5btrPK_vx66MqWktIB_GKmdEkosRDcehPvc5hTGheJdD41pq2PmsBbdUUU/n/c4u04/b/building_blocks_utilities/o/select-ai-apex-demo/f101.sql -P ./scripts/
-                wget https://objectstorage.us-ashburn-1.oraclecloud.com/p/JnW5Gl5btrPK_vx66MqWktIB_GKmdEkosRDcehPvc5hTGheJdD41pq2PmsBbdUUU/n/c4u04/b/building_blocks_utilities/o/select-ai-apex-demo/f100-genai-project.sql -P ./scripts/
+                wget https://objectstorage.us-ashburn-1.oraclecloud.com/p/6Oy9O8JVmddTzPQ8PsavtpzByQhjo4jGP1mRC3MK3o7QE7vGXKb8573-6etTdGUy/n/c4u04/b/building_blocks_utilities/o/select-ai-apex-demo/f101.sql -P ./scripts/
+                wget https://objectstorage.us-ashburn-1.oraclecloud.com/p/6Oy9O8JVmddTzPQ8PsavtpzByQhjo4jGP1mRC3MK3o7QE7vGXKb8573-6etTdGUy/n/c4u04/b/building_blocks_utilities/o/select-ai-apex-demo/f100-genai-project.sql -P ./scripts/
 
                 # install the data
       
