@@ -9,6 +9,7 @@ Solutions implemented:
 
 ***Live Lab & Demos Automation using AI and ML:*** 
 
+- easyRAG-IN-A-BOX
 - Telco-Asset_Value_Maximization - Data in Industry - VERTICAL DEMO - (https://mysites.oracle.com/db-outbound/ai-and-ml---the-art-of-possible/ai-and-ml-demos-and-examples.html)
 - PublicSector-Crowd_Counting - Data in Industry - VERTICAL DEMO - (https://mysites.oracle.com/db-outbound/ai-and-ml---the-art-of-possible/ai-and-ml-demos-and-examples.html)
  - OracleDataModel-Manufacturing -  Data in Industry - VERTICAL DEMO - (https://mysites.oracle.com/Data-In-Industry/)
