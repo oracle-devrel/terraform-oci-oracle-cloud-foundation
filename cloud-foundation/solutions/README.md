@@ -6,13 +6,18 @@
 
 Solutions implemented:
 
+***Retrieval Augmented Generation (RAG) in a box, essentially allows to create a fully functional RAG system that reads any number of files hosted on a bucket and allow natural language queries on that content.***
+
+- RAG-in-a-Box-Easy
+- RAG-in-a-Box-Vector
+- RAG-in-a-Box-Hybrid
+
 
 ***Live Lab & Demos Automation using AI and ML:*** 
 
-- easyRAG-IN-A-BOX
-- Telco-Asset_Value_Maximization - Data in Industry - VERTICAL DEMO - (https://mysites.oracle.com/db-outbound/ai-and-ml---the-art-of-possible/ai-and-ml-demos-and-examples.html)
-- PublicSector-Crowd_Counting - Data in Industry - VERTICAL DEMO - (https://mysites.oracle.com/db-outbound/ai-and-ml---the-art-of-possible/ai-and-ml-demos-and-examples.html)
- - OracleDataModel-Manufacturing -  Data in Industry - VERTICAL DEMO - (https://mysites.oracle.com/Data-In-Industry/)
+- Telco-Asset_Value_Maximization - Data in Industry - VERTICAL DEMO - (https://oracle.sharepoint.com/db-outbound/ai-and-ml---the-art-of-possible/ai-and-ml-demos-and-examples)
+- PublicSector-Crowd_Counting - Data in Industry - VERTICAL DEMO - (https://oracle.sharepoint.com/db-outbound/ai-and-ml---the-art-of-possible/)
+- OracleDataModel-Manufacturing -  Data in Industry - VERTICAL DEMO - (https://oracle.sharepoint.com/sites/data-in-industry/)
 - Deploy-ChatDB-Autonomous-Database-***Select-AI***-demonstration  
 - Deploy-ChatDB-Autonomous-Database-***oci-genai***-demonstration
 - Oracle-MovieStream - Full LiveLab
