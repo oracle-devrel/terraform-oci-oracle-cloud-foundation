@@ -13,12 +13,12 @@ variable "tenancy_ocid" {
 
 variable "region" {
     type = string
-    # default = ""
+    default = ""
 }
 
 variable "compartment_id" {
   type = string
-  # default = ""
+  default = ""
 }
 
 variable "user_ocid" {
@@ -35,6 +35,7 @@ variable "private_key_path" {
     type = string
     default = ""
 }
+
 
 # ADW Database Variables:
 
@@ -55,7 +56,7 @@ variable "db_compute_model" {
 
 variable "db_compute_count" {
   type = number
-  default = 4
+  default = 2
 }
 
 variable "db_size_in_tbs" {
@@ -70,7 +71,7 @@ variable "db_workload" {
 
 variable "db_version" {
   type = string
-  default = "19c"
+  default = "23ai"
 }
 
 variable "db_enable_auto_scaling" {
@@ -85,7 +86,7 @@ variable "db_is_free_tier" {
 
 variable "db_license_model" {
   type = string
-  default = "LICENSE_INCLUDED"
+  default = "BRING_YOUR_OWN_LICENSE"
 }
 
 variable "db_data_safe_status" {

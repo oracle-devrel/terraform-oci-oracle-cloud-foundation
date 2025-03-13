@@ -1,4 +1,4 @@
-# Copyright © 2023, Oracle and/or its affiliates.
+# Copyright © 2025, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 title: "Deploy ChatDB - Autonomous Database Select AI demonstration"
@@ -91,7 +91,7 @@ variables:
     enum:
       - LICENSE_INCLUDED
       - BRING_YOUR_OWN_LICENSE
-    default: LICENSE_INCLUDED
+    default: BRING_YOUR_OWN_LICENSE
     required: true
     visible:
       eq:
@@ -109,8 +109,8 @@ variables:
     description: "A valid Oracle Database version for Autonomous Database"
     type: enum
     enum:
-      - "19c"
-    default: "19c"
+      - "23ai"
+    default: "23ai"
     required: true
     visible: true
   db_size_in_tbs:
@@ -165,7 +165,7 @@ variables:
     title: The number of ECPUs cores to be made available to the database 
     description: "The number of ECPU cores to enable. For ECPUs count needs to be minimum 2 and maximum 512 ECPUs"
     type: string
-    default: 4
+    default: 2
     required: true
     visible:
       eq:
