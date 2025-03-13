@@ -90,7 +90,7 @@ variables:
     enum:
       - LICENSE_INCLUDED
       - BRING_YOUR_OWN_LICENSE
-    default: LICENSE_INCLUDED
+    default: BRING_YOUR_OWN_LICENSE
     required: true
     visible:
       eq:
@@ -108,9 +108,8 @@ variables:
     description: "A valid Oracle Database version for Autonomous Database"
     type: enum
     enum:
-      - "19c"
       - "23ai"
-    default: "19c"
+    default: "23ai"
     required: true
     visible: true
   db_size_in_tbs:
@@ -165,7 +164,7 @@ variables:
     title: The number of ECPUs cores to be made available to the database 
     description: "The number of ECPU cores to enable. For ECPUs count needs to be minimum 2 and maximum 512 ECPUs"
     type: string
-    default: 4
+    default: 2
     required: true
     visible:
       eq:

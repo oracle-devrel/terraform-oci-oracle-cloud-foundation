@@ -49,6 +49,19 @@ Query and save the recommendations
 
 Oracle Cloud provides an amazing platform to productively deliver secure, insightful, scalable and performant solutions. MovieStream designed their solution leveraging the world class Oracle Autonomous Database and Oracle Cloud Infrastructure (OCI) Data Lake services. Their data architecture is following the Oracle Reference Architecture [_Enterprise Data Warehousing - an Integrated Data Lake_](https://docs.oracle.com/en/solutions/oci-curated-analysis/index.html) - which is used by Oracle customers around the world. It's worthwhile to review the architecture so you can understand the value of integrating the data lake and data warehouse - as it enables you to answer more complex questions using all your data.
 
+## Important  - please deploy the solution in one of the listed regions below as the GenAI it's only available in this regions. If you deploy it in other regions, the solution will not work. If you don't have any of the regions available in your tenancy, please subscribe to one of them.
+
+
+Some regions don't offer all the models. See the region for each pretrained model to find out which models are available in a region near you.
+
+| Region Name              | Location  | Region Identifier | Region Key |
+|--------------------------|----------|-------------------|------------|
+| Brazil East (Sao Paulo)  | Sao Paulo | sa-saopaulo-1     | GRU        |
+| Germany Central (Frankfurt) | Frankfurt | eu-frankfurt-1 | FRA        |
+| Japan Central (Osaka)    | Osaka    | ap-osaka-1       | KIX        |
+| UK South (London)        | London   | uk-london-1      | LHR        |
+| US Midwest (Chicago)     | Chicago  | us-chicago-1     | ORD        |
+
 
 ## <a name="deliverables"></a>Deliverables
 ----------------

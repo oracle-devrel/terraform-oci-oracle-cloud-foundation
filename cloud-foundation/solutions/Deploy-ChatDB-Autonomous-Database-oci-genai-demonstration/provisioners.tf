@@ -8,7 +8,8 @@ resource "null_resource" "sqlcl-create-usr" {
 
                 echo 'Download the apex applications'
                 chmod 777 ./scripts/
-                wget https://objectstorage.us-ashburn-1.oraclecloud.com/p/6Oy9O8JVmddTzPQ8PsavtpzByQhjo4jGP1mRC3MK3o7QE7vGXKb8573-6etTdGUy/n/c4u04/b/building_blocks_utilities/o/select-ai-apex-demo/f101.sql -P ./scripts/
+                # wget https://objectstorage.us-ashburn-1.oraclecloud.com/p/6Oy9O8JVmddTzPQ8PsavtpzByQhjo4jGP1mRC3MK3o7QE7vGXKb8573-6etTdGUy/n/c4u04/b/building_blocks_utilities/o/select-ai-apex-demo/f101.sql -P ./scripts/
+                wget https://github.com/oracle-devrel/oracle-autonomous-database-samples/blob/main/apex/select-ai-chat/f101.sql?raw=true -P ./scripts/
                 wget https://objectstorage.us-ashburn-1.oraclecloud.com/p/6Oy9O8JVmddTzPQ8PsavtpzByQhjo4jGP1mRC3MK3o7QE7vGXKb8573-6etTdGUy/n/c4u04/b/building_blocks_utilities/o/select-ai-apex-demo/f100-genai-project.sql -P ./scripts/
 
                 # install the data
@@ -24,7 +25,9 @@ resource "null_resource" "sqlcl-create-usr" {
                 echo 'Start running install-apex-app.sql script to install the apex app'
                 sql -cloudconfig wallet_${var.db_name}.zip moviestream/watchS0meMovies#@'${local.conn_db}' @./scripts/install-apex-app.sql
 
-                rm -rf tables.sql     
+                rm -rf tables.sql
+                rm -rf ./scripts/f100-genai-project.sql
+                rm -rf ./scripts/f101.sql?raw=true
             EOT
         }
 depends_on = [module.adb]

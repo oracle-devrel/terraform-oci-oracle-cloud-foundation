@@ -21,7 +21,7 @@ BEGIN
 
 END;
 /
-@./scripts/f101.sql
+@./scripts/f101.sql?raw=true
 
 -- GenAI Projects App 
 BEGIN
@@ -38,37 +38,13 @@ END;
 /
 @./scripts/f100-genai-project.sql
 
--- Setup Select AI. Create 2 profiles. One for chat and the other for GenAI projects
+-- Setup Select AI. Create profile.
+declare
+    v_region varchar2(100) := '${region}'; -- Default region
 begin
-    admin.workshop.write('Setup ai profile for chat', 2);
+    admin.workshop.write('Setup ai profile', 2);
     
     -- Chat
-    dbms_cloud_ai.drop_profile(
-        profile_name => 'openai_gpt35',
-        force => true
-        );
-
-    dbms_cloud_ai.create_profile(
-        profile_name => 'openai_gpt35',
-        attributes =>       
-            '{"provider": "openai",
-            "credential_name": "OPENAI_CRED",
-            "comments":"true",
-            "temperature":0.2,
-            "object_list": [
-                {"owner": "MOVIESTREAM", "name": "GENRE"},
-                {"owner": "MOVIESTREAM", "name": "CUSTOMER"},
-                {"owner": "MOVIESTREAM", "name": "PIZZA_SHOP"},
-                {"owner": "MOVIESTREAM", "name": "STREAMS"},            
-                {"owner": "MOVIESTREAM", "name": "MOVIES"},
-                {"owner": "MOVIESTREAM", "name": "ACTORS"}
-            ]
-            }'
-        );
-
-    admin.workshop.write('Setup GenAI projects AI profile', 2);
-    
-    -- GenAI projects
     dbms_cloud_ai.drop_profile(
         profile_name => 'genai',
         force => true
@@ -78,9 +54,19 @@ begin
         profile_name => 'genai',
         attributes =>       
             '{"provider": "oci",
-            "credential_name": "OCI$RESOURCE_PRINCIPAL"
+            "credential_name": "OCI$RESOURCE_PRINCIPAL",
+            "comments":"true",
+            "region":"' || v_region || '",
+            "object_list": [
+                {"owner": "MOVIESTREAM", "name": "GENRE"},
+                {"owner": "MOVIESTREAM", "name": "CUSTOMER"},
+                {"owner": "MOVIESTREAM", "name": "PIZZA_SHOP"},
+                {"owner": "MOVIESTREAM", "name": "STREAMS"},            
+                {"owner": "MOVIESTREAM", "name": "MOVIES"},
+                {"owner": "MOVIESTREAM", "name": "ACTORS"}
+            ]
             }'
-        );        
+        );    
         
 end;
 /

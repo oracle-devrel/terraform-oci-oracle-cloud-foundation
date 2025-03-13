@@ -21,7 +21,7 @@ BEGIN
 
 END;
 /
-@./scripts/f101.sql
+@./scripts/f101.sql?raw=true
 
 -- GenAI Projects App 
 BEGIN
