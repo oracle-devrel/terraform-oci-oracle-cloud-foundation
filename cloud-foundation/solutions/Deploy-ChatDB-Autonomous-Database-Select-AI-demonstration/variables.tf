@@ -1,4 +1,4 @@
-# Copyright © 2025, Oracle and/or its affiliates.
+# Copyright © 2023, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 
@@ -13,7 +13,7 @@ variable "tenancy_ocid" {
 
 variable "region" {
     type = string
-    default = "us-chicago-1"
+    default = ""
 }
 
 variable "compartment_id" {
@@ -36,6 +36,7 @@ variable "private_key_path" {
     default = ""
 }
 
+
 # ADW Database Variables:
 
 variable "db_name" {
@@ -45,7 +46,7 @@ variable "db_name" {
 
 variable "db_password" {
   type = string
-  default = ""
+  default = "WlsAtpDb1234#"
 }
 
 variable "db_compute_model" {
@@ -107,6 +108,11 @@ variable "db_database_management_status" {
 }
 
 # Workshop Settings
+
+variable "llm_region" {
+  type    = string
+  default = "us-chicago-1"
+}
 
 variable "llm_secret" {
   type    = string

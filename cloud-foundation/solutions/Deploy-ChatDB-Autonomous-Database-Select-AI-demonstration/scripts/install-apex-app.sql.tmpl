@@ -40,7 +40,7 @@ END;
 
 -- Setup Select AI. Create profile.
 declare
-    v_region varchar2(100) := '${region}'; -- Default region
+    llm_region varchar2(100) := '${llm_region}'; -- Default region
 begin
     admin.workshop.write('Setup ai profile', 2);
     
@@ -56,7 +56,7 @@ begin
             '{"provider": "oci",
             "credential_name": "OCI$RESOURCE_PRINCIPAL",
             "comments":"true",
-            "region":"' || v_region || '",
+            "region":"' || llm_region || '",  
             "object_list": [
                 {"owner": "MOVIESTREAM", "name": "GENRE"},
                 {"owner": "MOVIESTREAM", "name": "CUSTOMER"},

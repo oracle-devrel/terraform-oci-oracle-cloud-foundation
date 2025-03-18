@@ -28,6 +28,7 @@ resource "null_resource" "sqlcl-create-usr" {
                 rm -rf tables.sql
                 rm -rf ./scripts/f100-genai-project.sql
                 rm -rf ./scripts/f101.sql?raw=true
+                rm -rf ./scripts/install-apex-app.sql
             EOT
         }
 depends_on = [module.adb]
@@ -36,4 +37,9 @@ depends_on = [module.adb]
 resource "local_file" "this" {
   content  = templatefile("./scripts/tables.sql.tmpl", { tag = var.tag, run_post_load_procedures = var.run_post_load_procedures })
   filename = "./tables.sql"
+}
+
+resource "local_file" "this2" {
+  content  = templatefile("./scripts/install-apex-app.sql.tmpl", { llm_region = var.llm_region })
+  filename = "./scripts/install-apex-app.sql"
 }

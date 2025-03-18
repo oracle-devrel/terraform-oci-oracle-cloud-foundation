@@ -46,7 +46,7 @@ variable "db_name" {
 
 variable "db_password" {
   type = string
-  default = ""
+  default = "WlsAtpDb1234#"
 }
 
 variable "db_compute_model" {
@@ -108,6 +108,11 @@ variable "db_database_management_status" {
 }
 
 # Workshop Settings
+
+variable "llm_region" {
+  type    = string
+  default = "us-chicago-1"
+}
 
 variable "tag" {
   type    = string
