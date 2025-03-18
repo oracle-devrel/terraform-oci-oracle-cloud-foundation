@@ -1,7 +1,7 @@
 # Copyright © 2024, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-title: "Deploy ChatDB - Autonomous Database Select AI demonstration"
+title: "Deploy ChatDB - Autonomous Database OCI GenAI demonstration"
 stackDescription: "Creates an ADB with MovieStream data plus the ChatDB APEX demo app"
 schemaVersion: 1.1.0
 version: "20230112"
@@ -23,7 +23,6 @@ groupings:
       - db_version
       - db_size_in_tbs
       - db_enable_auto_scaling
-      - db_compute_model
       - db_compute_count
       - db_workload
       - db_data_safe_status
@@ -31,6 +30,7 @@ groupings:
       - db_database_management_status
   - title: "Workshop Settings"
     variables:
+      - llm_region
       - tag
       - run_post_load_procedures
   - title: "Hidden Variables"
@@ -39,6 +39,7 @@ groupings:
       - user_ocid
       - fingerprint
       - private_key_path
+      - db_compute_model
 # General Configuration Variables
 variables:
   tenancy_ocid:
@@ -100,6 +101,7 @@ variables:
     title: Database Admin Password
     description: "Provide admin password. Constraints: 12 - 30 characters. At least one uppercase letter, one lowercase letter, and one number. No special characters."
     type: password
+    default: "WlsAtpDb1234#"
     required: true
     confirmation: true
     pattern: ((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[%!@^&)(]).{12,20})
@@ -143,18 +145,6 @@ variables:
       - true
       - false
     default: false
-    required: true
-    visible:
-      eq:
-        - db_is_free_tier
-        - false
-  db_compute_model:
-    title: "The compute model of the Autonomous Database ECPUs"
-    description: "The compute model of the Autonomous Database ECPUs"
-    type: enum
-    enum:
-      - "ECPU"
-    default: "ECPU"
     required: true
     visible:
       eq:
@@ -210,6 +200,19 @@ variables:
     required: true
     visible: true  
 # Workshop Settings
+  llm_region:
+    title: "Pick one of the listed regions that your tenancy it's subscribed to access the LLM" 
+    description: "It is set to default to us-chicago-1 ; you need to use any region available in your tenancy subscribed to one of the available LLMs regions listed"
+    type: enum
+    enum:
+      - "us-chicago-1"
+      - "sa-saopaulo-1" 
+      - "eu-frankfurt-1"
+      - "ap-osaka-1"
+      - "uk-london-1"
+    default: "us-chicago-1"
+    required: true
+    visible: true 
   tag:
     title: Pick the datasets to load. 
     description: "Pick one from below"

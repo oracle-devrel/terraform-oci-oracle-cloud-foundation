@@ -1,4 +1,4 @@
-# Copyright © 2025, Oracle and/or its affiliates.
+# Copyright © 2023, Oracle and/or its affiliates.
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 resource "null_resource" "sqlcl-create-usr" {
@@ -40,6 +40,6 @@ resource "local_file" "this" {
 }
 
 resource "local_file" "this2" {
-  content  = templatefile("./scripts/install-apex-app.sql.tmpl", { region = var.region })
+  content  = templatefile("./scripts/install-apex-app.sql.tmpl", { llm_region = var.llm_region })
   filename = "./scripts/install-apex-app.sql"
 }

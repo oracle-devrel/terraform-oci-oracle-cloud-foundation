@@ -1,4 +1,4 @@
-# Oracle Cloud Foundation Terraform Solution - Deploy ChatDB - Autonomous Database Select AI demonstration
+# Oracle Cloud Foundation Terraform Solution - Deploy ChatDB - Autonomous Database OCI GenAI demonstration
 
 ![](https://oracle-livelabs.github.io/adb/movie-stream-story-lite/introduction/images/moviestream.jpeg)
 
@@ -50,7 +50,7 @@ Query and save the recommendations
 Oracle Cloud provides an amazing platform to productively deliver secure, insightful, scalable and performant solutions. MovieStream designed their solution leveraging the world class Oracle Autonomous Database and Oracle Cloud Infrastructure (OCI) Data Lake services. Their data architecture is following the Oracle Reference Architecture [_Enterprise Data Warehousing - an Integrated Data Lake_](https://docs.oracle.com/en/solutions/oci-curated-analysis/index.html) - which is used by Oracle customers around the world. It's worthwhile to review the architecture so you can understand the value of integrating the data lake and data warehouse - as it enables you to answer more complex questions using all your data.
 
 
-## Important  - please deploy the solution in one of the listed regions below as the GenAI it's only available in this regions. If you deploy it in other regions, the solution will not work. If you don't have any of the regions available in your tenancy, please subscribe to one of them.
+## Important  - please deploy the solution in any region but you need to use for the variable llm_region - one of the listed regions below as the GenAI it's only available in this regions. If you deploy it in other regions, the solution will not work. If you don't have any of the regions available in your tenancy, please subscribe to one of them.
 
 
 Some regions don't offer all the models. See the region for each pretrained model to find out which models are available in a region near you.
@@ -63,6 +63,15 @@ Some regions don't offer all the models. See the region for each pretrained mode
 | UK South (London)        | London   | uk-london-1      | LHR        |
 | US Midwest (Chicago)     | Chicago  | us-chicago-1     | ORD        |
 
+```
+There is this variable called llm_region :
+variable "llm_region" {
+  type    = string
+  default = "us-chicago-1"
+}
+
+It is set to default to us-chicago-1 ; you need to use any region available in your tenancy subscribed to one of the available LLMs regions listed above. 
+```
 
 
 ## <a name="deliverables"></a>Deliverables
@@ -412,6 +421,7 @@ The Workshop Settings are:
 
 * Parameters:    
     * __tag__ - Pick the datasets to load. The default is gen-ai to start the graph lab.
+    * __llm_region__ - The region that you need to connect to your LLM. Some regions don't offer all the models. See the region for each pretrained model to find out which models are available in a region near you. It is set to default to us-chicago-1 ; you need to use any region available in your tenancy subscribed to one of the available LLMs regions listed : sa-saopaulo-1 , eu-frankfurt-1 , ap-osaka-1 , uk-london-1 , us-chicago-1 
     * __run_post_load_procedures__ - Run procedures after loading data
 
 
@@ -492,6 +502,11 @@ variable "db_database_management_status" {
 variable "tag" {
   type    = string
   default = "gen-ai"
+}
+
+variable "llm_region" {
+  type    = string
+  default = "us-chicago-1"
 }
 
 variable "run_post_load_procedures" {
@@ -649,5 +664,3 @@ We welcome your feedback. To post feedback, submit feature ideas or report bugs,
 
 ## <a name="known-issues"></a>Known Issues
 **At the moment, there are no known issues for this solution**
-
-
