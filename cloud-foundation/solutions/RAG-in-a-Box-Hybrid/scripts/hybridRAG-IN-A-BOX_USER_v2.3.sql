@@ -11,6 +11,7 @@
 -- v2.0 mac hybrid initial prod release
 -- v2.1 mac fixed prefs
 -- v2.2 mac fixed small errors
+-- v2.3 mac added support for llm region
 --
 -- Parameters
 --
@@ -86,7 +87,8 @@ INSERT INTO hriab_user_settings VALUES (
             "tenancy_ocid" :  "<<replace with your tenancy ocid>>",
         "compartment_ocid" :  "<<replace with your compartment ocid>>",
             "private_key"  :  "<<replace with your private key>>",
-            "fingerprint"  :  "<<replace with your fingerprint>>"
+            "fingerprint"  :  "<<replace with your fingerprint>>",
+            "llm_region"   :  "<<replace with your llm region name>>"
           }'));
 
 -- exercise the setting table
@@ -734,22 +736,33 @@ end;
 
 create or replace procedure hriab_gen_tokens (
    user_question IN  CLOB,
-   user_tokens   OUT varchar2
+   user_tokens   OUT varchar2,
+   rag_user      IN  VARCHAR2
 ) is
   prompt CLOB;
   t_tok  varchar2(512);
+  llmreg varchar2(512);
 begin
 
   prompt := 'isolate tokens and remove punctuation, articles, verbs, prepositions, etc. from the following string -'
             || user_question ||
             '-, return a list separated by the word "AND" prefixed with "S@@" and postfixed by "@@E"';
 
+-- get llm region
+  select SUBSTR(xllmreg, 2, LENGTH(xllmreg) - 2) into llmreg
+           from json_table(
+            (select settings from hriab_user_settings
+             where riab_user = rag_user
+               and pref_type = 'RAGCRED'
+           ), '$[*]' COLUMNS (
+              xllmreg varchar2(256) format json PATH '$.llm_region'));
+
   select dbms_vector_chain.utl_to_generate_text(
             prompt,
             json('{
      "provider"       : "ocigenai",
      "credential_name": "HRIAB_LLM_CRED",
-     "url"            : "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com/20231130/actions/chat",
+     "url"            : "https://inference.generativeai.'||llmreg||'.oci.oraclecloud.com/20231130/actions/chat",
      "model"          : "cohere.command-r-plus-08-2024",
      "chatRequest"    : {
                       "maxTokens": 50,
@@ -773,7 +786,7 @@ end hriab_gen_tokens;
 -- exercise the routine
 VAR aa CLOB;
 begin
-  hriab_gen_tokens( to_clob('Describe the value of data strategy'), :aa);
+  hriab_gen_tokens( to_clob('Describe the value of data strategy'), :aa, 'DEFAULT');
   DBMS_OUTPUT.PUT_LINE('tokens: ' || :aa);
 end;
 /
@@ -795,6 +808,7 @@ create or replace procedure hriab_get_answer (
   context CLOB;
   sources CLOB;
   a_type  varchar2(50);
+  llmreg  varchar2(512);
   a_temp  CLOB;
   a_json  CLOB;
   q_json  JSON;
@@ -807,14 +821,24 @@ create or replace procedure hriab_get_answer (
   rowids SYS.ODCIVARCHAR2LIST := SYS.ODCIVARCHAR2LIST();
 begin
 
- -- DBMS_OUTPUT.PUT_LINE('user_question: ' || user_question);
- -- DBMS_OUTPUT.PUT_LINE('user_tokens: ' || user_tokens);
+  -- DBMS_OUTPUT.PUT_LINE('user_question: ' || user_question);
+  -- DBMS_OUTPUT.PUT_LINE('user_tokens: ' || user_tokens);
 
- -- initialize the concatenated string
+  -- initialize the concatenated string
   context     := rag_context;
   prompt      := '';
   rowids.extend; -- need just one value
 
+  -- get llm region
+  select SUBSTR(xllmreg, 2, LENGTH(xllmreg) - 2) into llmreg
+           from json_table(
+            (select settings from hriab_user_settings
+             where riab_user = rag_user
+               and pref_type = 'RAGCRED'
+           ), '$[*]' COLUMNS (
+              xllmreg varchar2(256) format json PATH '$.llm_region'));
+
+  -- get query prefs
   select to_number(topk),
        to_number(penalty_t),
        to_number(penalty_v),
@@ -979,7 +1003,7 @@ begin
             prompt, json('{
      "provider"       : "ocigenai",
      "credential_name": "HRIAB_LLM_CRED",
-     "url"            : "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com/20231130/actions/chat",
+     "url"            : "https://inference.generativeai.'||llmreg||'.oci.oraclecloud.com/20231130/actions/chat",
      "model"          : "cohere.command-r-plus-08-2024",
      "chatRequest"    : { "maxTokens": 2048 }
    }')) into llm_answer

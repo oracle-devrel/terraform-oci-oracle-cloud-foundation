@@ -12,16 +12,16 @@ resource "null_resource" "sqlcl-create-usr" {
                 sql -cloudconfig wallet_${var.db_name}.zip admin/${var.db_password}@'${local.conn_db}' @./scripts/hybridRAG-IN-A-BOX_ADMIN_v2.0.sql ${var.riab_user} ${var.riab_password}
 
                 echo 'Creating the APEX WORKSPACE and APEX USER running hybridRAG-IN-A-BOX_APEX_ADMIN_v2.0.sql'
-                sql -cloudconfig wallet_${var.db_name}.zip admin/${var.db_password}@'${local.conn_db}' @./scripts/hybridRAG-IN-A-BOX_APEX_ADMIN_v2.0.sql ${var.apex_workspace} ${var.riab_user} ${var.apex_user} ${var.apex_password} ${var.apex_user} 
+                sql -cloudconfig wallet_${var.db_name}.zip admin/${var.db_password}@'${local.conn_db}' @./scripts/hybridRAG-IN-A-BOX_APEX_ADMIN_v2.0.sql ${var.apex_workspace} ${var.riab_user} ${var.apex_user} ${var.apex_password} ${var.apex_password} 
 
-                echo 'Start running hybridRAG-IN-A-BOX_USER_v2.2.sql script'
-                sql -cloudconfig wallet_${var.db_name}.zip ${var.riab_user}/${var.riab_password}@'${local.conn_db}' @./scripts/hybridRAG-IN-A-BOX_USER_v2.2.sql
+                echo 'Start running hybridRAG-IN-A-BOX_USER_v2.3.sql script'
+                sql -cloudconfig wallet_${var.db_name}.zip ${var.riab_user}/${var.riab_password}@'${local.conn_db}' @./scripts/hybridRAG-IN-A-BOX_USER_v2.3.sql
 
-                echo 'Start running hybridRAG-IN-A-BOX_USER_CREDS_v1.0.sql script'
-                sql -cloudconfig wallet_${var.db_name}.zip ${var.riab_user}/${var.riab_password}@'${local.conn_db}' @./scripts/hybridRAG-IN-A-BOX_USER_CREDS_v1.0.sql ${var.apex_user} ${var.user_ocid} ${var.tenancy_ocid} "${local.final_bucket_url}" "${var.private_key}" ${var.fingerprint} ${var.compartment_id}
+                echo 'Start running hybridRAG-IN-A-BOX_USER_CREDS_v1.1.sql script'
+                sql -cloudconfig wallet_${var.db_name}.zip ${var.riab_user}/${var.riab_password}@'${local.conn_db}' @./scripts/hybridRAG-IN-A-BOX_USER_CREDS_v1.1.sql ${var.apex_user} ${var.user_ocid} ${var.tenancy_ocid} "${local.final_bucket_url}" "${var.private_key}" ${var.fingerprint} ${var.compartment_id} ${var.llm_region}
 
                 echo 'Install the APEX APP in a box application running hybridRAG-IN-A-BOX_APEX_USER_v2.0.sql'
-                sql -cloudconfig wallet_${var.db_name}.zip ${var.riab_user}/${var.riab_password}@'${local.conn_db}' @./scripts/hybridRAG-IN-A-BOX_APEX_USER_v2.0.sql ${var.apex_workspace} ${var.riab_user} ./scripts/hybridRAG-IN-A-BOX_f101_v1.2.sql
+                sql -cloudconfig wallet_${var.db_name}.zip ${var.riab_user}/${var.riab_password}@'${local.conn_db}' @./scripts/hybridRAG-IN-A-BOX_APEX_USER_v2.0.sql ${var.apex_workspace} ${var.riab_user} ./scripts/hybridRAG-IN-A-BOX_f101_v1.3.sql
 
             EOT
         }

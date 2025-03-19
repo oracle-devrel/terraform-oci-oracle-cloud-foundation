@@ -11,6 +11,9 @@
 -- v1.0 mac initial release
 -- v1.1 mac implement alternative query method
 -- v1.2 mac added "with target accuracy" and vriab_util_timestamp_diff
+-- v1.3 mac adjusted get_answer() prompt processing for URL: tag
+-- v1.4 mac added approx keyword to vector_distance call
+-- v1.5 mac added support for llm region
 --
 -- Parameters
 --
@@ -92,7 +95,8 @@ INSERT INTO vriab_user_settings VALUES (
             "tenancy_ocid" :  "<<replace with your tenancy ocid>>",
         "compartment_ocid" :  "<<replace with your compartment ocid>>",
             "private_key"  :  "<<replace with your private key>>",
-            "fingerprint"  :  "<<replace with your fingerprint>>"
+            "fingerprint"  :  "<<replace with your fingerprint>>",
+            "llm_region"   :  "<<replace with your llm region name>>"
           }'));
 
 -- exercise the setting table
@@ -338,6 +342,7 @@ create or replace procedure vriab_process_input_files (
     xo             varchar2(512);
     ex             varchar2(512);
     nox            varchar2(512);
+    llmreg         varchar2(512);
 begin
 
   -- This procedure reloads all files, so clear the embeddings table and drop the index built on it
@@ -348,7 +353,7 @@ begin
   end;
   execute immediate 'truncate table vriab_embeddings';
 
--- get bucket url
+  -- get bucket url
   select SUBSTR(xbt, 2, LENGTH(xbt) - 2) into bt
            from json_table(
             (select settings from vriab_user_settings
@@ -358,7 +363,16 @@ begin
            ), '$[*]' COLUMNS (
               xbt varchar2(512) format json PATH '$.bucket_url'));
 
--- get chunking prefs
+  -- get llm region
+  select SUBSTR(xllmreg, 2, LENGTH(xllmreg) - 2) into llmreg
+           from json_table(
+            (select settings from vriab_user_settings
+             where riab_user = r_user
+               and pref_type = 'RAGCRED'
+           ), '$[*]' COLUMNS (
+              xllmreg varchar2(256) format json PATH '$.llm_region'));
+
+  -- get chunking prefs
   select xxy,
          to_number(xmx),
          to_number(xov),
@@ -435,7 +449,7 @@ begin
                     json('{
                         "provider": "OCIGenAI",
                         "credential_name": "VRIAB_LLM_CRED",
-                        "url": "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com/20231130/actions/embedText",
+                        "url": "https://inference.generativeai.'||llmreg||'.oci.oraclecloud.com/20231130/actions/embedText",
                         "model": "cohere.embed-multilingual-v3.0",
                         "batch_size": 10
                     }') )       as text_vec,
@@ -853,7 +867,6 @@ create or replace procedure vriab_get_answer (
 ) is
   prompt  CLOB;
   context CLOB;
-  sources CLOB;
 
   tk      NUMBER;
   dm      VARCHAR2(50);
@@ -869,16 +882,27 @@ create or replace procedure vriab_get_answer (
   mtext clob;
   murl  varchar2(512);
 
+  llmreg varchar2(512);
+
   a_json clob;
 
 begin
 
- -- Generate embedding for the query
- query_vec := dbms_vector.utl_to_embedding(
+  -- get llm region
+  select SUBSTR(xllmreg, 2, LENGTH(xllmreg) - 2) into llmreg
+           from json_table(
+            (select settings from vriab_user_settings
+             where riab_user = rag_user
+               and pref_type = 'RAGCRED'
+           ), '$[*]' COLUMNS (
+              xllmreg varchar2(256) format json PATH '$.llm_region'));
+
+  -- Generate embedding for the query
+  query_vec := dbms_vector.utl_to_embedding(
         user_question,
         json('{ "provider": "OCIGenAI",
                 "credential_name": "VRIAB_LLM_CRED",
-                "url": "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com/20231130/actions/embedText",
+                "url": "https://inference.generativeai.'||llmreg||'.oci.oraclecloud.com/20231130/actions/embedText",
                 "model": "cohere.embed-multilingual-v3.0"
           }')
         );
@@ -900,8 +924,6 @@ begin
               tkx  varchar2(256) format json PATH '$.topk',
               dmx  varchar2(256) format json PATH '$.distance',
               acx  varchar2(256) format json PATH '$.accuracy'));
-
-  sources := 'Sources: ';
 
   -- select your death
   if (use_plsql) then
@@ -931,7 +953,7 @@ begin
 
       -- concatenate each value to the string
       context := context || ' ' || mtext;
-      sources := sources || ' ' || 'URL: ' || murl;
+      context := context || ' ' || mtext || ' ' || 'URL: ' || murl;
     end loop;
 
   else -- use plsql
@@ -939,12 +961,10 @@ begin
     for i in (select docid, body, VECTOR_DISTANCE(text_vec, query_vec) as score, url
                 from  vriab_embeddings
                order by score asc
-               fetch first tk rows only with target accuracy ac) loop
+               fetch approx first tk rows only with target accuracy ac) loop
 
       -- concatenate each value to the string
-      context := context || ' ' || i.body;
-      sources := sources || ' ' || 'URL: ' || i.url;
-
+      context := context || ' ' || i.body || ' ' || 'URL: ' || i.url;
 
       t_json.append( json_object( 'DOCID' value i.docid, 'SCORE' value i.score, 'BODY' value i.body, 'URL' value i.url format json) );
     end loop;
@@ -961,19 +981,19 @@ begin
   -- DBMS_OUTPUT.PUT_LINE('Generated context: ' || context);
 
   -- concatenate strings and format it as an enhanced prompt to the LLM
-  prompt := 'Answer the following question using the supplied context assuming you are a subject matter expert; include found URLs in a separated category labeled Sources. Question: '
-             || user_question || ' Context: ' || context ||' '|| sources || ' ' || rag_context;
+  prompt := 'Answer the following question using the supplied context assuming you are a subject matter expert; include used URLs from the URL: tag in a separated category labeled Sources. Question: '
+             || user_question || ' Context: ' || context ||' '|| rag_context;
 
   --DBMS_OUTPUT.PUT_LINE('Postprocessed prompt: ' || prompt);
 
   -- overwrite the passed in context with the locally generated one
-  rag_context := '++++Chunks++++' || chr(10) || a_json || chr(10) || '****Context**** '|| chr(10) || context || chr(10) || '----Sources---- '|| chr(10) || sources;
+  rag_context := '++++Chunks++++' || chr(10) || a_json || chr(10) || '****Context**** '|| chr(10) || context || chr(10);
 
   select dbms_vector_chain.utl_to_generate_text(
             prompt, json('{
      "provider"       : "ocigenai",
      "credential_name": "VRIAB_LLM_CRED",
-     "url"            : "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com/20231130/actions/chat",
+     "url"            : "https://inference.generativeai.'||llmreg||'.oci.oraclecloud.com/20231130/actions/chat",
      "model"          : "cohere.command-r-plus-08-2024",
      "chatRequest"    : {
                       "maxTokens": 2048
@@ -983,6 +1003,7 @@ begin
 
 end vriab_get_answer;
 /
+
 
 /*
 -- exercise the routine
@@ -1013,7 +1034,7 @@ BEGIN
         json('{
             "provider": "OCIGenAI",
             "credential_name": "VRIAB_LLM_CRED",
-            "url": "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com/20231130/actions/embedText",
+            "url": "https://inference.generativeai.'||llmreg||'.oraclecloud.com/20231130/actions/embedText",
             "model": "cohere.embed-multilingual-v3.0"
         }')
     );

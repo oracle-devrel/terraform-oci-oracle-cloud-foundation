@@ -34,7 +34,7 @@ We even allow visibility on the chunking results from the proximitiy search pass
 Please refer to the "Show Documentation" button in the app or the field help info (press the '?' next to each field).
 
 
-## Important  - please deploy the solution in one of the listed regions below as the GenAI it's only available in this regions. If you deploy it in other regions, the solution will not work. If you don't have any of the regions available in your tenancy, please subscribe to one of them.
+## Important  - please deploy the solution in any region but you need to use for the variable llm_region - one of the listed regions below as the GenAI it's only available in this regions. If you deploy it in other regions, the solution will not work. If you don't have any of the regions available in your tenancy, please subscribe to one of them.
 
 
 Some regions don't offer all the models. See the region for each pretrained model to find out which models are available in a region near you.
@@ -46,6 +46,16 @@ Some regions don't offer all the models. See the region for each pretrained mode
 | Japan Central (Osaka)    | Osaka    | ap-osaka-1       | KIX        |
 | UK South (London)        | London   | uk-london-1      | LHR        |
 | US Midwest (Chicago)     | Chicago  | us-chicago-1     | ORD        |
+
+```
+There is this variable called llm_region :
+variable "llm_region" {
+  type    = string
+  default = "us-chicago-1"
+}
+
+It is set to default to us-chicago-1 ; you need to use any region available in your tenancy subscribed to one of the available LLMs regions listed above. 
+```
 
 
 
@@ -358,7 +368,8 @@ The ADW subsystem / module is able to create ADW/ATP databases.
 
 The RAG IN A BOX SETTINGS are:
 
-* Parameters:    
+* Parameters:
+    * __llm_region__ - The region that you need to connect to your LLM. Some regions don't offer all the models. See the region for each pretrained model to find out which models are available in a region near you. It is set to default to us-chicago-1 ; you need to use any region available in your tenancy subscribed to one of the available LLMs regions listed : sa-saopaulo-1 , eu-frankfurt-1 , ap-osaka-1 , uk-london-1 , us-chicago-1     
     * __riab_user__ - The username inside the database where you will install the apex application
     * __riab_password__ - The password for the user inside the database - The password must be between 12 and 30 characters long, and must contain at least 1 uppercase, 1 lowercase, and 1 numeric character. It cannot contain the double quote symbol (") or the username "admin", regardless of casing. The password is mandatory if source value is "BACKUP_FROM_ID", "BACKUP_FROM_TIMESTAMP", "DATABASE" or "NONE"
     * __apex_workspace__ - The name of the apex workspace
@@ -444,7 +455,10 @@ variable "db_database_management_status" {
 
 # The RAG IN A BOX SETTINGS are:
 
-
+variable "llm_region" {
+  type    = string
+  default = "us-chicago-1"
+}
 
 # The username inside the database where you will install the apex application
 variable "riab_user" {
