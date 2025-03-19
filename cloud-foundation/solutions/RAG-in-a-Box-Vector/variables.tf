@@ -37,10 +37,11 @@ variable "private_key_path" {
 }
 
 
+
 # Don't change the locals
 # Override `bucket_url` with dynamic values
 locals {
- bucket_url = "https://objectstorage.${var.region}.oraclecloud.com/n/${data.oci_objectstorage_namespace.this.namespace}/b/${var.bucket_name}/o/"
+ bucket_url = "https://objectstorage.${var.region}.oraclecloud.com/n/${data.oci_objectstorage_namespace.this.namespace}/b/${var.bucket_name}/o"
  # Use the bucket_url based on the condition if it's empty or not
  final_bucket_url = length(var.bucket_url) > 0 ? var.bucket_url : local.bucket_url
 }
@@ -146,6 +147,11 @@ variable "bucket_events_enabled" {
 ###### 
 # RAG IN A BOX SETTINGS:
 
+variable "llm_region" {
+  type    = string
+  default = "us-chicago-1"
+}
+
 # The username inside the database where you will install the apex application
 variable "riab_user" {
   type = string
@@ -196,4 +202,3 @@ variable "private_key" {
   type    = string
   default = ""
 }
-

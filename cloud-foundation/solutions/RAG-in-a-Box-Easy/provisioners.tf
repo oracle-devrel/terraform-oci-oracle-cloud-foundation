@@ -14,14 +14,14 @@ resource "null_resource" "sqlcl-create-usr" {
                 echo 'Creating the APEX WORKSPACE and APEX USER running easyRAG-IN-A-BOX_APEX_ADMIN_v2.0.sql'
                 sql -cloudconfig wallet_${var.db_name}.zip admin/${var.db_password}@'${local.conn_db}' @./scripts/easyRAG-IN-A-BOX_APEX_ADMIN_v2.0.sql ${var.apex_workspace} ${var.riab_user} ${var.apex_user} ${var.apex_password} ${var.apex_password} 
 
-                echo 'Start running easyRAG-IN-A-BOX_USER_v2.2.sql script'
-                sql -cloudconfig wallet_${var.db_name}.zip ${var.riab_user}/${var.riab_password}@'${local.conn_db}' @./scripts/easyRAG-IN-A-BOX_USER_v2.2.sql
+                echo 'Start running easyRAG-IN-A-BOX_USER_v2.3.sql script'
+                sql -cloudconfig wallet_${var.db_name}.zip ${var.riab_user}/${var.riab_password}@'${local.conn_db}' @./scripts/easyRAG-IN-A-BOX_USER_v2.3.sql
 
-                echo 'Start running easyRAG-IN-A-BOX_USER_CREDS_v1.1.sql script'
-                sql -cloudconfig wallet_${var.db_name}.zip ${var.riab_user}/${var.riab_password}@'${local.conn_db}' @./scripts/easyRAG-IN-A-BOX_USER_CREDS_v1.1.sql ${var.apex_user} ${var.user_ocid} ${var.tenancy_ocid} "${local.final_bucket_url}" "${var.private_key}" ${var.fingerprint} ${var.compartment_id}
+                echo 'Start running easyRAG-IN-A-BOX_USER_CREDS_v1.2.sql script'
+                sql -cloudconfig wallet_${var.db_name}.zip ${var.riab_user}/${var.riab_password}@'${local.conn_db}' @./scripts/easyRAG-IN-A-BOX_USER_CREDS_v1.2.sql ${var.apex_user} ${var.user_ocid} ${var.tenancy_ocid} "${local.final_bucket_url}" "${var.private_key}" ${var.fingerprint} ${var.compartment_id} ${var.llm_region}
 
                 echo 'Install the APEX APP in a box application running easyRAG-IN-A-BOX_APEX_USER_v2.0.sql'
-                sql -cloudconfig wallet_${var.db_name}.zip ${var.riab_user}/${var.riab_password}@'${local.conn_db}' @./scripts/easyRAG-IN-A-BOX_APEX_USER_v2.0.sql ${var.apex_workspace} ${var.riab_user} ./scripts/easyRAG-IN-A-BOX_f103_v2.1.sql
+                sql -cloudconfig wallet_${var.db_name}.zip ${var.riab_user}/${var.riab_password}@'${local.conn_db}' @./scripts/easyRAG-IN-A-BOX_APEX_USER_v2.0.sql ${var.apex_workspace} ${var.riab_user} ./scripts/easyRAG-IN-A-BOX_f103_v2.2.sql
 
             EOT
         }

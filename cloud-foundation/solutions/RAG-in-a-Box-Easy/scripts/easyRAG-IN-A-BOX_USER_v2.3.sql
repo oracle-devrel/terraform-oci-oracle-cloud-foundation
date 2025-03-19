@@ -18,6 +18,7 @@
 -- v2.0 mac first production release
 -- v2.1 mac swapped llama with cohere model for answer generation
 -- v2.2 mac added eriab_util_timestamp_diff
+-- v2.3 mac added support for llm region in profile creation statement
 --
 -- Parameters
 --
@@ -82,7 +83,8 @@ INSERT INTO eriab_user_settings VALUES (
             "tenancy_ocid" :  "<<replace with your tenancy ocid>>",
         "compartment_ocid" :  "<<replace with your compartment ocid>>",
             "private_key"  :  "<<replace with your private key>>",
-            "fingerprint"  :  "<<replace with your fingerprint>>"
+            "fingerprint"  :  "<<replace with your fingerprint>>",
+            "llm_region"   :  "<<replace with your llm region name>>"
           }'));
 
 -- exercise the setting table
@@ -158,6 +160,7 @@ is
   cocid  varchar2(256);
   pkey   varchar2(2000);
   fprint varchar2(256);
+  llmreg varchar2(256);
   jo     json_object_t;
   bo     clob := ' ';
 begin
@@ -174,8 +177,9 @@ begin
          xtocid,
          xcocid,
          xpkey,
-         xfprint
-           into uocid,tocid,cocid,pkey,fprint
+         xfprint,
+         xllmreg
+           into uocid,tocid,cocid,pkey,fprint,llmreg
            from json_table(
             (select settings from eriab_user_settings
              where riab_user = r_user
@@ -185,7 +189,8 @@ begin
               xtocid  varchar2(256) format json PATH '$.tenancy_ocid',
               xcocid  varchar2(256) format json PATH '$.compartment_ocid',
               xpkey   varchar2(2000) format json PATH '$.private_key',
-              xfprint varchar2(256) format json PATH '$.fingerprint'));
+              xfprint varchar2(256) format json PATH '$.fingerprint',
+              xllmreg varchar2(256) format json PATH '$.llm_region'));
 
 -- credentials for GenAI OCI:
   dbms_lob.append(bo, '{ "user_ocid" : ');
@@ -243,7 +248,8 @@ CREATE OR REPLACE PROCEDURE eriab_create_index (
   rr   number;
   st   number;
   ml   number;
-  bt   varchar2(512);
+  bt     varchar2(512);
+  llmreg varchar2(512);
 BEGIN
 
 -- Clean-up
@@ -281,6 +287,16 @@ BEGIN
            ), '$[*]' COLUMNS (
               xbt varchar2(512) format json PATH '$.bucket_url'));
 
+
+-- get llm region
+  select xllmreg into llmreg
+           from json_table(
+            (select settings from eriab_user_settings
+             where riab_user = r_user
+               and pref_type = 'RAGCRED'
+           ), '$[*]' COLUMNS (
+              xllmreg varchar2(256) format json PATH '$.llm_region'));
+
 -- Create an AI profile used for natural language queries
   DBMS_CLOUD_AI.create_profile(
       'ERIAB_PROFILE',
@@ -289,6 +305,7 @@ BEGIN
         "vector_index_name": "ERIAB_VECTOR_INDEX",
         "embedding_model": "cohere.embed-multilingual-v3.0",
         "model": "cohere.command-r-plus-08-2024",
+        "region": '||llmreg||', 
         "oci_apiformat": "COHERE"
       }');
 

@@ -36,6 +36,8 @@ variable "private_key_path" {
     default = ""
 }
 
+
+
 # Don't change the locals
 # Override `bucket_url` with dynamic values
 locals {
@@ -144,6 +146,11 @@ variable "bucket_events_enabled" {
 
 ###### 
 # RAG IN A BOX SETTINGS:
+
+variable "llm_region" {
+  type    = string
+  default = "us-chicago-1"
+}
 
 # The username inside the database where you will install the apex application
 variable "riab_user" {

@@ -25,7 +25,6 @@ groupings:
       - db_version
       - db_size_in_tbs
       - db_enable_auto_scaling
-      - db_compute_model
       - db_compute_count
       - db_workload
       - db_data_safe_status
@@ -33,6 +32,7 @@ groupings:
       - db_database_management_status
   - title: "RAG IN A BOX SETTINGS"
     variables:
+      - llm_region
       - riab_user
       - riab_password
       - apex_workspace
@@ -52,6 +52,7 @@ groupings:
       # - user_ocid
       # - fingerprint
       - private_key_path
+      - db_compute_model
 # General Configuration Variables
 variables:
   display_name_prefix:
@@ -175,18 +176,6 @@ variables:
       eq:
         - db_is_free_tier
         - false
-  db_compute_model:
-    title: "The compute model of the Autonomous Database ECPUs"
-    description: "The compute model of the Autonomous Database ECPUs"
-    type: enum
-    enum:
-      - "ECPU"
-    default: "ECPU"
-    required: true
-    visible:
-      eq:
-        - db_is_free_tier
-        - false
   db_compute_count:
     title: The number of ECPUs cores to be made available to the database 
     description: "The number of ECPU cores to enable. For ECPUs count needs to be minimum 2 and maximum 512 ECPUs"
@@ -237,6 +226,19 @@ variables:
     required: true
     visible: true  
 # RAG IN A BOX SETTINGS:
+  llm_region:
+    title: "Pick one of the listed regions that your tenancy it's subscribed to access the LLM" 
+    description: "It is set to default to us-chicago-1 ; you need to use any region available in your tenancy subscribed to one of the available LLMs regions listed"
+    type: enum
+    enum:
+      - "us-chicago-1"
+      - "sa-saopaulo-1" 
+      - "eu-frankfurt-1"
+      - "ap-osaka-1"
+      - "uk-london-1"
+    default: "us-chicago-1"
+    required: true
+    visible: true 
   riab_user:
       title: "The username inside the database where you will install the apex application"
       description: "Provide the username inside the database where you will install the apex application. Constraints: 12 alphanumeric characters only. No Spaces."

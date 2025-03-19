@@ -33,12 +33,12 @@ prompt APPLICATION 101 - hRAG-IN-A-BOX
 -- Application Export:
 --   Application:     101
 --   Name:            hRAG-IN-A-BOX
---   Date and Time:   16:59 Thursday March 6, 2025
+--   Date and Time:   14:36 Friday March 14, 2025
 --   Exported By:     HRIAB
 --   Flashback:       0
 --   Export Type:     Application Export
 --     Pages:                      7
---       Items:                   44
+--       Items:                   45
 --       Processes:                9
 --       Regions:                 13
 --       Buttons:                 20
@@ -18419,7 +18419,7 @@ wwv_flow_imp_page.create_page_process(
 '      end if;',
 '',
 '      if (:P1_AUTOGEN_TOKENS = ''Y'') then',
-'        hriab_gen_tokens( :P1_QUESTION, :P1_TOKENS);',
+'        hriab_gen_tokens( :P1_QUESTION, :P1_TOKENS, locusr);',
 '      end if;',
 '',
 '      -- get the start timestamp',
@@ -20136,7 +20136,7 @@ wwv_flow_imp_page.create_page(
 );
 wwv_flow_imp_page.create_page_button(
  p_id=>wwv_flow_imp.id(24408747334101253)
-,p_button_sequence=>110
+,p_button_sequence=>120
 ,p_button_name=>'SaveCredentials'
 ,p_button_action=>'DEFINED_BY_DA'
 ,p_button_template_options=>'#DEFAULT#:t-Button--iconLeft'
@@ -20150,7 +20150,7 @@ wwv_flow_imp_page.create_page_button(
 );
 wwv_flow_imp_page.create_page_button(
  p_id=>wwv_flow_imp.id(24408827849101254)
-,p_button_sequence=>120
+,p_button_sequence=>130
 ,p_button_name=>'ResetToDefault'
 ,p_button_action=>'DEFINED_BY_DA'
 ,p_button_template_options=>'#DEFAULT#:t-Button--iconLeft'
@@ -20164,6 +20164,21 @@ wwv_flow_imp_page.create_page_button(
 ,p_icon_css_classes=>'fa-x-axis'
 ,p_grid_new_row=>'N'
 ,p_grid_new_column=>'Y'
+);
+wwv_flow_imp_page.create_page_item(
+ p_id=>wwv_flow_imp.id(8174780291618837)
+,p_name=>'P3_LLM_REGION'
+,p_item_sequence=>110
+,p_item_default=>'us-chicago-1'
+,p_prompt=>'LLM Region Name'
+,p_display_as=>'NATIVE_TEXT_FIELD'
+,p_cSize=>30
+,p_field_template=>wwv_flow_imp.id(39723522230575023)
+,p_item_template_options=>'#DEFAULT#'
+,p_attribute_01=>'N'
+,p_attribute_02=>'N'
+,p_attribute_04=>'TEXT'
+,p_attribute_05=>'BOTH'
 );
 wwv_flow_imp_page.create_page_item(
  p_id=>wwv_flow_imp.id(24408399028101250)
@@ -20372,8 +20387,9 @@ wwv_flow_imp_page.create_page_da_action(
 '         SUBSTR(xtocid, 2, LENGTH(xtocid) - 2),',
 '         SUBSTR(xcocid, 2, LENGTH(xcocid) - 2),',
 '         SUBSTR(xpkey,  2, LENGTH(xpkey)  - 2),',
-'         SUBSTR(xfprint, 2, LENGTH(xfprint) - 2)',
-'           into :P3_LLM_USER_OCID,:P3_LLM_TENANCY_OCID,:P3_LLM_COMP_OCID,:P3_LLM_CERT,:P3_LLM_FINGERPRINT',
+'         SUBSTR(xfprint, 2, LENGTH(xfprint) - 2),',
+'         SUBSTR(xllmreg, 2, LENGTH(xllmreg) - 2)',
+'           into :P3_LLM_USER_OCID,:P3_LLM_TENANCY_OCID,:P3_LLM_COMP_OCID,:P3_LLM_CERT,:P3_LLM_FINGERPRINT,:P3_LLM_REGION',
 '           from json_table(',
 '            (select settings from hriab_user_settings',
 '             where riab_user = locusr',
@@ -20383,10 +20399,11 @@ wwv_flow_imp_page.create_page_da_action(
 '              xtocid  varchar2(256) format json PATH ''$.tenancy_ocid'',',
 '              xcocid  varchar2(256) format json PATH ''$.compartment_ocid'',',
 '              xpkey   varchar2(2000) format json PATH ''$.private_key'',',
-'              xfprint varchar2(256) format json PATH ''$.fingerprint''));',
+'              xfprint varchar2(256) format json PATH ''$.fingerprint'',',
+'              xllmreg varchar2(256) format json PATH ''$.llm_region''));',
 '',
 'end;'))
-,p_attribute_03=>'P3_BUCKET_USER_OCID,P3_BUCKET_TENANCY_OCID,P3_BUCKET_URL,P3_BUCKET_CERT,P3_BUCKET_FINGERPRINT,P3_LLM_USER_OCID,P3_LLM_TENANCY_OCID,P3_LLM_COMP_OCID,P3_LLM_CERT,P3_LLM_FINGERPRINT'
+,p_attribute_03=>'P3_BUCKET_USER_OCID,P3_BUCKET_TENANCY_OCID,P3_BUCKET_URL,P3_BUCKET_CERT,P3_BUCKET_FINGERPRINT,P3_LLM_USER_OCID,P3_LLM_TENANCY_OCID,P3_LLM_COMP_OCID,P3_LLM_CERT,P3_LLM_FINGERPRINT,P3_LLM_REGION'
 ,p_attribute_04=>'N'
 ,p_attribute_05=>'PLSQL'
 ,p_wait_for_result=>'Y'
@@ -20438,7 +20455,8 @@ wwv_flow_imp_page.create_page_da_action(
 '            "tenancy_ocid"     :  "''||:P3_LLM_TENANCY_OCID||''",',
 '            "compartment_ocid" :  "''||:P3_LLM_COMP_OCID||''",',
 '            "private_key"      :  "''||:P3_LLM_CERT||''",',
-'            "fingerprint"      :  "''||:P3_LLM_FINGERPRINT||''"',
+'            "fingerprint"      :  "''||:P3_LLM_FINGERPRINT||''",',
+'            "llm_region"       :  "''||:P3_LLM_REGION||''"',
 '          }''));',
 '  ',
 '  else',
@@ -20459,7 +20477,8 @@ wwv_flow_imp_page.create_page_da_action(
 '            "tenancy_ocid"     :  "''||:P3_LLM_TENANCY_OCID||''",',
 '            "compartment_ocid" :  "''||:P3_LLM_COMP_OCID||''",',
 '            "private_key"      :  "''||:P3_LLM_CERT||''",',
-'            "fingerprint"      :  "''||:P3_LLM_FINGERPRINT||''"',
+'            "fingerprint"      :  "''||:P3_LLM_FINGERPRINT||''",',
+'            "llm_region"       :  "''||:P3_LLM_REGION||''"',
 '          }'')',
 '     where riab_user = :user',
 '       and pref_type = ''RAGCRED'';',
@@ -20470,7 +20489,7 @@ wwv_flow_imp_page.create_page_da_action(
 '  hriab_create_bucket_cred( :user );',
 '  hriab_create_llm_cred( :user );',
 'end;'))
-,p_attribute_02=>'P3_BUCKET_USER_OCID,P3_BUCKET_TENANCY_OCID,P3_BUCKET_URL,P3_BUCKET_CERT,P3_BUCKET_FINGERPRINT,P3_LLM_USER_OCID,P3_LLM_TENANCY_OCID,P3_LLM_COMP_OCID,P3_LLM_CERT,P3_LLM_FINGERPRINT'
+,p_attribute_02=>'P3_BUCKET_USER_OCID,P3_BUCKET_TENANCY_OCID,P3_BUCKET_URL,P3_BUCKET_CERT,P3_BUCKET_FINGERPRINT,P3_LLM_USER_OCID,P3_LLM_TENANCY_OCID,P3_LLM_COMP_OCID,P3_LLM_CERT,P3_LLM_FINGERPRINT,P3_LLM_REGION'
 ,p_attribute_05=>'PLSQL'
 ,p_wait_for_result=>'Y'
 );
@@ -20539,8 +20558,9 @@ wwv_flow_imp_page.create_page_process(
 '         SUBSTR(xtocid, 2, LENGTH(xtocid) - 2),',
 '         SUBSTR(xcocid, 2, LENGTH(xcocid) - 2),',
 '         SUBSTR(xpkey,  2, LENGTH(xpkey)  - 2),',
-'         SUBSTR(xfprint, 2, LENGTH(xfprint) - 2)',
-'           into :P3_LLM_USER_OCID,:P3_LLM_TENANCY_OCID,:P3_LLM_COMP_OCID,:P3_LLM_CERT,:P3_LLM_FINGERPRINT',
+'         SUBSTR(xfprint, 2, LENGTH(xfprint) - 2),',
+'         SUBSTR(xllmreg, 2, LENGTH(xllmreg) - 2)',
+'           into :P3_LLM_USER_OCID,:P3_LLM_TENANCY_OCID,:P3_LLM_COMP_OCID,:P3_LLM_CERT,:P3_LLM_FINGERPRINT,:P3_LLM_REGION',
 '           from json_table(',
 '            (select settings from hriab_user_settings',
 '             where riab_user = locusr',
@@ -20550,7 +20570,8 @@ wwv_flow_imp_page.create_page_process(
 '              xtocid  varchar2(256) format json PATH ''$.tenancy_ocid'',',
 '              xcocid  varchar2(256) format json PATH ''$.compartment_ocid'',',
 '              xpkey   varchar2(2000) format json PATH ''$.private_key'',',
-'              xfprint varchar2(256) format json PATH ''$.fingerprint''));',
+'              xfprint varchar2(256) format json PATH ''$.fingerprint'',',
+'              xllmreg varchar2(256) format json PATH ''$.llm_region''));',
 '',
 'end;'))
 ,p_process_clob_language=>'PLSQL'
