@@ -32,7 +32,6 @@ groupings:
     variables:
       - llm_region
       - tag
-      - run_post_load_procedures
   - title: "Hidden Variables"
     visible: false
     variables:
@@ -40,6 +39,7 @@ groupings:
       - fingerprint
       - private_key_path
       - db_compute_model
+      - run_post_load_procedures
 # General Configuration Variables
 variables:
   tenancy_ocid:
@@ -73,7 +73,7 @@ variables:
     description: "Provide Database name. Constraints: 12 alphanumeric characters only. No Spaces."
     required: true
     type: string
-    maxLength: 30
+    maxLength: 30 
   db_is_free_tier:
     title: Do do want a always Free Oracle Autonomous Database instance?
     description: "Provision Always Free Oracle Autonomous Database instance (20 GB Storage)?"
@@ -113,7 +113,7 @@ variables:
       - "23ai"
     default: "23ai"
     required: true
-    visible: true
+    visible: false
   db_size_in_tbs:
     title: "The quantity of data in the database, in terabytes."
     description: "The quantity of data in the database, in terabytes."
@@ -153,8 +153,7 @@ variables:
   db_compute_count:
     title: The number of ECPUs cores to be made available to the database 
     description: "The number of ECPU cores to enable. For ECPUs count needs to be minimum 2 and maximum 512 ECPUs"
-    type: string
-    default: 2
+    type: number
     required: true
     visible:
       eq:
@@ -178,7 +177,7 @@ variables:
       - "REGISTERED"
     default: "NOT_REGISTERED"
     required: true
-    visible: true 
+    visible: false 
   db_database_management_status:
     title: "Status of Database Management for this Autonomous Database"
     description: "Status of Database Management for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED"
@@ -188,7 +187,7 @@ variables:
       - "ENABLED"
     default: "NOT_ENABLED"
     required: true
-    visible: true 
+    visible: false 
   db_operations_insights_status:
     title: "Status of Operations Insights for this Autonomous Database"
     description: "Status of Operations Insights for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED"
@@ -198,7 +197,7 @@ variables:
       - "ENABLED"
     default: "NOT_ENABLED"
     required: true
-    visible: true  
+    visible: false  
 # Workshop Settings
   llm_region:
     title: "Pick one of the listed regions that your tenancy it's subscribed to access the LLM" 
@@ -219,17 +218,7 @@ variables:
     type: enum
     enum:
       - "gen-ai"
-    default: "gen-ai"
-    required: true
-    visible: true 
-  run_post_load_procedures:
-    title: Run procedures after loading data
-    description: "Pick one from below"
-    type: enum
-    enum:
-      - true
-      - false
-    default: true
+      - "moviestream-analytics"
     required: true
     visible: true 
 outputs:
