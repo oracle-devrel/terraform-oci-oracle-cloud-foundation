@@ -1,0 +1,1 @@
+https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation/releases/download/v1.0.0/Deploy-ChatDB-Autonomous-Database-oci-genai-demonstration-RM.zip&zipUrlVariables={%22tag%22:%22moviestream-analytics%22,%22db_compute_count%22:4,%22db_name%22:%22MovieStreamWorkshop%22}
