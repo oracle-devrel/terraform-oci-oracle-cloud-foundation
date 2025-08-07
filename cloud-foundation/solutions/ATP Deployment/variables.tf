@@ -3,32 +3,32 @@
 
 variable "tenancy_ocid" {
   type = string
-  default = "ocid1.tenancy.oc1..aaaaaaaaj4ccqe763dizkrcdbs5x7ufvmmojd24mb6utvkymyo4xwxyv3gfa"
+  default = ""
 }
 
 variable "region" {
     type = string
-    default = "us-ashburn-1"
+    default = ""
 }
 
 variable "compartment_id" {
   type = string
-  default = "ocid1.compartment.oc1..aaaaaaaaza2vwcluoxu5dropj4o5p6aypze6o6ivnq63ijazn44gliiwzjaa"
+  default = ""
 }
 
 variable "user_ocid" {
     type = string
-    default = "ocid1.user.oc1..aaaaaaaamiof2bnbi4jamsag4lhp6en2wfxiicby4vzecj7xnt3dnwro7xwq"
+    default = ""
 }
 
 variable "fingerprint" {
     type = string
-    default = "12:1d:7d:18:6d:a7:e3:fc:17:4c:30:a9:44:65:7d:00"
+    default = ""
 }
 
 variable "private_key_path" {
     type = string
-    default = "/Users/iopanait/.oci/oci_api_key.pem"
+    default = ""
 }
 
 
