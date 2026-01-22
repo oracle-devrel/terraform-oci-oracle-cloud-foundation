@@ -53,3 +53,25 @@ output "adw" {
     adw.display_name => adw.id
   }
 }
+
+output "autonomous_database_connection_strings_high" {
+  description = "A comma-separated list of HIGH connection strings for all autonomous databases."
+  value = join(", ", [for db in oci_database_autonomous_database.adw : db.connection_strings[0].high])
+}
+
+output "high_mutual_connection_string" {
+  description = "The connection string for the HIGH consumer group with MUTUAL TLS authentication."
+  value = one([
+    for db in oci_database_autonomous_database.adw : 
+    (flatten([for p in db.connection_strings[0].profiles : [p.value] if p.consumer_group == "HIGH" && p.tls_authentication == "MUTUAL"])[0])
+    if length(flatten([for p in db.connection_strings[0].profiles : [p.value] if p.consumer_group == "HIGH" && p.tls_authentication == "MUTUAL"])) > 0
+  ])
+}
+
+
+output "adw_sql_dev_web_urls" {
+  value = {
+    for key, adw in oci_database_autonomous_database.adw :
+    key => trimsuffix(adw.connection_urls[0].sql_dev_web_url, "/sql-developer")
+  }
+}
