@@ -44,7 +44,7 @@ value = oci_database_autonomous_database_wallet.autonomous_database_wallet["adw"
 }
 
 output "database_fully_qualified_name" {
-  value = lower(trimsuffix(trimprefix(join("\n", [for b in oci_database_autonomous_database.adw : b.connection_urls.0.graph_studio_url]), "https://"), "/graphstudio/"))
+  value = lower(trimsuffix(trimprefix(join("\n", [for b in oci_database_autonomous_database.adw : b.connection_urls.0.graph_studio_url]), "https://"), "/graphstudio/?sso=true"))
 }
 
 output "adw" {
@@ -59,6 +59,6 @@ output "apex_url" {
 }
 
 output "easyRAG_IN_A_BOX_URL" {
-  value = join("", [lower(trimsuffix(join("\n", [for b in oci_database_autonomous_database.adw : b.connection_urls.0.graph_studio_url]), "/graphstudio/")),"/ords/r/riab/erag-in-a-box102"])
+  value = join("", [lower(trimsuffix(join("\n", [for b in oci_database_autonomous_database.adw : b.connection_urls.0.graph_studio_url]), "/graphstudio/?sso=true")),"/ords/r/riab/erag-in-a-box102"])
 }
 

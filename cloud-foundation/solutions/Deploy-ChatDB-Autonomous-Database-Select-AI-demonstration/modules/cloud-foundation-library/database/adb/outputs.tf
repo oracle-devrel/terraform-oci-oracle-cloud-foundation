@@ -44,7 +44,7 @@ value = oci_database_autonomous_database_wallet.autonomous_database_wallet["adw"
 }
 
 output "database_fully_qualified_name" {
-  value = lower(trimsuffix(trimprefix(join("\n", [for b in oci_database_autonomous_database.adw : b.connection_urls.0.graph_studio_url]), "https://"), "/graphstudio/"))
+  value = lower(trimsuffix(trimprefix(join("\n", [for b in oci_database_autonomous_database.adw : b.connection_urls.0.graph_studio_url]), "https://"), "/graphstudio/?sso=true"))
 }
 
 output "adw" {
@@ -59,6 +59,6 @@ output "apex_url" {
 }
 
 output "select_ai_demo_url" {
-  value = join("", [lower(trimsuffix(join("\n", [for b in oci_database_autonomous_database.adw : b.connection_urls.0.graph_studio_url]), "/graphstudio/")),"/ords/r/moviestream/chatdb"])
+  value = join("", [lower(trimsuffix(join("\n", [for b in oci_database_autonomous_database.adw : b.connection_urls.0.graph_studio_url]), "/graphstudio/?sso=true")),"/ords/r/moviestream/chatdb"])
 }
 
