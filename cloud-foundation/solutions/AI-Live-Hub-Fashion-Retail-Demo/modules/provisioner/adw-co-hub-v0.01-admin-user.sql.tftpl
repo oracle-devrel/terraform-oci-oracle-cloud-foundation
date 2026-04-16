@@ -1,0 +1,121 @@
+-------------------------------------------------------------------------
+-- 1) run as an admin user to grant privileges
+------------------------------------------------------------------------
+
+  -- user sql
+  create user cohub identified by AaBbCcDdEe123#;
+
+  -- add roles
+  grant connect to cohub;
+  grant console_developer to cohub;
+  grant dwrole to cohub;
+  grant graph_developer to cohub;
+  grant oml_developer to cohub;
+  grant resource to cohub;
+  alter user cohub default role console_developer,dwrole,graph_developer,oml_developer;
+
+  -- enable graph
+  alter user cohub grant connect through graph$proxy_user;
+
+  -- enable oml
+  alter user cohub grant connect through oml$proxy;
+
+  -- quota
+  alter user cohub quota unlimited on data;
+
+  -- add roles
+  grant db_developer_role to cohub;
+  grant odi_developer to cohub;
+  alter user cohub default role console_developer,dwrole,graph_developer,oml_developer;
+
+  -- rest enable
+begin
+  ords_admin.enable_schema(
+    p_enabled             => true,
+    p_schema              => 'COHUB',
+    p_url_mapping_type    => 'BASE_PATH',
+    p_url_mapping_pattern => 'cohub',
+    p_auto_rest_auth      => true
+  );
+
+  c##adp$service.dbms_share.enable_schema(
+    schema_name => 'COHUB',
+    enabled     => true
+  );
+
+  commit;
+end;
+/
+
+
+  -- grant privileges to dbms_cloud_ai, dbms_cloud, dbms_cloud_admin
+  grant execute on dbms_cloud_ai to cohub;
+  grant execute on dbms_cloud to cohub;
+  grant execute on dbms_cloud_admin to cohub;
+
+  -- grant privileges to work with db links
+  grant create database link to cohub;
+  grant drop public database link to cohub;
+  grant create any directory to cohub;
+
+  -- grant privileges Select AI agent
+  grant execute on dbms_cloud_ai_agent to cohub;
+
+  -- grant privileges to work with vectors
+  grant create any index to cohub;
+  grant execute on dbms_vector to cohub;
+
+  -- grant privileges to work with Select AI RAG
+  grant execute on dbms_cloud_pipeline to cohub;
+
+  -- -- set up network ACL to access Databricks - TBD
+  -- begin
+  --   dbms_network_acl_admin.append_host_ace(
+  --     host => 'adb-22429077407326663.3.azuredatabricks.net',
+  --     lower_port => 443,
+  --     upper_port => 443,
+  --     ace => xs$ace_type(
+  --       privilege_list => xs$name_list('http', 'http_proxy'),
+  --       principal_name => 'user@website.com',
+  --       principal_type => xs_acl.ptype_db
+  --     )
+  --   );
+  -- end;
+  -- /
+
+  -- use this to find out the instance OUTBOUND_IP_ADDRESS to be used in security lists
+  -- select json_value(cloud_identity, '$.OUTBOUND_IP_ADDRESS[0]')
+  --   from v$pdbs
+  --   where name = SYS_CONTEXT('USERENV','CON_NAME');
+
+  -- set up network ACL to access the flask app REST APIs via the OCI API Gateway
+
+  begin
+      dbms_network_acl_admin.append_host_ace(
+          host => '${api_gateway_hostname}',
+          lower_port => 443,
+          upper_port => 443,
+          ace => xs$ace_type(
+              privilege_list => xs$name_list('http', 'http_proxy'),
+              principal_name => 'cohub',
+              principal_type => xs_acl.ptype_db
+          )
+      );
+      commit;
+  end;
+  /
+
+  begin
+    dbms_network_acl_admin.append_host_ace(
+      host => '${api_gateway_hostname}',
+      ace  => xs$ace_type(
+                privilege_list => xs$name_list('http', 'http_proxy'),
+                principal_name => 'COHUB',
+                principal_type => xs_acl.ptype_db
+            )
+    );
+  end;
+  /
+
+exit;
+/

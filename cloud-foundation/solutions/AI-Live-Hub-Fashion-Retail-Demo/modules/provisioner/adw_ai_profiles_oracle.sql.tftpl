@@ -1,0 +1,73 @@
+set define off;
+set serveroutput on;
+
+declare
+  l_owner varchar2(50) := user;
+begin
+  begin
+    dbms_cloud_ai.drop_profile(profile_name => 'select_ai_hub_nl2sql');
+  exception
+    when others then null;
+  end;
+
+  dbms_cloud_ai.create_profile(
+    profile_name =>'select_ai_hub_nl2sql',
+    attributes   =>'{"provider": "oci",
+    "region": "${rag_region}",
+    "credential_name": "oci",
+    "model":"${select_ai_model_nl2sql}",
+    "oci_apiformat":"GENERIC",
+    "comments": "true",
+    "temperature": 0.0,
+    "object_list": [
+                  {"owner": "' || l_owner || '", "name": "customers_v"},
+                  {"owner": "' || l_owner || '", "name": "customer_profile_oracle"},
+                  {"owner": "' || l_owner || '", "name": "orders_v"},
+                  {"owner": "' || l_owner || '", "name": "order_items_v"},
+                  {"owner": "' || l_owner || '", "name": "shipments_v"},
+                  {"owner": "' || l_owner || '", "name": "products_v"},
+                  {"owner": "' || l_owner || '", "name": "inventory_v"},
+                  {"owner": "' || l_owner || '", "name": "stores_v"}
+                ]
+    }');
+end;
+/
+show errors;
+
+declare
+  l_owner varchar2(50) := user;
+begin
+  begin
+    dbms_cloud_ai.drop_profile(profile_name => 'select_ai_hub');
+  exception
+    when others then null;
+  end;
+
+  dbms_cloud_ai.create_profile(
+    profile_name =>'select_ai_hub',
+    attributes   =>'{"provider": "oci",
+    "region": "${rag_region}",
+    "credential_name": "oci",
+    "model":"${select_ai_model_agent}",
+    "oci_apiformat":"GENERIC",
+    "comments": "true",
+    "temperature": 0.0,
+    "object_list": [
+                  {"owner": "' || l_owner || '", "name": "customers_v"},
+                  {"owner": "' || l_owner || '", "name": "customer_profile_oracle"},
+                  {"owner": "' || l_owner || '", "name": "orders_v"},
+                  {"owner": "' || l_owner || '", "name": "order_items_v"},
+                  {"owner": "' || l_owner || '", "name": "shipments_v"},
+                  {"owner": "' || l_owner || '", "name": "products_v"},
+                  {"owner": "' || l_owner || '", "name": "inventory_v"},
+                  {"owner": "' || l_owner || '", "name": "stores_v"}
+                ]
+    }');
+end;
+/
+show errors;
+
+exec dbms_cloud_ai.set_profile('select_ai_hub_nl2sql');
+
+exit;
+/

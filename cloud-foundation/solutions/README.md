@@ -15,6 +15,7 @@ Solutions implemented:
 
 ***Live Lab & Demos Automation using AI and ML:*** 
 
+- AI-Live-Hub-Fashion-Retail-Demo - Data in Industry - VERTICAL DEMO - Deploy AI Live Hub Fashion Retail demo showcases how a fashion retailer can evolve into an AI-driven business by connecting live enterprise data across multiple platforms and turning it into personalized, customer-facing experiences. The solution brings together operational, analytical, and external data to power intelligent conversations, better recommendations, and more effective digital engagement.
 - Telco-Asset_Value_Maximization - Data in Industry - VERTICAL DEMO - (https://oracle.sharepoint.com/db-outbound/ai-and-ml---the-art-of-possible/ai-and-ml-demos-and-examples)
 - PublicSector-Crowd_Counting - Data in Industry - VERTICAL DEMO - (https://oracle.sharepoint.com/db-outbound/ai-and-ml---the-art-of-possible/)
 - OracleDataModel-Manufacturing -  Data in Industry - VERTICAL DEMO - (https://oracle.sharepoint.com/sites/data-in-industry/)

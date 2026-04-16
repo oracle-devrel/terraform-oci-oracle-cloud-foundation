@@ -1,0 +1,850 @@
+# Copyright © 2026, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+title: "Deploy AI Live Hub Fashion Retail Demo"
+stackDescription: "Deploys the AI Live Hub Fashion Retail Demo on Oracle Cloud Infrastructure"
+schemaVersion: 1.1.0
+version: "20260415"
+locale: "en"
+
+groupings:
+  - title: "General Settings"
+    visible: true
+    variables:
+      - tenancy_ocid
+      - region
+      - compartment_id
+      - user_ocid
+      - fingerprint
+      - oci_private_key_pem
+
+  - title: "Project and LLM Settings"
+    variables:
+      - mongo_mode
+      - rag_region
+      - select_ai_model_nl2sql
+      - select_ai_model_agent
+      - genai_embedding_region
+      - select_ai_model_rag
+      - select_ai_embedding_model
+
+  - title: "MongoDB Atlas Credentials"
+    visible:
+      eq:
+        - mongo_mode
+        - atlas
+    variables:
+      - mongodb_atlas_public_key
+      - mongodb_atlas_private_key
+      - mongodb_atlas_org_id
+      - mongodb_atlas_project_name
+      - mongodb_atlas_cluster_name
+      - mongodb_atlas_region
+      - mongodb_db_username
+      - mongodb_db_password
+
+  - title: "Autonomous Database Configuration - ADW"
+    variables:
+      - adw_db_name
+      - adw_db_is_free_tier
+      - adw_db_license_model
+      - adw_db_password
+      - adw_db_version
+      - adw_db_size_in_tbs
+      - adw_db_enable_auto_scaling
+      - adw_db_compute_model
+      - adw_db_compute_count
+      - adw_db_workload
+      - adw_db_data_safe_status
+      - adw_db_operations_insights_status
+      - adw_db_database_management_status
+
+  - title: "Autonomous Database Configuration - ATP"
+    variables:
+      - atp_db_name
+      - atp_db_is_free_tier
+      - atp_db_license_model
+      - atp_db_password
+      - atp_db_version
+      - atp_db_size_in_tbs
+      - atp_db_enable_auto_scaling
+      - atp_db_compute_model
+      - atp_db_compute_count
+      - atp_db_workload
+      - atp_db_data_safe_status
+      - atp_db_operations_insights_status
+      - atp_db_database_management_status
+
+  - title: "Object Storage"
+    variables:
+      - files_bucket_name
+      - files_bucket_access_type
+      - files_bucket_storage_tier
+      - files_bucket_events_enabled
+      - atp_creds_bucket_name
+      - atp_creds_bucket_access_type
+      - atp_creds_bucket_storage_tier
+      - atp_creds_bucket_events_enabled
+
+  - title: "Bastion VM Configuration"
+    variables:
+      - bastion_instance_display_name
+      - bastion_instance_shape
+
+  - title: "Network Configuration"
+    variables:
+      - vcn_cidr
+      - public_subnet_cidr
+      - private_subnet_cidr
+      - show_advanced_options
+
+  - title: "Hidden Variables"
+    visible: false
+    variables:
+      - private_key_path
+      - mongodb_database_name
+      - atp_private_endpoint_subnet_id
+      - atp_private_endpoint_nsg_ids
+      - oracle_mongo_username
+      - oracle_mongo_password
+      - oracle_mongo_schema
+      - bastion_instance_image_ocid
+
+variables:
+  # --------------------------------------------------------------------------
+  # General Settings
+  # These variables collect the OCI account and API key details required
+  # during deployment. They are used by Terraform and by the SQL provisioning
+  # flow when OCI credential objects must be created inside the database.
+  # --------------------------------------------------------------------------
+  tenancy_ocid:
+    title: Tenancy ID
+    description: The Oracle Cloud Identifier (OCID) for your tenancy.
+    type: string
+    required: true
+    visible: true
+
+  region:
+    title: Region
+    description: Select Region where all resources will be created.
+    type: oci:identity:region:name
+    required: true
+    visible: true
+
+  compartment_id:
+    title: Compartment
+    description: Choose the compartment where all resources will be provisioned.
+    type: oci:identity:compartment:id
+    required: true
+    visible: true
+
+  user_ocid:
+    title: User OCID
+    description: Enter the OCID of the OCI user that owns the API key used during deployment.
+    type: string
+    required: true
+    visible: true
+
+  fingerprint:
+    title: API Key Fingerprint
+    description: Enter the fingerprint of the OCI API public key associated with the selected user.
+    type: string
+    required: true
+    visible: true
+
+  oci_private_key_pem:
+    title: Private Key one singleline
+    description: "Paste the OCI API private key as a single line with no line breaks. Mac/Linux: tr -d '\\r\\n' < mykeysep_privatepem.pem | pbcopy"
+    type: password
+    required: true
+    visible: true
+
+  private_key_path:
+    title: private_key_path
+    description: Hidden compatibility variable for Terraform CLI mode.
+    type: string
+    required: false
+    visible: false
+
+  # --------------------------------------------------------------------------
+  # Project and LLM Settings
+  # These variables control the document backend mode and the OCI Generative AI
+  # configuration used by the solution. The selected rag_region must support
+  # the models configured below, otherwise the AI and RAG setup will fail.
+  # --------------------------------------------------------------------------
+  mongo_mode:
+    title: Document backend mode
+    description: Select which document backend is used by the solution.
+    type: enum
+    enum:
+      - oracle_api
+      - atlas
+    default: oracle_api
+    required: true
+    visible: true
+
+  rag_region:
+    title: LLM region
+    description: Select the OCI region used for the OCI Generative AI models configured in this solution. This setting is important because the selected models must be available in the chosen region.
+    type: oci:identity:region:name
+    required: true
+    visible: true
+
+  select_ai_model_nl2sql:
+    title: NL2SQL model
+    description: Model used by the Select AI NL2SQL profile that converts natural language questions into SQL.
+    type: string
+    required: true
+    visible: true
+    default: "xai.grok-4-1-fast-reasoning"
+
+  select_ai_model_agent:
+    title: Agent model
+    description: Model used by the main Select AI agent profile for the operational agents and tasks.
+    type: string
+    required: true
+    visible: true
+    default: "xai.grok-4-fast-non-reasoning"
+
+  genai_embedding_region:
+    title: OCI Generative AI Embedding Region
+    description: Select the OCI Generative AI inference region used for embedding and RAG operations executed through DBMS_CLOUD_AI. Use a supported region such as us-chicago-1 when required by the selected embedding model.
+    type: oci:identity:region:name
+    required: true
+    visible: true
+
+  select_ai_model_rag:
+    title: RAG model
+    description: Model used by the RAG response profiles for answers generated from indexed knowledge base content.
+    type: string
+    required: true
+    visible: true
+    default: "meta.llama-4-maverick-17b-128e-instruct-fp8"
+
+  select_ai_embedding_model:
+    title: Embedding model
+    description: Embedding model used to build and query the vector indexes for the RAG knowledge base.
+    type: string
+    required: true
+    visible: true
+    default: "cohere.embed-english-v3.0"
+
+  # --------------------------------------------------------------------------
+  # MongoDB Atlas Credentials
+  # These variables are shown only when mongo_mode = atlas.
+  # They are used to create and connect to MongoDB Atlas resources.
+  # --------------------------------------------------------------------------
+  mongodb_atlas_public_key:
+    title: MongoDB Atlas Public Key
+    description: Enter the MongoDB Atlas API public key.
+    type: string
+    required: true
+    visible:
+      eq:
+        - mongo_mode
+        - atlas
+
+  mongodb_atlas_private_key:
+    title: MongoDB Atlas Private Key
+    description: Enter the MongoDB Atlas API private key.
+    type: password
+    required: true
+    visible:
+      eq:
+        - mongo_mode
+        - atlas
+
+  mongodb_atlas_org_id:
+    title: MongoDB Atlas Organization ID
+    description: Enter the MongoDB Atlas organization ID.
+    type: string
+    required: true
+    visible:
+      eq:
+        - mongo_mode
+        - atlas
+
+  mongodb_atlas_project_name:
+    title: MongoDB Atlas Project Name
+    description: Enter the MongoDB Atlas project name.
+    type: string
+    required: true
+    visible:
+      eq:
+        - mongo_mode
+        - atlas
+
+  mongodb_atlas_cluster_name:
+    title: MongoDB Atlas Cluster Name
+    description: Enter the MongoDB Atlas cluster name.
+    type: string
+    required: true
+    visible:
+      eq:
+        - mongo_mode
+        - atlas
+
+  mongodb_atlas_region:
+    title: MongoDB Atlas Region
+    description: Enter the MongoDB Atlas region.
+    type: string
+    required: true
+    visible:
+      eq:
+        - mongo_mode
+        - atlas
+
+  mongodb_db_username:
+    title: MongoDB Username
+    description: Enter the MongoDB database username.
+    type: string
+    required: true
+    visible:
+      eq:
+        - mongo_mode
+        - atlas
+
+  mongodb_db_password:
+    title: MongoDB Password
+    description: Enter the MongoDB database password.
+    type: password
+    required: true
+    visible:
+      eq:
+        - mongo_mode
+        - atlas
+
+  mongodb_database_name:
+    title: mongodb_database_name
+    description: Hidden internal variable.
+    type: string
+    required: false
+    visible: false
+
+  # --------------------------------------------------------------------------
+  # Autonomous Database Configuration - ADW
+  # These variables define the Oracle Autonomous Data Warehouse instance used
+  # by the solution for AI orchestration, semantic access, and analytics logic.
+  # --------------------------------------------------------------------------
+  adw_db_name:
+    title: Database Name
+    description: "Provide Database name. Constraints: 12 alphanumeric characters only. No Spaces."
+    required: true
+    type: string
+    maxLength: 30
+
+  adw_db_is_free_tier:
+    title: Do do want a always Free Oracle Autonomous Database instance?
+    description: "Provision Always Free Oracle Autonomous Database instance (20 GB Storage)?"
+    type: enum
+    enum:
+      - true
+      - false
+    default: false
+    required: true
+    visible: true
+
+  adw_db_license_model:
+    title: "Provision Paid Oracle Autonomous Database instance (4 ECPUs 1 TB Storage) - License Included or BYOL?"
+    description: "Note: This configuration can be changed later from the OCI console."
+    type: enum
+    enum:
+      - LICENSE_INCLUDED
+      - BRING_YOUR_OWN_LICENSE
+    default: BRING_YOUR_OWN_LICENSE
+    required: true
+    visible:
+      eq:
+        - adw_db_is_free_tier
+        - false
+
+  adw_db_password:
+    title: Database Admin Password
+    description: "Provide admin password. Constraints: 12 - 30 characters. At least one uppercase letter, one lowercase letter, and one number. No special characters."
+    type: password
+    required: true
+    confirmation: true
+    pattern: ((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[%!@^&)(]).{12,20})
+
+  adw_db_version:
+    title: "A valid Oracle Database version for Autonomous Database"
+    description: "A valid Oracle Database version for Autonomous Database"
+    type: enum
+    enum:
+      - "23ai"
+    default: "23ai"
+    required: true
+    visible: true
+
+  adw_db_size_in_tbs:
+    title: "The quantity of data in the database, in terabytes."
+    description: "The quantity of data in the database, in terabytes."
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 4
+      - 6
+      - 8
+      - 10
+      - 12
+      - 16
+      - 24
+      - 36
+      - 52
+      - 128
+    default: 1
+    required: true
+    visible:
+      eq:
+        - adw_db_is_free_tier
+        - false
+
+  adw_db_enable_auto_scaling:
+    title: Indicates if auto scaling is enabled for the Autonomous Database CPU core count.
+    description: "Indicates if auto scaling is enabled for the Autonomous Database CPU core count."
+    type: enum
+    enum:
+      - true
+      - false
+    default: true
+    required: true
+    visible:
+      eq:
+        - adw_db_is_free_tier
+        - false
+
+  adw_db_compute_model:
+    title: "The compute model of the Autonomous Database ECPUs"
+    description: "The compute model of the Autonomous Database ECPUs"
+    type: enum
+    enum:
+      - "ECPU"
+    default: "ECPU"
+    required: true
+    visible:
+      eq:
+        - adw_db_is_free_tier
+        - false
+
+  adw_db_compute_count:
+    title: The number of ECPUs cores to be made available to the database
+    description: "The number of ECPU cores to enable. For ECPUs count needs to be minimum 2 and maximum 512 ECPUs"
+    type: string
+    default: 4
+    required: true
+    visible:
+      eq:
+        - adw_db_is_free_tier
+        - false
+
+  adw_db_workload:
+    title: Autonomous Database Type of workload.
+    description: "Autonomous Database Type of workload."
+    type: enum
+    enum:
+      - "DW"
+    default: "DW"
+    required: true
+    visible: true
+
+  adw_db_data_safe_status:
+    title: "Status of the Data Safe registration for this Autonomous Database"
+    description: "Status of the Data Safe registration for this Autonomous Database. Could be REGISTERED or NOT_REGISTERED."
+    type: enum
+    enum:
+      - "NOT_REGISTERED"
+      - "REGISTERED"
+    default: "NOT_REGISTERED"
+    required: true
+    visible: true
+
+  adw_db_database_management_status:
+    title: "Status of Database Management for this Autonomous Database"
+    description: "Status of Database Management for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED"
+    type: enum
+    enum:
+      - "NOT_ENABLED"
+      - "ENABLED"
+    default: "ENABLED"
+    required: true
+    visible: true
+
+  adw_db_operations_insights_status:
+    title: "Status of Operations Insights for this Autonomous Database"
+    description: "Status of Operations Insights for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED"
+    type: enum
+    enum:
+      - "NOT_ENABLED"
+      - "ENABLED"
+    default: "NOT_ENABLED"
+    required: true
+    visible: true
+
+  # --------------------------------------------------------------------------
+  # Autonomous Database Configuration - ATP
+  # These variables define the Oracle Autonomous Transaction Processing instance
+  # used by the solution for commerce data and, by default, Oracle Mongo API.
+  # --------------------------------------------------------------------------
+  atp_db_name:
+    title: Database Name
+    description: "Provide Database name. Constraints: 12 alphanumeric characters only. No Spaces."
+    required: true
+    type: string
+    maxLength: 30
+
+  atp_db_is_free_tier:
+    title: Do do want a always Free Oracle Autonomous Database instance?
+    description: "Provision Always Free Oracle Autonomous Database instance (20 GB Storage)?"
+    type: enum
+    enum:
+      - true
+      - false
+    default: false
+    required: true
+    visible: true
+
+  atp_db_license_model:
+    title: "Provision Paid Oracle Autonomous Database instance (4 ECPUs 1 TB Storage) - License Included or BYOL?"
+    description: "Note: This configuration can be changed later from the OCI console."
+    type: enum
+    enum:
+      - LICENSE_INCLUDED
+      - BRING_YOUR_OWN_LICENSE
+    default: BRING_YOUR_OWN_LICENSE
+    required: true
+    visible:
+      eq:
+        - atp_db_is_free_tier
+        - false
+
+  atp_db_password:
+    title: Database Admin Password
+    description: "Provide admin password. Constraints: 12 - 30 characters. At least one uppercase letter, one lowercase letter, and one number. No special characters."
+    type: password
+    required: true
+    confirmation: true
+    pattern: ((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[%!@^&)(]).{12,20})
+
+  atp_db_version:
+    title: "A valid Oracle Database version for Autonomous Database"
+    description: "A valid Oracle Database version for Autonomous Database"
+    type: enum
+    enum:
+      - "23ai"
+    default: "23ai"
+    required: true
+    visible: true
+
+  atp_db_size_in_tbs:
+    title: "The quantity of data in the database, in terabytes."
+    description: "The quantity of data in the database, in terabytes."
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 4
+      - 6
+      - 8
+      - 10
+      - 12
+      - 16
+      - 24
+      - 36
+      - 52
+      - 128
+    default: 1
+    required: true
+    visible:
+      eq:
+        - atp_db_is_free_tier
+        - false
+
+  atp_db_enable_auto_scaling:
+    title: Indicates if auto scaling is enabled for the Autonomous Database CPU core count.
+    description: "Indicates if auto scaling is enabled for the Autonomous Database CPU core count."
+    type: enum
+    enum:
+      - true
+      - false
+    default: true
+    required: true
+    visible:
+      eq:
+        - atp_db_is_free_tier
+        - false
+
+  atp_db_compute_model:
+    title: "The compute model of the Autonomous Database ECPUs"
+    description: "The compute model of the Autonomous Database ECPUs"
+    type: enum
+    enum:
+      - "ECPU"
+    default: "ECPU"
+    required: true
+    visible:
+      eq:
+        - atp_db_is_free_tier
+        - false
+
+  atp_db_compute_count:
+    title: The number of ECPUs cores to be made available to the database
+    description: "The number of ECPU cores to enable. For ECPUs count needs to be minimum 2 and maximum 512 ECPUs"
+    type: string
+    default: 4
+    required: true
+    visible:
+      eq:
+        - atp_db_is_free_tier
+        - false
+
+  atp_db_workload:
+    title: Autonomous Database Type of workload.
+    description: "Autonomous Database Type of workload."
+    type: enum
+    enum:
+      - "OLTP"
+    default: "OLTP"
+    required: true
+    visible: true
+
+  atp_db_data_safe_status:
+    title: "Status of the Data Safe registration for this Autonomous Database"
+    description: "Status of the Data Safe registration for this Autonomous Database. Could be REGISTERED or NOT_REGISTERED."
+    type: enum
+    enum:
+      - "NOT_REGISTERED"
+      - "REGISTERED"
+    default: "NOT_REGISTERED"
+    required: true
+    visible: true
+
+  atp_db_database_management_status:
+    title: "Status of Database Management for this Autonomous Database"
+    description: "Status of Database Management for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED"
+    type: enum
+    enum:
+      - "NOT_ENABLED"
+      - "ENABLED"
+    default: "ENABLED"
+    required: true
+    visible: true
+
+  atp_db_operations_insights_status:
+    title: "Status of Operations Insights for this Autonomous Database"
+    description: "Status of Operations Insights for this Autonomous Database. Values supported are ENABLED and NOT_ENABLED"
+    type: enum
+    enum:
+      - "NOT_ENABLED"
+      - "ENABLED"
+    default: "NOT_ENABLED"
+    required: true
+    visible: true
+
+  # --------------------------------------------------------------------------
+  # Object Storage
+  # These variables configure the buckets used by the solution for AI files
+  # and ATP wallet / credential artifacts.
+  # --------------------------------------------------------------------------
+  files_bucket_name:
+    title: Files Bucket Name
+    description: "Enter a unique name for this object storage bucket."
+    type: string
+    required: true
+    visible: true
+
+  files_bucket_access_type:
+    title: Files Bucket Access Type
+    description: "Select the Access Type of the files bucket."
+    type: enum
+    enum:
+      - NoPublicAccess
+      - ObjectReadWithoutList
+      - ObjectRead
+    default: "ObjectRead"
+    required: true
+    visible: true
+
+  files_bucket_storage_tier:
+    title: Files Bucket Storage Tier
+    description: "Select the storage Tier of the files bucket."
+    type: enum
+    enum:
+      - Standard
+      - Archive
+    default: "Standard"
+    required: true
+    visible: true
+
+  files_bucket_events_enabled:
+    title: Files bucket events enabled
+    description: "Indicates if files bucket events are enabled or not."
+    type: enum
+    enum:
+      - true
+      - false
+    default: false
+    required: true
+    visible: true
+
+  atp_creds_bucket_name:
+    title: ATP Credentials Bucket Name
+    description: "Enter a unique name for the ATP credentials object storage bucket."
+    type: string
+    required: true
+    visible: true
+
+  atp_creds_bucket_access_type:
+    title: ATP Credentials Bucket Access Type
+    description: "Select the Access Type of the ATP credentials bucket."
+    type: enum
+    enum:
+      - NoPublicAccess
+      - ObjectReadWithoutList
+      - ObjectRead
+    default: "ObjectRead"
+    required: true
+    visible: true
+
+  atp_creds_bucket_storage_tier:
+    title: ATP Credentials Bucket Storage Tier
+    description: "Select the storage Tier of the ATP credentials bucket."
+    type: enum
+    enum:
+      - Standard
+      - Archive
+    default: "Standard"
+    required: true
+    visible: true
+
+  atp_creds_bucket_events_enabled:
+    title: ATP credentials bucket events enabled
+    description: "Indicates if ATP credentials bucket events are enabled or not."
+    type: enum
+    enum:
+      - true
+      - false
+    default: false
+    required: true
+    visible: true
+
+  # --------------------------------------------------------------------------
+  # Bastion VM Configuration
+  # These variables define the compute instance that hosts the application.
+  # --------------------------------------------------------------------------
+  bastion_instance_display_name:
+    title: Bastion VM Display Name
+    description: "Enter a name for thhe Bastion VM. The name provided must start with a letter, contain only alphanumeric characters, no spaces and span up to 30 characters in total."
+    type: string
+    default: "AgenticAI"
+    required: true
+    visible: true
+
+  bastion_instance_shape:
+    title: Provide the shape for Bastion VM
+    description: "Provide the shape for Bastion VM"
+    type: oci:core:instanceshape:name
+    default: "VM.Standard2.1"
+    required: true
+    visible: true
+    dependsOn:
+      compartmentId: ${compartment_id}
+
+  # --------------------------------------------------------------------------
+  # Network Configuration
+  # These variables define the VCN and subnet CIDR ranges used by the solution.
+  # Advanced options are shown only when explicitly enabled.
+  # --------------------------------------------------------------------------
+  vcn_cidr:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.0.0/16"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: VCN Network CIDR
+    required: true
+    description: The CIDR to assign to the new Virtual Cloud Network (VCN) to create for this service. This field is not required if you want to use an existing VCN. When using VCN peering ensure that the VCNs being peered have non-overlapping CIDR blocks.
+
+  public_subnet_cidr:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.0.0/24"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Public Subnet CIDR
+    description: "The CIDR of the new public subnet."
+
+  private_subnet_cidr:
+    visible:
+      and:
+        - show_advanced_options
+    type: string
+    default: "10.0.1.0/24"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Private Subnet CIDR
+    description: "The CIDR of the new private subnet."
+
+  show_advanced_options:
+    title: Show Advanced Options
+    description: Enable advanced options for network.
+    type: boolean
+    default: false
+    visible: true
+
+  # --------------------------------------------------------------------------
+  # Hidden Variables
+  # These variables are internal or compatibility-only settings and are not
+  # intended to be modified in the Resource Manager UI.
+  # --------------------------------------------------------------------------
+  atp_private_endpoint_subnet_id:
+    title: atp_private_endpoint_subnet_id
+    type: string
+    required: false
+    visible: false
+
+  atp_private_endpoint_nsg_ids:
+    title: atp_private_endpoint_nsg_ids
+    type: array
+    items:
+      type: string
+    required: false
+    visible: false
+
+  oracle_mongo_username:
+    title: oracle_mongo_username
+    type: string
+    required: false
+    visible: false
+
+  oracle_mongo_password:
+    title: oracle_mongo_password
+    type: string
+    required: false
+    visible: false
+
+  oracle_mongo_schema:
+    title: oracle_mongo_schema
+    type: string
+    required: false
+    visible: false
+
+outputs:
+  application_url:
+    type: string
+    title: Application URL
+    visible: true
+
+  generated_ssh_private_key_for_bastion:
+    type: string
+    title: Generated SSH Private Key for Bastion
+    visible: true
+
+outputGroups:
+  - title: Application
+    outputs:
+      - application_url
+      - generated_ssh_private_key_for_bastion
