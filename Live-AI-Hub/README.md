@@ -7,11 +7,21 @@
 - The benefits are very tangible: faster time-to-value with quick wins that can scale, better outcomes because the AI is grounded in current enterprise context, lower cost and risk by reducing replication and ETL sprawl, and production readiness with the controls enterprises need—security, resiliency, observability, and scalability.
 
 
+## Live AI Hub assets
 
-### Retail Hub demo
+Live AI Hub includes reusable assets, documentation, and demo materials that are being developed to showcase how AI-powered hubs can be built and extended on Oracle Cloud Infrastructure. The current assets include reusable Terraform components, application extensions, supporting documentation, and demo flows for industry-focused hub experiences.
 
-[![Retail Hub demo](retail-hub-thumbnail.png)](https://objectstorage.us-ashburn-1.oraclecloud.com/p/26EMYRIJ1V62pa3CeHKrVcF08cJMNy8nQ3JsCGk-Hc27cEUd5ORVvSX5TVw3koVK/n/idukzrqavn8q/b/Live-AI-Hub/o/Retail%20Hub%20-%20Live%20AI%20Hub%20demo%20-%201080p.mp4)
+The initial demo assets focus on two example experiences:
 
-### Ticket Hub demo
+- **Retail Hub** - a demo flow focused on retail scenarios, customer engagement, product discovery, and AI-assisted business interactions.
+- **Ticket Hub** - a demo flow focused on service/ticketing scenarios, where AI can help users explore, triage, and interact with support-related information.
 
-[![Ticket Hub demo](ticket-hub-thumbnail.png)](https://objectstorage.us-ashburn-1.oraclecloud.com/p/PMIFNigFhznKpjn0S7ac_YIQeJPEZsCvLN5skH3e-B3eL10xrB65EGPIG-J7tKAc/n/idukzrqavn8q/b/Live-AI-Hub/o/Ticket%20Hub%20-%20Live%20AI%20Hub%20demo%20-%201080p.mp4)
+More assets and reusable components will be added as the Live AI Hub evolves.
+
+
+## Demo videos
+
+Click one of the links below to start the corresponding demo video:
+
+- [Watch the Retail Hub demo](videos/Retail%20Hub%20-%20Live%20AI%20Hub%20demo%20-%201080p.mp4)
+- [Watch the Ticket Hub demo](videos/Ticket%20Hub%20-%20Live%20AI%20Hub%20demo%20-%201080p.mp4)
