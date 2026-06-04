@@ -53,3 +53,7 @@ OCI_PROFILE=DEFAULT
 ```
 
 By default the app uses `~/.oci/config`. Set `OCI_CONFIG_FILE` if your OCI config is somewhere else.
+
+## Default Password
+The default database password is `welcome1`. Please change this in production environments.
+username is `admin` and `user` by default. and 'user' can be added with admin privileges.
