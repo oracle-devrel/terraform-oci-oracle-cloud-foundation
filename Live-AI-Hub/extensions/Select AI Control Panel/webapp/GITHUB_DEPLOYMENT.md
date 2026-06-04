@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This guide describes how to publish and deploy the DTC AI Agent Web App from GitHub.
+This guide describes how to publish and deploy the AI Agent Control Panel Web App from GitHub.
 
 This application is a Node.js server app. It is not a static site, so GitHub Pages is not a suitable deployment target. Deploy it to a server or platform that can run Node.js, keep long-lived processes running, and store Oracle and OCI credentials securely.
 
@@ -57,8 +57,8 @@ DB_CONNECT_STRING=your_database_connect_string
 TNS_ADMIN=/path/to/wallet_or_network_config
 DB_WALLET_PASSWORD=your_wallet_password_if_required
 
-SELECT_AI_PROFILE=dtc_select_ai_hub_nl2sql
-AI_AGENT_TEAM=dtc_ai_team
+SELECT_AI_PROFILE=acme_select_ai_hub_nl2sql
+AI_AGENT_TEAM=acme_ai_team
 MEMORY_TABLE=your_memory_table
 ```
 
@@ -75,8 +75,8 @@ OCI_PROFILE=DEFAULT
 
 OCI_STORAGE_LOCATION=<object-storage-location>
 OCI_CREDENTIAL_NAME=your_db_oci_credential
-RAG_PROFILE_NAME=dtc_select_ai_rag_kb_profile
-RAG_VECTOR_INDEX_NAME=dtc_hub_vector_index_kb
+RAG_PROFILE_NAME=acme_select_ai_rag_kb_profile
+RAG_VECTOR_INDEX_NAME=acme_hub_vector_index_kb
 ```
 
 For MCP testing:
@@ -112,31 +112,34 @@ Wallet files and OCI private keys are easier to manage directly on the deploymen
 Use this when you want to deploy without GitHub Actions.
 
 ```bash
-sudo -u dtcapp git clone https://github.com/YOUR_ORG/YOUR_REPO.git /opt/dtc-ai-agent-webapp
-cd /opt/dtc-ai-agent-webapp/webapp
+sudo -u acmeapp git clone https://github.com/YOUR_ORG/YOUR_REPO.git /opt/acme-ai-agent-webapp
+cd /opt/acme-ai-agent-webapp/webapp
 npm ci --omit=dev
 ```
 
-Create `/opt/dtc-ai-agent-webapp/webapp/.env` with the required runtime variables, then start the service:
+Create `/opt/acme-ai-agent-webapp/webapp/.env` with the required runtime variables, then start the service:
 
 ```bash
-sudo systemctl restart dtc-ai-webapp
-sudo systemctl status dtc-ai-webapp
+sudo systemctl restart acme-ai-webapp
+sudo systemctl status acme-ai-webapp
 ```
 
 After later code updates:
 
 ```bash
-cd /opt/dtc-ai-agent-webapp
-sudo -u dtcapp git pull
+cd /opt/acme-ai-agent-webapp
+sudo -u acmeapp git pull
 cd webapp
-sudo -u dtcapp npm ci --omit=dev
-sudo systemctl restart dtc-ai-webapp
+sudo -u acmeapp npm ci --omit=dev
+sudo systemctl restart acme-ai-webapp
 ```
+
+## .auth File
+The `.auth` file is used to store application user credentials in Base64 format when using the built-in authentication mode. It should be kept secure and not committed to Git.
 
 ## GitHub Actions Deployment With A Self-Hosted Runner
 
-Install a GitHub self-hosted runner on the deployment host and label it `dtc-webapp`. The runner should have permission to update `/opt/dtc-ai-agent-webapp` and restart the systemd service.
+Install a GitHub self-hosted runner on the deployment host and label it `acme-webapp`. The runner should have permission to update `/opt/acme-ai-agent-webapp` and restart the systemd service.
 
 Create `.github/workflows/deploy-webapp.yml` in the repository:
 
@@ -157,7 +160,7 @@ jobs:
     runs-on:
       - self-hosted
       - linux
-      - dtc-webapp
+      - acme-webapp
 
     steps:
       - name: Checkout
@@ -172,21 +175,21 @@ jobs:
 
       - name: Sync application files
         run: |
-          mkdir -p /opt/dtc-ai-agent-webapp
+          mkdir -p /opt/acme-ai-agent-webapp
           rsync -a --delete \
             --exclude node_modules \
             --exclude .env \
             --exclude .auth \
             --exclude public/Reports \
-            webapp/ /opt/dtc-ai-agent-webapp/webapp/
+            webapp/ /opt/acme-ai-agent-webapp/webapp/
 
       - name: Install production dependencies
-        working-directory: /opt/dtc-ai-agent-webapp/webapp
+        working-directory: /opt/acme-ai-agent-webapp/webapp
         run: npm ci --omit=dev
 
       - name: Write environment file
         run: |
-          cat > /opt/dtc-ai-agent-webapp/webapp/.env <<'EOF'
+          cat > /opt/acme-ai-agent-webapp/webapp/.env <<'EOF'
           NODE_ENV=production
           HOST=127.0.0.1
           PORT=3000
@@ -194,8 +197,8 @@ jobs:
           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
           DB_CONNECT_STRING=${{ secrets.DB_CONNECT_STRING }}
           DB_WALLET_PASSWORD=${{ secrets.DB_WALLET_PASSWORD }}
-          SELECT_AI_PROFILE=dtc_select_ai_hub_nl2sql
-          AI_AGENT_TEAM=dtc_ai_team
+          SELECT_AI_PROFILE=acme_select_ai_hub_nl2sql
+          AI_AGENT_TEAM=acme_ai_team
           LLM_POST_PROCESS=true
           OCI_COMPARTMENT_ID=${{ secrets.OCI_COMPARTMENT_ID }}
           OCI_STORAGE_LOCATION=${{ secrets.OCI_STORAGE_LOCATION }}
@@ -203,10 +206,10 @@ jobs:
           MCP_ENDPOINT=${{ secrets.MCP_ENDPOINT }}
           MCP_AUTH_TOKEN=${{ secrets.MCP_AUTH_TOKEN }}
           EOF
-          chmod 600 /opt/dtc-ai-agent-webapp/webapp/.env
+          chmod 600 /opt/acme-ai-agent-webapp/webapp/.env
 
       - name: Restart service
-        run: sudo systemctl restart dtc-ai-webapp
+        run: sudo systemctl restart acme-ai-webapp
 ```
 
 Adjust paths, branches, environment variables, and labels to match the actual GitHub repository and server.
@@ -260,4 +263,4 @@ Then open the public URL in a browser, sign in, and check:
 - Keep `.auth` persistent across deployments if local app users are managed in production.
 - Back up `config/runtime-config.json`, `config/llm-instructions.json`, `config/links.json`, and `public/Reports` if users manage them through the UI.
 - Do not commit Oracle wallets, OCI private keys, database passwords, or generated `.env` files.
-- Review system logs with `journalctl -u dtc-ai-webapp -f`.
+- Review system logs with `journalctl -u acme-ai-webapp -f`.

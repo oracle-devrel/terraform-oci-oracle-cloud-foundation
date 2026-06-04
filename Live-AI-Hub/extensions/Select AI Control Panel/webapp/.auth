@@ -1,22 +1,19 @@
 [
   {
     "username": "admin",
-    "displayName": "Administrator",
-    // Replace with Base64 encoded password
+    "displayName": "Administrator", 
     "password": "",
     "role": "Admin"
   },
   {
     "username": "user",
-    "displayName": "Standard User",
-    // Replace with Base64 encoded password
+    "displayName": "Standard User", 
     "password": "",
     "role": "User"
   },
   {
     "username": "James",
-    "displayName": "James Smith",
-    // Replace with Base64 encoded password
+    "displayName": "James Smith", 
     "password": "",
     "role": "User"
   }
