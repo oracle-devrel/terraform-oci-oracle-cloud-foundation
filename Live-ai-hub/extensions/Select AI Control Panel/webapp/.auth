@@ -2,19 +2,22 @@
   {
     "username": "admin",
     "displayName": "Administrator",
-    "password": "d2VsY29tZTE=",
+    // Replace with Base64 encoded password
+    "password": "",
     "role": "Admin"
   },
   {
     "username": "user",
     "displayName": "Standard User",
-    "password": "d2VsY29tZTE=",
+    // Replace with Base64 encoded password
+    "password": "",
     "role": "User"
   },
   {
     "username": "James",
     "displayName": "James Smith",
-    "password": "d2VsY29tZTE=",
+    // Replace with Base64 encoded password
+    "password": "",
     "role": "User"
   }
 ]
