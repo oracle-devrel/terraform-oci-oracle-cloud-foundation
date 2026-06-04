@@ -1,0 +1,1041 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AI Agent Control Panel</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <section class="login-screen" id="loginScreen">
+      <form class="login-panel" id="loginForm">
+        <p class="eyebrow">Secure Access</p>
+        <h1>AI Agent Control Panel</h1>
+        <div class="field">
+          <label for="loginUsername">Username</label>
+          <input id="loginUsername" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="loginPassword">Password</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" required>
+        </div>
+        <label class="check-row" for="rememberUsername">
+          <input id="rememberUsername" type="checkbox">
+          <span>Remember username</span>
+        </label>
+        <button class="primary login-button" type="submit" id="loginButton">Log In</button>
+        <p id="loginStatus" class="metadata-status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="modal-screen" id="passwordModal" hidden>
+      <form class="modal-panel" id="passwordForm">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">Account</p>
+            <h2>Change Password</h2>
+          </div>
+          <button type="button" class="modal-close" id="closePasswordModal" aria-label="Close change password">×</button>
+        </div>
+        <div class="field">
+          <label for="currentPassword">Current password</label>
+          <input id="currentPassword" type="password" autocomplete="current-password" required>
+        </div>
+        <div class="field">
+          <label for="newUserPassword">New password</label>
+          <input id="newUserPassword" type="password" autocomplete="new-password" required>
+        </div>
+        <div class="field">
+          <label for="confirmUserPassword">Confirm new password</label>
+          <input id="confirmUserPassword" type="password" autocomplete="new-password" required>
+        </div>
+        <div class="form-actions">
+          <span id="passwordStatus" class="metadata-status" aria-live="polite"></span>
+          <button type="submit" id="savePasswordButton">Save Password</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="modal-screen" id="instructionsModal" hidden>
+      <form class="modal-panel instructions-modal-panel" id="instructionsForm">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">Rendering</p>
+            <h2>Custom LLM Instructions</h2>
+          </div>
+          <button type="button" class="modal-close" id="closeInstructionsModal" aria-label="Close custom LLM instructions">×</button>
+        </div>
+        <div class="field instruction-profile-row">
+          <label for="llmInstructionSelect">Saved instruction</label>
+          <div class="inline-control">
+            <select id="llmInstructionSelect"></select>
+            <button type="button" id="newInstructionButton">New</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="llmInstructionName">Instruction name</label>
+          <input id="llmInstructionName" autocomplete="off" spellcheck="false" placeholder="Executive HTML report">
+        </div>
+        <div class="field">
+          <label for="llmInstructions">Custom LLM instructions</label>
+          <textarea id="llmInstructions" rows="8" placeholder="Example: Use a compact table, highlight duplicate Program IDs, right-align currency, and keep the tone executive-ready."></textarea>
+        </div>
+        <div class="field llm-profile-control" id="llmProfileControl">
+          <label for="runtimeLlmConfigSelect">LLM configuration</label>
+          <select id="runtimeLlmConfigSelect"></select>
+          <button type="button" id="updateProfileLlmButton">Update Select AI Profile</button>
+          <span id="profileLlmStatus" aria-live="polite"></span>
+        </div>
+        <div class="form-actions">
+          <span id="instructionStatus" class="metadata-status" aria-live="polite"></span>
+          <button type="submit" id="saveInstructionsButton">Save</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="modal-screen" id="htmlSaveModal" hidden>
+      <form class="modal-panel html-save-modal-panel" id="htmlSaveForm">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">Reports</p>
+            <h2>Save HTML Report</h2>
+          </div>
+          <button type="button" class="modal-close" id="closeHtmlSaveModal" aria-label="Close save HTML report">×</button>
+        </div>
+        <div class="field">
+          <label for="htmlReportFilename">Filename</label>
+          <input id="htmlReportFilename" autocomplete="off" spellcheck="false" required>
+        </div>
+        <div class="field">
+          <label for="htmlReportFolderSelect">Folder</label>
+          <select id="htmlReportFolderSelect"></select>
+        </div>
+        <div class="field">
+          <label for="htmlReportNewFolder">New folder</label>
+          <input id="htmlReportNewFolder" autocomplete="off" spellcheck="false" placeholder="Optional: DTC/New Reports">
+        </div>
+        <div class="form-actions">
+          <span id="htmlSaveStatus" class="metadata-status" aria-live="polite"></span>
+          <button type="submit" id="confirmSaveHtmlButton">Save</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="modal-screen" id="markdownResponseModal" hidden>
+      <form class="modal-panel markdown-response-modal-panel" id="markdownResponseForm">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">OCI Object Storage</p>
+            <h2>Upload Response Markdown</h2>
+          </div>
+          <button type="button" class="modal-close" id="closeMarkdownResponseModal" aria-label="Close upload response markdown">×</button>
+        </div>
+        <div class="field">
+          <label for="markdownResponseFilename">Markdown filename</label>
+          <input id="markdownResponseFilename" autocomplete="off" spellcheck="false" required>
+        </div>
+        <div class="form-actions">
+          <span id="markdownResponseStatus" class="metadata-status" aria-live="polite"></span>
+          <button type="submit" id="confirmUploadResponseMarkdownButton">Upload and Index</button>
+        </div>
+      </form>
+    </section>
+
+    <main class="app-shell" id="appShell" hidden>
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Oracle Database AI</p>
+          <h1 class="app-title">
+            <svg class="app-icon icon-control" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+              <path d="M7 8h4M7 12h10M7 16h6M16 8h1"></path>
+            </svg>
+            <span>AI Agent Control Panel</span>
+          </h1>
+        </div>
+        <div class="status-pill" id="statusPill">
+          <span class="status-dot"></span>
+          <span id="statusText">Checking database</span>
+        </div>
+      </header>
+      <nav class="topnav" aria-label="Main navigation">
+        <button class="active" type="button" data-page-target="console">
+          <svg class="nav-icon icon-console" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM8 9h8M8 13h5"></path></svg>
+          <span>Console</span>
+        </button>
+        <button class="admin-menu" id="adminMenu" type="button" data-page-target="administration">
+          <svg class="nav-icon icon-config" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"></path></svg>
+          <span>Administration</span>
+        </button>
+        <span class="nav-spacer"></span>
+        <span id="authUser" class="auth-user"></span>
+        <button type="button" id="changePasswordButton">
+          <svg class="nav-icon icon-key" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 7a4 4 0 1 0-2.9 6.8L12 14h3v3h3v3h3v-4.2l-5.2-5.2"></path></svg>
+          <span>Change Password</span>
+        </button>
+        <button type="button" id="logoutButton">
+          <svg class="nav-icon icon-action" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5"></path><path d="M15 12H3"></path><path d="M21 4v16"></path></svg>
+          <span>Log Out</span>
+        </button>
+      </nav>
+
+      <section class="workspace page active" id="consolePage" data-page="console">
+        <aside class="sidebar">
+          <div class="field">
+            <label for="teamName">Agent team</label>
+            <input id="teamName" autocomplete="off" spellcheck="false">
+          </div>
+
+          <div class="field">
+            <label for="mode">Runtime</label>
+            <select id="mode">
+              <option value="agent">AI Agent Team</option>
+              <option value="select-ai">Select AI Profile</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="profileName">Select AI profile</label>
+            <input id="profileName" autocomplete="off" spellcheck="false">
+          </div>
+
+          <div class="instruction-panel sidebar-instructions" id="instructionPanel">
+            <div class="instruction-display-header">
+              <span>Rendering instructions for LLM</span>
+              <button type="button" id="openInstructionsModalButton">Edit</button>
+            </div>
+            <div class="instruction-picker-row">
+              <select id="sidebarInstructionSelect" aria-label="Choose LLM rendering instruction"></select>
+            </div>
+            <p id="instructionDisplay" class="instruction-display-text">No custom instructions saved.</p>
+          </div>
+        </aside>
+
+        <section class="main-panel">
+          <form id="promptForm" class="prompt-form ask-section">
+            <div class="ask-header">
+              <div>
+                <p class="eyebrow">Prompt</p>
+                <h2>Ask the database</h2>
+              </div>
+              <button type="button" class="collapse-button" id="askToggle" aria-expanded="true" aria-controls="askBody" title="Collapse ask section">
+                <span class="chevron" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="ask-body" id="askBody">
+              <label for="prompt">Question</label>
+              <textarea id="prompt" rows="1" placeholder="Ask about DTC programs, sponsorship FAQ, memory, grids, or charts..."></textarea>
+              <div class="actions">
+                <span id="htmlResponseTime" class="response-time" aria-live="polite"></span>
+                <span id="consoleActionStatus" class="console-action-status" role="status" aria-live="polite" hidden></span>
+                <div id="runProgress" class="run-progress" role="progressbar" aria-label="Run progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden>
+                  <div class="run-progress-track">
+                    <div id="runProgressFill" class="run-progress-fill"></div>
+                  </div>
+                  <span id="runProgressText" class="run-progress-value">0%</span>
+                  <span id="runProgressElapsed" class="run-progress-elapsed">0.0 sec</span>
+                </div>
+                <button class="primary" type="submit" id="runButton">Run</button>
+                <button type="button" id="clearButton">Clear</button>
+              </div>
+            </div>
+          </form>
+
+          <div class="response-section" id="responseSection">
+            <div class="result-header">
+              <div>
+                <p class="eyebrow">Response</p>
+                <h2 id="resultTitle">Ready</h2>
+              </div>
+              <div class="result-actions">
+                <p id="elapsed"></p>
+                <button type="button" id="openHtmlButton" title="Open rendered HTML in a new window">Open HTML</button>
+                <button type="button" id="saveHtmlButton" title="Save rendered report HTML under Reports">Save HTML</button>
+                <button type="button" id="exportPdfButton" title="Export rendered report to PDF">Export PDF</button>
+                <button type="button" id="uploadResponseMarkdownButton" title="Upload this response as Markdown to OCI Object Storage and rebuild the vector index">Upload MD</button>
+                <button type="button" class="collapse-button" id="responseToggle" aria-expanded="true" aria-controls="responseBody" title="Collapse response">
+                  <span class="chevron" aria-hidden="true"></span>
+                </button>
+              </div>
+            </div>
+
+            <div class="response-body" id="responseBody">
+              <div class="tabs" role="tablist" aria-label="Response views">
+                <button class="active" type="button" data-view="rendered">Rendered HTML</button>
+                <button type="button" data-view="raw">Raw output</button>
+              </div>
+
+              <section class="output-surface">
+                <iframe id="renderedOutput" title="Rendered AI HTML output" sandbox="allow-scripts"></iframe>
+                <pre id="rawOutput"></pre>
+              </section>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="page metadata-page" id="administrationPage" data-page="administration">
+        <div class="metadata-panel">
+          <div class="metadata-header">
+            <div>
+              <p class="eyebrow">Administration</p>
+              <h2>Administration</h2>
+            </div>
+          </div>
+          <div class="administration-grid">
+            <button class="administration-card" type="button" data-page-target="agents" data-help="View AI agent teams and agents from the database, select a default team, and run the latest team task execution." aria-label="AI Agents: View teams and agents, select a default team, and run latest team task execution.">
+              <span class="administration-icon icon-agents">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3"></circle><path d="M5 20c1.5-4 12.5-4 14 0"></path></svg>
+              </span>
+              <span>AI Agents</span>
+            </button>
+            <button class="administration-card" type="button" data-page-target="manager" data-help="Review and delete AI tools, tasks, agents, teams, Select AI profiles, and RAG profiles." aria-label="AI Manager: Review and delete AI objects and profiles.">
+              <span class="administration-icon icon-manager">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M5 7h14M7 7v5a3 3 0 0 0 6 0V7M17 7v5a3 3 0 0 1-6 0V7"></path></svg>
+              </span>
+              <span>AI Manager</span>
+            </button>
+            <button class="administration-card" type="button" data-page-target="reports" data-help="Browse, preview, rename, and delete PDF or HTML files under the Reports folder." aria-label="Reports Manager: Browse, preview, rename, and delete report files.">
+              <span class="administration-icon icon-prompts">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16H6z"></path><path d="M9 8h6M9 12h6M9 16h3"></path><path d="M18 7l-3-3"></path></svg>
+              </span>
+              <span>AI Responses</span>
+            </button>
+            <button class="administration-card" type="button" data-page-target="builder" data-help="Create AI tools, tasks, agents, teams, Select AI profiles, and RAG profiles." aria-label="AI Builder: Create AI tools, tasks, agents, teams, and profiles.">
+              <span class="administration-icon icon-action">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18"></path><path d="M5 5h5v5H5zM14 14h5v5h-5z"></path></svg>
+              </span>
+              <span>AI Builder</span>
+            </button>
+            <button class="administration-card" type="button" data-page-target="topology" data-help="Generate and download a PNG topology showing AI team, agent, task, tool, function, and profile connectivity." aria-label="AI Topology: Generate a connectivity image for selected AI teams.">
+              <span class="administration-icon icon-rag">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="5" r="2"></circle><circle cx="12" cy="19" r="2"></circle><circle cx="19" cy="12" r="2"></circle><path d="M7 11l3.5-4M7 13l3.5 4M14 6.5l3.5 4M14 17.5l3.5-4"></path></svg>
+              </span>
+              <span>AI Topology</span>
+            </button>
+            <button class="administration-card" type="button" data-page-target="profiles" data-help="List Select AI profiles available to the active database connection." aria-label="Select AI Profiles: List available Select AI profiles.">
+              <span class="administration-icon icon-profiles">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16H6zM9 8h6M9 12h6M9 16h3"></path></svg>
+              </span>
+              <span>AI Profiles</span>
+            </button> 
+            <button class="administration-card" type="button" data-page-target="links" data-help="Add and open useful external links in a new browser window." aria-label="Links: Add and open useful external links.">
+              <span class="administration-icon icon-action">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1.2 1.2"></path><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1.2-1.2"></path></svg>
+              </span>
+              <span>Links</span>
+            </button>
+            <button class="administration-card" type="button" data-page-target="mcp-tester" data-help="Test the configured Oracle Database MCP endpoint using server-side environment credentials." aria-label="MCP Tester: Test the configured MCP endpoint.">
+              <span class="administration-icon icon-action">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4z"></path><path d="M8 10h3M8 14h8"></path><path d="M16 6v12"></path></svg>
+              </span>
+              <span>MCP Tester</span>
+            </button>
+            <button class="administration-card" type="button" data-page-target="prompts" data-help="Browse recent user prompts with pagination, newest first." aria-label="User Prompts: Browse recent prompts newest first.">
+              <span class="administration-icon icon-prompts">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H8l-4 4zM8 9h8M8 13h5"></path></svg>
+              </span>
+              <span>User Prompts</span>
+            </button>
+            <button class="administration-card" type="button" data-page-target="memory" data-help="Browse saved agent memory records from the configured memory table." aria-label="Memory: Browse saved agent memory records.">
+              <span class="administration-icon icon-memory">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h12v14H6zM9 9h6M9 13h6M9 17h3"></path><path d="M4 8h2M4 12h2M4 16h2M18 8h2M18 12h2M18 16h2"></path></svg>
+              </span>
+              <span>Memory</span>
+            </button>
+            <button class="administration-card" type="button" data-page-target="rag" data-help="View RAG pipelines, pipeline attributes, cloud storage objects, and pipeline history." aria-label="RAG: View pipelines, storage objects, and pipeline history.">
+              <span class="administration-icon icon-rag">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9M12 3v9h9M8 15h5"></path></svg>
+              </span>
+              <span>RAG</span>
+            </button>
+            <button class="administration-card" type="button" data-page-target="markdown-upload" data-help="Upload Markdown FAQ or knowledge files to OCI Object Storage and rebuild the RAG vector index." aria-label="Markdown Upload: Upload markdown files to Object Storage and rebuild RAG index.">
+              <span class="administration-icon icon-action">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h9l3 3v13H6z"></path><path d="M15 4v4h4"></path><path d="M9 15l3-3 3 3"></path><path d="M12 12v6"></path></svg>
+              </span>
+              <span>KB Upload</span>
+            </button> 
+            <button class="administration-card" type="button" data-page-target="users" data-help="Manage application users, display names, passwords, and roles." aria-label="Users: Manage application users, passwords, and roles.">
+              <span class="administration-icon icon-identity">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"></circle><path d="M3 20c1-4 11-4 12 0"></path><path d="M17 9h4"></path><path d="M19 7v4"></path></svg>
+              </span>
+              <span>Users</span>
+            </button>
+            <button class="administration-card" type="button" data-page-target="configuration" data-help="Manage database and LLM runtime configurations, defaults, OCI settings, and profile names." aria-label="Configuration: Manage database and LLM runtime settings.">
+              <span class="administration-icon icon-config">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"></path></svg>
+              </span>
+              <span>Configuration</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="page metadata-page" id="reportsPage" data-page="reports">
+        <div class="metadata-panel reports-panel">
+          <div class="metadata-header">
+            <div>
+              <p class="eyebrow">Administration</p>
+              <h2>Reports</h2>
+            </div>
+            <div class="section-actions">
+              <span id="reportsUploadConfirmation" class="reports-upload-confirmation" role="status" aria-live="polite" hidden></span>
+              <button class="reports-action-button" type="button" id="toggleReportsBrowserButton" title="Collapse folder browser">
+                <svg class="reports-action-icon reports-action-icon-browser" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 5.5h18v13H3z"></path>
+                  <path d="M8 5.5v13"></path>
+                  <path d="M5.5 9h1"></path>
+                  <path d="M5.5 12h1"></path>
+                  <path d="M11 9h7"></path>
+                  <path d="M11 12h5"></path>
+                </svg>
+                <span class="reports-action-label">Hide Browser</span>
+              </button>
+              <button class="reports-action-button" type="button" id="newReportsFolderButton" title="Create folder">
+                <svg class="reports-action-icon reports-action-icon-folder" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 6.5h6l2 2h10v9.5H3z"></path>
+                  <path d="M3 6.5v11.5"></path>
+                  <path d="M16 11.5v5"></path>
+                  <path d="M13.5 14h5"></path>
+                </svg>
+                <span>Create New folder</span>
+              </button>
+              <button class="reports-action-button" type="button" id="uploadReportsKnowledgeButton" title="Upload selected report to OCI Object Storage and rebuild RAG index">
+                <svg class="reports-action-icon reports-action-icon-upload" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 4h9l3 3v13H6z"></path>
+                  <path d="M15 4v4h4"></path>
+                  <path d="M9 14l3-3 3 3"></path>
+                  <path d="M12 11v7"></path>
+                </svg>
+                <span>Upload to RAG</span>
+              </button>
+              <button class="reports-action-button" type="button" id="refreshReportsButton">
+                <svg class="reports-action-icon reports-action-icon-refresh" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20 6v5h-5"></path>
+                  <path d="M4 18v-5h5"></path>
+                  <path d="M18.4 9A7 7 0 0 0 6.2 7.8L4 10"></path>
+                  <path d="M5.6 15A7 7 0 0 0 17.8 16.2L20 14"></path>
+                </svg>
+                <span>Refresh</span>
+              </button>
+            </div>
+          </div>
+          <div class="reports-layout" id="reportsLayout">
+            <aside class="reports-browser" aria-label="Report files">
+              <div class="section-title-row">
+                <h3>Chat Response Files</h3>
+                <span id="reportsCount" class="count-pill">0</span>
+              </div>
+              <div class="reports-toolbar">
+                <span id="selectedReportsFolder" class="reports-selected-folder">Reports</span>
+              </div>
+              <div id="reportsFileList" class="reports-tree"></div>
+            </aside>
+            <section class="reports-viewer">
+              <div class="section-title-row">
+                <h3 id="reportsSelectedName">No report selected</h3>
+              </div>
+              <iframe id="reportsPdfFrame" title="Selected report"></iframe>
+            </section>
+          </div>
+          <p id="reportsStatus" class="metadata-status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="page metadata-page" id="agentsPage" data-page="agents">
+        <div class="metadata-panel">
+          <div class="metadata-header">
+            <div>
+              <p class="eyebrow">Database Metadata</p>
+              <h2>AI Agents</h2>
+            </div>
+            <button type="button" id="refreshAgentsButton">Refresh</button>
+          </div>
+          <div class="metadata-grid">
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Agent Teams</h3>
+                <div class="section-actions">
+                  <span id="agentTeamsCount" class="count-pill">0</span>
+                  <button type="button" id="changeDefaultTeamButton" disabled>Change Default Team</button>
+                </div>
+              </div>
+              <div id="agentTeamsTable" class="table-shell"></div>
+            </section>
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Agents</h3>
+                <span id="agentsCount" class="count-pill">0</span>
+              </div>
+              <div id="agentsTable" class="table-shell"></div>
+            </section>
+          </div>
+          <section class="metadata-section task-execution-section">
+            <div class="section-title-row">
+              <h3>Latest Team Task Execution</h3>
+              <button type="button" id="runLatestTaskButton" disabled>Execute</button>
+            </div>
+            <div id="latestTaskTable" class="table-shell"></div>
+            <p id="latestTaskStatus" class="metadata-status inline-status" aria-live="polite">Select an agent team.</p>
+          </section>
+          <p id="agentsStatus" class="metadata-status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="page metadata-page" id="managerPage" data-page="manager">
+        <div class="metadata-panel">
+          <div class="metadata-header">
+            <div>
+              <p class="eyebrow">DBMS Cloud AI Agent</p>
+              <h2>AI Manager</h2>
+            </div>
+            <button type="button" id="refreshManagerButton">Refresh</button>
+          </div>
+          <div class="metadata-stack">
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>AI Tools</h3>
+                <span id="managerToolsCount" class="count-pill">0</span>
+              </div>
+              <div id="managerToolsTable" class="table-shell"></div>
+            </section>
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>AI Tasks</h3>
+                <span id="managerTasksCount" class="count-pill">0</span>
+              </div>
+              <div id="managerTasksTable" class="table-shell"></div>
+            </section>
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>AI Agents</h3>
+                <span id="managerAgentsCount" class="count-pill">0</span>
+              </div>
+              <div id="managerAgentsTable" class="table-shell"></div>
+            </section>
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>AI Teams</h3>
+                <span id="managerTeamsCount" class="count-pill">0</span>
+              </div>
+              <div id="managerTeamsTable" class="table-shell"></div>
+            </section>
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Select AI Profiles</h3>
+                <span id="managerSelectProfilesCount" class="count-pill">0</span>
+              </div>
+              <div id="managerSelectProfilesTable" class="table-shell"></div>
+            </section>
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>RAG Profiles</h3>
+                <span id="managerRagProfilesCount" class="count-pill">0</span>
+              </div>
+              <div id="managerRagProfilesTable" class="table-shell"></div>
+            </section>
+          </div>
+          <p id="managerStatus" class="metadata-status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="page metadata-page" id="builderPage" data-page="builder">
+        <div class="metadata-panel">
+          <div class="metadata-header">
+            <div>
+              <p class="eyebrow">DBMS Cloud AI Agent</p>
+              <h2>AI Builder</h2>
+            </div>
+            <button type="button" id="resetBuilderButton">Reset</button>
+          </div>
+          <div class="metadata-stack builder-stack">
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Create AI Tool</h3>
+              </div>
+              <form id="builderToolForm" class="builder-form" data-builder-type="Tool">
+                <div class="builder-fields">
+                  <div class="field">
+                    <label for="builderToolName">Tool name</label>
+                    <input id="builderToolName" autocomplete="off" required>
+                  </div>
+                  <div class="field">
+                    <label for="builderToolDescription">Description</label>
+                    <input id="builderToolDescription" autocomplete="off">
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="builderToolAttributes">Attributes JSON</label>
+                  <textarea id="builderToolAttributes" rows="7" spellcheck="false" required></textarea>
+                </div>
+                <div class="form-actions">
+                  <button type="submit">Create Tool</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Create AI Task</h3>
+              </div>
+              <form id="builderTaskForm" class="builder-form" data-builder-type="Task">
+                <div class="builder-fields">
+                  <div class="field">
+                    <label for="builderTaskName">Task name</label>
+                    <input id="builderTaskName" autocomplete="off" required>
+                  </div>
+                  <div class="field">
+                    <label for="builderTaskDescription">Description</label>
+                    <input id="builderTaskDescription" autocomplete="off">
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="builderTaskAttributes">Attributes JSON</label>
+                  <textarea id="builderTaskAttributes" rows="8" spellcheck="false" required></textarea>
+                </div>
+                <div class="form-actions">
+                  <button type="submit">Create Task</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Create AI Agent</h3>
+              </div>
+              <form id="builderAgentForm" class="builder-form" data-builder-type="Agent">
+                <div class="builder-fields">
+                  <div class="field">
+                    <label for="builderAgentName">Agent name</label>
+                    <input id="builderAgentName" autocomplete="off" required>
+                  </div>
+                  <div class="field">
+                    <label for="builderAgentDescription">Description</label>
+                    <input id="builderAgentDescription" autocomplete="off">
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="builderAgentAttributes">Attributes JSON</label>
+                  <textarea id="builderAgentAttributes" rows="8" spellcheck="false" required></textarea>
+                </div>
+                <div class="form-actions">
+                  <button type="submit">Create Agent</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Create AI Team</h3>
+              </div>
+              <form id="builderTeamForm" class="builder-form" data-builder-type="Team">
+                <div class="builder-fields">
+                  <div class="field">
+                    <label for="builderTeamName">Team name</label>
+                    <input id="builderTeamName" autocomplete="off" required>
+                  </div>
+                  <div class="field">
+                    <label for="builderTeamDescription">Description</label>
+                    <input id="builderTeamDescription" autocomplete="off">
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="builderTeamAttributes">Attributes JSON</label>
+                  <textarea id="builderTeamAttributes" rows="8" spellcheck="false" required></textarea>
+                </div>
+                <div class="form-actions">
+                  <button type="submit">Create Team</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Create Select AI Profile</h3>
+              </div>
+              <form id="builderSelectProfileForm" class="builder-form" data-builder-type="SelectProfile">
+                <div class="builder-fields">
+                  <div class="field">
+                    <label for="builderSelectProfileName">Profile name</label>
+                    <input id="builderSelectProfileName" autocomplete="off" required>
+                  </div>
+                  <div class="field">
+                    <label for="builderSelectProfileDescription">Description</label>
+                    <input id="builderSelectProfileDescription" autocomplete="off">
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="builderSelectProfileAttributes">Attributes JSON</label>
+                  <textarea id="builderSelectProfileAttributes" rows="9" spellcheck="false" required></textarea>
+                </div>
+                <div class="form-actions">
+                  <button type="submit">Create Select AI Profile</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Create RAG Profile</h3>
+              </div>
+              <form id="builderRagProfileForm" class="builder-form" data-builder-type="RagProfile">
+                <div class="builder-fields">
+                  <div class="field">
+                    <label for="builderRagProfileName">Profile name</label>
+                    <input id="builderRagProfileName" autocomplete="off" required>
+                  </div>
+                  <div class="field">
+                    <label for="builderRagProfileDescription">Description</label>
+                    <input id="builderRagProfileDescription" autocomplete="off">
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="builderRagProfileAttributes">Attributes JSON</label>
+                  <textarea id="builderRagProfileAttributes" rows="9" spellcheck="false" required></textarea>
+                </div>
+                <div class="form-actions">
+                  <button type="submit">Create RAG Profile</button>
+                </div>
+              </form>
+            </section>
+          </div>
+          <p id="builderStatus" class="metadata-status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="page metadata-page" id="topologyPage" data-page="topology">
+        <div class="metadata-panel">
+          <div class="metadata-header">
+            <div>
+              <p class="eyebrow">AI Connectivity</p>
+              <h2>AI Topology</h2>
+            </div>
+            <button type="button" id="refreshTopologyButton">Refresh</button>
+          </div>
+          <div class="metadata-stack">
+            <section class="metadata-section">
+              <div class="topology-toolbar">
+                <div class="field">
+                  <label for="topologyTeamSelect">AI Team</label>
+                  <select id="topologyTeamSelect"></select>
+                </div>
+                <button type="button" id="downloadTopologyButton" disabled>Download PNG</button>
+              </div>
+              <div class="topology-canvas-shell">
+                <canvas id="topologyCanvas" width="1400" height="780"></canvas>
+              </div>
+              <div id="topologyLegend" class="topology-legend"></div>
+            </section>
+          </div>
+          <p id="topologyStatus" class="metadata-status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="page metadata-page" id="promptsPage" data-page="prompts">
+        <div class="metadata-panel">
+          <div class="metadata-header">
+            <div>
+              <p class="eyebrow">Conversation History</p>
+              <h2>User Prompts</h2>
+            </div>
+            <button type="button" id="refreshPromptsButton">Refresh</button>
+          </div>
+          <div class="metadata-section">
+            <div class="section-title-row">
+              <h3>Prompts</h3>
+              <span id="promptsCount" class="count-pill">0</span>
+            </div>
+            <div id="promptsTable" class="table-shell"></div>
+            <div class="pagination-controls">
+              <button type="button" id="previousPromptsButton" disabled>Previous</button>
+              <span id="promptsPageText">Showing 0</span>
+              <button type="button" id="nextPromptsButton" disabled>Next</button>
+            </div>
+          </div>
+          <p id="promptsStatus" class="metadata-status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="page metadata-page" id="memoryPage" data-page="memory">
+        <div class="metadata-panel">
+          <div class="metadata-header">
+            <div>
+              <p class="eyebrow">Persistent Context</p>
+              <h2>Memory Table</h2>
+            </div>
+            <button type="button" id="refreshMemoryButton">Refresh</button>
+          </div>
+          <div class="metadata-section">
+            <div class="section-title-row">
+              <h3 id="memoryTableName">Memory</h3>
+              <span id="memoryCount" class="count-pill">0</span>
+            </div>
+            <div id="memoryTable" class="table-shell"></div>
+            <div class="pagination-controls">
+              <button type="button" id="previousMemoryButton" disabled>Previous</button>
+              <span id="memoryPageText">Showing 0</span>
+              <button type="button" id="nextMemoryButton" disabled>Next</button>
+            </div>
+          </div>
+          <p id="memoryStatus" class="metadata-status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="page metadata-page" id="usersPage" data-page="users">
+        <div class="metadata-panel">
+          <div class="metadata-header">
+            <div>
+              <p class="eyebrow">Administration</p>
+              <h2>Users</h2>
+            </div>
+            <button type="button" id="refreshUsersButton">Refresh</button>
+          </div>
+          <div class="metadata-grid">
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Add User</h3>
+              </div>
+              <form id="userForm" class="user-form">
+                <div class="field">
+                  <label for="newUsername">Username</label>
+                  <input id="newUsername" autocomplete="off" required>
+                </div>
+                <div class="field">
+                  <label for="newDisplayName">Display name</label>
+                  <input id="newDisplayName" autocomplete="off" required>
+                </div>
+                <div class="field">
+                  <label for="newPassword">Password</label>
+                  <input id="newPassword" type="password" autocomplete="new-password" required>
+                </div>
+                <div class="field">
+                  <label for="newRole">Role</label>
+                  <select id="newRole">
+                    <option value="User">User</option>
+                    <option value="Admin">Admin</option>
+                  </select>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" id="saveUserButton">Add User</button>
+                </div>
+              </form>
+            </section>
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Current Users</h3>
+                <span id="usersCount" class="count-pill">0</span>
+              </div>
+              <div id="usersTable" class="table-shell"></div>
+            </section>
+          </div>
+          <p id="usersStatus" class="metadata-status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="page metadata-page" id="linksPage" data-page="links">
+        <div class="metadata-panel">
+          <div class="metadata-header">
+            <div>
+              <p class="eyebrow">Administration</p>
+              <h2>Links</h2>
+            </div>
+            <button type="button" id="refreshLinksButton">Refresh</button>
+          </div>
+          <div class="metadata-grid">
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Add Link</h3>
+              </div>
+              <form id="linkForm" class="user-form">
+                <div class="field">
+                  <label for="newLinkName">Link name</label>
+                  <input id="newLinkName" autocomplete="off" required>
+                </div>
+                <div class="field">
+                  <label for="newLinkUrl">Link URL</label>
+                  <input id="newLinkUrl" type="url" autocomplete="off" placeholder="https://example.com" required>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" id="saveLinkButton">Add Link</button>
+                </div>
+              </form>
+            </section>
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Saved Links</h3>
+                <span id="linksCount" class="count-pill">0</span>
+              </div>
+              <div id="linksTable" class="table-shell"></div>
+            </section>
+          </div>
+          <p id="linksStatus" class="metadata-status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="page metadata-page" id="mcpTesterPage" data-page="mcp-tester">
+        <div class="metadata-panel">
+          <div class="metadata-header">
+            <div>
+              <p class="eyebrow">Model Context Protocol</p>
+              <h2>MCP Tester</h2>
+            </div>
+          </div>
+          <div class="metadata-grid mcp-tester-grid">
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Request</h3>
+              </div>
+	              <form id="mcpTesterForm" class="user-form mcp-tester-form">
+	                <div class="field">
+	                  <label for="mcpAction">Action</label>
+	                  <select id="mcpAction">
+	                    <option value="natural_language">Natural language query</option>
+	                    <option value="list_tools">List tools</option>
+	                    <option value="initialize">Initialize</option>
+	                    <option value="call_tool">Call tool</option>
+	                  </select>
+	                </div>
+	                <div class="field">
+	                  <label for="mcpNaturalPrompt">Natural language query</label>
+	                  <textarea id="mcpNaturalPrompt" rows="5" spellcheck="false" placeholder="Get details about program 779"></textarea>
+	                </div>
+	                <div class="field">
+	                  <label for="mcpProfileName">Select AI profile</label>
+	                  <input id="mcpProfileName" autocomplete="off" spellcheck="false">
+	                </div>
+	                <div class="field">
+	                  <label for="mcpToolName">Tool name</label>
+	                  <input id="mcpToolName" autocomplete="off" spellcheck="false" placeholder="LIST_SCHEMAS">
+                </div>
+                <div class="field">
+                  <label for="mcpArguments">Arguments JSON</label>
+                  <textarea id="mcpArguments" rows="10" spellcheck="false"></textarea>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" id="runMcpTesterButton">Run MCP Test</button>
+                </div>
+              </form>
+            </section>
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Response</h3>
+              </div>
+              <pre id="mcpResponseOutput" class="mcp-response-output"></pre>
+            </section>
+          </div>
+          <p id="mcpTesterStatus" class="metadata-status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="page metadata-page" id="ragPage" data-page="rag">
+        <div class="metadata-panel">
+          <div class="metadata-header">
+            <div>
+              <p class="eyebrow">Retrieval Augmented Generation</p>
+              <h2>RAG Pipelines</h2>
+            </div>
+            <button type="button" id="refreshRagButton">Refresh</button>
+          </div>
+          <div class="metadata-stack">
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Pipelines</h3>
+                <span id="ragPipelinesCount" class="count-pill">0</span>
+              </div>
+              <div id="ragPipelinesTable" class="table-shell"></div>
+            </section>
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Pipeline Attributes</h3>
+                <span id="ragAttributesCount" class="count-pill">0</span>
+              </div>
+              <div id="ragAttributesTable" class="table-shell"></div>
+            </section>
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Cloud Storage Objects</h3>
+                <span id="ragObjectsCount" class="count-pill">0</span>
+              </div>
+              <p id="ragStorageLocation" class="section-note"></p>
+              <div id="ragObjectsTable" class="table-shell"></div>
+            </section>
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Pipeline History</h3>
+                <span id="ragHistoryCount" class="count-pill">0</span>
+              </div>
+              <div id="ragHistoryTable" class="table-shell"></div>
+            </section>
+          </div>
+          <p id="ragStatus" class="metadata-status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="page metadata-page" id="markdownUploadPage" data-page="markdown-upload">
+        <div class="metadata-panel">
+          <div class="metadata-header">
+            <div>
+              <p class="eyebrow">OCI Object Storage</p>
+              <h2>Markdown Upload</h2>
+            </div>
+            <button type="button" id="refreshMarkdownUploadButton">Refresh</button>
+          </div>
+          <div class="metadata-stack">
+            <section class="metadata-section">
+              <div class="section-title-row">
+                <h3>Upload Markdown File</h3>
+              </div>
+              <p id="markdownUploadLocation" class="section-note"></p>
+              <form id="markdownUploadForm" class="upload-form">
+                <div class="field">
+                  <label for="markdownFile">Markdown file</label>
+                  <input id="markdownFile" name="file" type="file" accept=".md,.markdown,text/markdown,text/x-markdown" required>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" id="uploadMarkdownButton">Upload</button>
+                </div>
+              </form>
+            </section>
+          </div>
+          <p id="markdownUploadStatus" class="metadata-status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="page metadata-page" id="profilesPage" data-page="profiles">
+        <div class="metadata-panel">
+          <div class="metadata-header">
+            <div>
+              <p class="eyebrow">Database Metadata</p>
+              <h2>Select AI Profiles</h2>
+            </div>
+            <button type="button" id="refreshProfilesButton">Refresh</button>
+          </div>
+          <div class="metadata-section">
+            <div class="section-title-row">
+              <h3>Profiles</h3>
+              <span id="profilesCount" class="count-pill">0</span>
+            </div>
+            <div id="profilesTable" class="table-shell"></div>
+          </div>
+          <p id="profilesStatus" class="metadata-status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="page metadata-page" id="configurationPage" data-page="configuration">
+        <div class="metadata-panel">
+          <div class="metadata-header">
+            <div>
+              <p class="eyebrow">Runtime</p>
+              <h2>Configuration</h2>
+            </div>
+            <button type="button" id="refreshConfigButton">Refresh</button>
+          </div>
+          <div id="configTable" class="table-shell"></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

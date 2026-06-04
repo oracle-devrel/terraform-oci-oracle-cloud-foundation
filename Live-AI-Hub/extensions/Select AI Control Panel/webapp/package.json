@@ -1,0 +1,19 @@
+{
+  "name": "dtc-ai-agent-webapp",
+  "version": "1.0.0",
+  "description": "Web application for running Oracle AI Agents and Select AI against the DTC database.",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "@databricks/sql": "^1.15.0",
+    "oci-sdk": "^2.131.2",
+    "oracledb": "^6.8.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
