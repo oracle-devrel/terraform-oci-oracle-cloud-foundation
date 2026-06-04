@@ -1,0 +1,74 @@
+set define off;
+set serveroutput on;
+
+-------------------------------------------------------------------------
+-- Setup CO user for Oracle Database API for MongoDB on ATP
+-- Run on ATP as ADMIN
+-------------------------------------------------------------------------
+
+begin
+  execute immediate 'grant connect to CO';
+exception
+  when others then null;
+end;
+/
+
+begin
+  execute immediate 'grant resource to CO';
+exception
+  when others then null;
+end;
+/
+
+begin
+  execute immediate 'grant create session to CO';
+exception
+  when others then null;
+end;
+/
+
+begin
+  execute immediate 'grant create table to CO';
+exception
+  when others then null;
+end;
+/
+
+begin
+  execute immediate 'grant soda_app to CO';
+exception
+  when others then null;
+end;
+/
+
+begin
+  execute immediate 'alter user CO quota unlimited on data';
+exception
+  when others then null;
+end;
+/
+
+begin
+  execute immediate 'grant execute on cs_session to CO';
+exception
+  when others then null;
+end;
+/
+
+begin
+  ords.enable_schema(
+    p_enabled             => true,
+    p_schema              => 'CO',
+    p_url_mapping_type    => 'BASE_PATH',
+    p_url_mapping_pattern => 'co',
+    p_auto_rest_auth      => false
+  );
+  commit;
+exception
+  when others then
+    dbms_output.put_line('ORDS.ENABLE_SCHEMA warning: ' || sqlerrm);
+end;
+/
+
+exit;
+/
