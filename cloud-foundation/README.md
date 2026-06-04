@@ -10,5 +10,7 @@ We have implemented the following stucture:
 
 - Solutions-for-oracle-res-mgr - are the zipped solutions that are compatible with Resource Manager in Oracle Cloud Infrastructure.
 
+- archived-solutions - archived solutions that where posted on the Oracle Architecture Center.
+
 
 
