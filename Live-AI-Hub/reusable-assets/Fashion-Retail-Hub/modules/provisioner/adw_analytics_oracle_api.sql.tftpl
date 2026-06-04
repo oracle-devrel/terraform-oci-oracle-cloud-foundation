@@ -1,0 +1,257 @@
+set define off;
+set serveroutput on;
+
+-------------------------------------------------------------------------
+-- Oracle API mode only: ATP analytics exposed to ADW over atp_co_link
+-------------------------------------------------------------------------
+
+begin
+  begin
+    execute immediate 'drop materialized view customer_analytics_kpi_mv';
+  exception
+    when others then
+      if sqlcode not in (-12003, -942, -1435) then
+        null;
+      end if;
+  end;
+
+  begin
+    execute immediate 'drop view customer_analytics_kpi_mv';
+  exception
+    when others then
+      if sqlcode != -942 then
+        null;
+      end if;
+  end;
+end;
+/
+
+create or replace view customer_analytics_kpi_mv as
+select
+  customer_id,
+  full_name,
+  email,
+  gender,
+  date_of_birth,
+  age,
+  phone_number,
+  account_created_date,
+  customer_tenure_days,
+  loyalty_tier,
+  loyalty_points,
+  email_verified,
+  sms_opt_in,
+  total_orders,
+  lifetime_value,
+  average_order_value,
+  last_order_date,
+  days_since_last_order,
+  preferred_store,
+  order_frequency,
+  is_active_customer,
+  customer_segment,
+  newsletter_subscribed,
+  promotional_emails,
+  marketing_categories_count,
+  preferred_style,
+  favorite_colors_count,
+  favorite_brands_count,
+  city,
+  state,
+  country
+from customer_analytics_kpi@atp_co_link;
+/
+
+create or replace function get_customer_analytics_kpi_json(
+  p_customer_name in varchar2
+) return clob
+is
+  v_json clob;
+begin
+  select json_object(
+    key 'customer_id'                value customer_id,
+    key 'full_name'                  value full_name,
+    key 'email'                      value email,
+    key 'gender'                     value gender,
+    key 'date_of_birth'              value to_char(date_of_birth, 'YYYY-MM-DD'),
+    key 'age'                        value age,
+    key 'phone_number'               value phone_number,
+    key 'account_created_date'       value to_char(account_created_date, 'YYYY-MM-DD"T"HH24:MI:SS'),
+    key 'customer_tenure_days'       value customer_tenure_days,
+    key 'loyalty_tier'               value loyalty_tier,
+    key 'loyalty_points'             value loyalty_points,
+    key 'email_verified'             value email_verified,
+    key 'sms_opt_in'                 value sms_opt_in,
+    key 'total_orders'               value total_orders,
+    key 'lifetime_value'             value lifetime_value,
+    key 'average_order_value'        value average_order_value,
+    key 'last_order_date'            value to_char(last_order_date, 'YYYY-MM-DD'),
+    key 'days_since_last_order'      value days_since_last_order,
+    key 'preferred_store'            value preferred_store,
+    key 'order_frequency'            value order_frequency,
+    key 'is_active_customer'         value is_active_customer,
+    key 'customer_segment'           value customer_segment,
+    key 'newsletter_subscribed'      value newsletter_subscribed,
+    key 'promotional_emails'         value promotional_emails,
+    key 'marketing_categories_count' value marketing_categories_count,
+    key 'preferred_style'            value preferred_style,
+    key 'favorite_colors_count'      value favorite_colors_count,
+    key 'favorite_brands_count'      value favorite_brands_count,
+    key 'city'                       value city,
+    key 'state'                      value state,
+    key 'country'                    value country
+    returning clob
+  )
+  into v_json
+  from customer_analytics_kpi_mv
+  where upper(full_name) = upper(p_customer_name)
+  fetch first 1 row only;
+
+  return v_json;
+exception
+  when no_data_found then
+    return to_clob('{"error":"customer analytics not found"}');
+  when others then
+    return to_clob(
+      '{"error":"database error","message":"' ||
+      replace(replace(sqlerrm, '"', '\"'), chr(10), ' ') ||
+      '"}'
+    );
+end get_customer_analytics_kpi_json;
+/
+show errors;
+
+declare
+  l_owner varchar2(50) := user;
+begin
+  begin
+    dbms_cloud_ai.drop_profile(profile_name => 'select_ai_hub_nl2sql');
+  exception
+    when others then null;
+  end;
+
+  dbms_cloud_ai.create_profile(
+    profile_name =>'select_ai_hub_nl2sql',
+    attributes   =>'{"provider": "oci",
+    "region": "${rag_region}",
+    "credential_name": "oci",
+    "model":"${select_ai_model_nl2sql}",
+    "oci_apiformat":"GENERIC",
+    "comments": "true",
+    "temperature": 0.0,
+    "object_list": [
+                  {"owner": "' || l_owner || '", "name": "customers_v"},
+                  {"owner": "' || l_owner || '", "name": "customer_profile_oracle"},
+                  {"owner": "' || l_owner || '", "name": "customer_analytics_kpi_mv"},
+                  {"owner": "' || l_owner || '", "name": "orders_v"},
+                  {"owner": "' || l_owner || '", "name": "order_items_v"},
+                  {"owner": "' || l_owner || '", "name": "shipments_v"},
+                  {"owner": "' || l_owner || '", "name": "products_v"},
+                  {"owner": "' || l_owner || '", "name": "inventory_v"},
+                  {"owner": "' || l_owner || '", "name": "stores_v"}
+                ]
+    }');
+end;
+/
+show errors;
+
+declare
+  l_owner varchar2(50) := user;
+begin
+  begin
+    dbms_cloud_ai.drop_profile(profile_name => 'select_ai_hub');
+  exception
+    when others then null;
+  end;
+
+  dbms_cloud_ai.create_profile(
+    profile_name =>'select_ai_hub',
+    attributes   =>'{"provider": "oci",
+    "region": "${rag_region}",
+    "credential_name": "oci",
+    "model":"${select_ai_model_agent}",
+    "oci_apiformat":"GENERIC",
+    "comments": "true",
+    "temperature": 0.0,
+    "object_list": [
+                  {"owner": "' || l_owner || '", "name": "customers_v"},
+                  {"owner": "' || l_owner || '", "name": "customer_profile_oracle"},
+                  {"owner": "' || l_owner || '", "name": "customer_analytics_kpi_mv"},
+                  {"owner": "' || l_owner || '", "name": "orders_v"},
+                  {"owner": "' || l_owner || '", "name": "order_items_v"},
+                  {"owner": "' || l_owner || '", "name": "shipments_v"},
+                  {"owner": "' || l_owner || '", "name": "products_v"},
+                  {"owner": "' || l_owner || '", "name": "inventory_v"},
+                  {"owner": "' || l_owner || '", "name": "stores_v"}
+                ]
+    }');
+end;
+/
+show errors;
+
+exec dbms_cloud_ai.set_profile('select_ai_hub_nl2sql');
+
+begin
+  begin
+    dbms_cloud_ai_agent.drop_tool('get_customer_analytics_kpi_tool', force => true);
+  exception
+    when others then null;
+  end;
+end;
+/
+
+begin
+  dbms_cloud_ai_agent.create_tool(
+    tool_name  => 'get_customer_analytics_kpi_tool',
+    attributes => '{"instruction": "Get the customer analytics KPIs for a given customer; when invoking always verify there is a customer name to use as input. If the customer analytics was already retrieved, do not use this tool again.",
+                    "function": "get_customer_analytics_kpi_json",
+                    "tool_inputs":
+                      [
+                        {
+                          "name": "p_customer_name",
+                          "description": "Customer name"
+                        }
+                      ]
+                    }',
+    description => 'Tool to get the customer analytics KPIs given a customer name'
+  );
+end;
+/
+
+begin
+  begin
+    dbms_cloud_ai_agent.drop_task('customer_360', force => true);
+  exception
+    when others then null;
+  end;
+end;
+/
+
+begin
+  dbms_cloud_ai_agent.create_task(
+    task_name  =>'customer_360',
+    attributes =>'{
+      "instruction": "Get customer profile and analytics KPIs for the user requesting advice. Return the full profile and analytics KPIs in JSON. Make sure there is a customer name to use as input. If there is no customer name or the tools returned error, ask the customer name. Only perform this task once per conversation. User question: {query}",
+      "tools": ["get_customer360_profile_tool", "get_customer_analytics_kpi_tool"],
+      "enable_human_tool" : "false"
+    }'
+  );
+end;
+/
+
+begin
+  dbms_cloud_ai_agent.clear_team;
+exception
+  when others then null;
+end;
+/
+
+begin
+  dbms_cloud_ai_agent.set_team(team_name => 'fashion_advisor_team');
+end;
+/
+
+select dbms_cloud_ai_agent.get_team() from dual;
+
+exit;
+/
