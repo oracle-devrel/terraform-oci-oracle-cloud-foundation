@@ -1,20 +1,20 @@
 [
   {
     "username": "admin",
-    "displayName": "Administrator",
-    "password": "d2VsY29tZTE=",
+    "displayName": "Administrator", 
+    "password": "",
     "role": "Admin"
   },
   {
     "username": "user",
-    "displayName": "Standard User",
-    "password": "d2VsY29tZTE=",
+    "displayName": "Standard User", 
+    "password": "",
     "role": "User"
   },
   {
     "username": "James",
-    "displayName": "James Smith",
-    "password": "d2VsY29tZTE=",
+    "displayName": "James Smith", 
+    "password": "",
     "role": "User"
   }
 ]

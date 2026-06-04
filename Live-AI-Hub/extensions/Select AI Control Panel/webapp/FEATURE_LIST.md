@@ -1,8 +1,10 @@
-# DTC AI Agent Web App Feature List
+# ACME AI Agent Web App Feature List
 
 ## Overview
 
-The DTC AI Agent Web App is a Node.js browser application for querying Oracle Database AI features from a controlled web interface. It supports Oracle AI Agent teams, Select AI profiles, RAG knowledge-base workflows, OCI Generative AI post-processing, report management, and admin operations for AI objects.
+ACME is a fictional company used for demonstration purposes. The ACME AI Agent Web App is a Node.js browser application for querying Oracle Database AI features from a controlled web interface. It supports Oracle AI Agent teams, Select AI profiles, RAG knowledge-base workflows, OCI Generative AI post-processing, report management, and admin operations for AI objects.
+
+The ACME AI Agent Web App is a Node.js browser application for querying Oracle Database AI features from a controlled web interface. It supports Oracle AI Agent teams, Select AI profiles, RAG knowledge-base workflows, OCI Generative AI post-processing, report management, and admin operations for AI objects.
 
 ## Core User Features
 
@@ -56,7 +58,7 @@ The DTC AI Agent Web App is a Node.js browser application for querying Oracle Da
 - Create AI teams.
 - Create Select AI NL2SQL profiles.
 - Create RAG profiles backed by configured vector indexes.
-- Pre-filled DTC-oriented templates help speed up object creation.
+- Pre-filled templates help speed up object creation.
 
 ### AI Topology
 

@@ -1,6 +1,6 @@
-# DTC AI Agent Web App
+# ACME AI Agent Web App
 
-This is a small Node web app for running the DTC Oracle AI Agent team and direct Select AI profile from a browser.
+This is a small Node web app for running the ACME Oracle AI Agent team and direct Select AI profile from a browser.
 
 ## Setup
 
@@ -32,7 +32,7 @@ Please read @Feature_LIST.md for a list of features and how to enable them.
 
 ## Application Demo video
 
-[![DTC AI Agent Web App Demo](https://img.youtube.com/vi/Lh2gtrdyr28/0.jpg)](https://www.youtube.com/watch?v=Lh2gtrdyr28)
+[![ACME AI Agent Web App Demo](https://img.youtube.com/vi/Lh2gtrdyr28/0.jpg)](https://www.youtube.com/watch?v=Lh2gtrdyr28)
 
 ## LLM Models for Post-Processing Database Results
 
