@@ -1,4 +1,4 @@
-# Oracle Cloud Foundation Terraform Solution - Deploy AI Live Hub Fashion Retail demo
+# Oracle Cloud Foundation Terraform Solution - Deploy Fashion-Retail-Hub demo
 
 
 ## Table of Contents
@@ -37,7 +37,7 @@
 
 ## <a name="overview"></a>Overview
 
-Deploy AI Live Hub Fashion Retail demo showcases how a fashion retailer can evolve into an AI-driven business by connecting live enterprise data across multiple platforms and turning it into personalized, customer-facing experiences. The solution brings together operational, analytical, and external data to power intelligent conversations, better recommendations, and more effective digital engagement.
+Deploy Fashion-Retail-Hub demo showcases how a fashion retailer can evolve into an AI-driven business by connecting live enterprise data across multiple platforms and turning it into personalized, customer-facing experiences. The solution brings together operational, analytical, and external data to power intelligent conversations, better recommendations, and more effective digital engagement.
 
 At the core of the solution is a live data hub that connects key business systems, including MongoDB Atlas for customer profiles, Databricks for customer analytics such as lifetime value and churn, and Oracle Autonomous Transaction Processing for customer and order data. Because the information is retrieved on demand, the business can act on current, trusted data rather than relying only on static integrations or delayed reporting.
 
@@ -47,7 +47,7 @@ A key business outcome of the demo is the creation of a Fashion Advisor Agent th
 
 The solution is designed as a set of specialized AI agents working together, allowing the retailer to scale personalization across channels while maintaining relevance and accuracy. By orchestrating access to enterprise systems, documents, policies, and external APIs, the platform helps the business improve customer satisfaction, strengthen loyalty, and drive sales through smarter digital interactions.
 
-From a business perspective, Deploy AI Live Hub Fashion Retail demo demonstrates how organizations can move beyond AI experimentation and toward production-ready AI adoption. With Autonomous AI Database as the foundation, the solution combines accuracy, security, performance, scalability, observability, and business continuity — making it suitable for enterprise-grade retail innovation.
+From a business perspective, Deploy Fashion-Retail-Hub demo demonstrates how organizations can move beyond AI experimentation and toward production-ready AI adoption. With Autonomous AI Database as the foundation, the solution combines accuracy, security, performance, scalability, observability, and business continuity — making it suitable for enterprise-grade retail innovation.
 
 This solution deploys an **Agentic AI Fashion Retail Demo** on Oracle Cloud Infrastructure using **Terraform**.
 
@@ -109,7 +109,7 @@ Before deploying with `mongo_mode = "atlas"`, make sure the Atlas cluster is acc
   - Python environment setup
   - Mongo document seeding
   - Mongo-to-ADW synchronization
-- A working **AI Live Hub Fashion Retail demo**
+- A working **Fashion-Retail-Hub demo**
 
 
 ## <a name="architecture"></a>Architecture-Diagram
