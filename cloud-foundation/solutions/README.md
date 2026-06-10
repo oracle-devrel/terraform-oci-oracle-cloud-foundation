@@ -15,14 +15,9 @@ Solutions implemented:
 
 ***Live Lab & Demos Automation using AI and ML:*** 
 
-- AI-Live-Hub-Fashion-Retail-Demo - Data in Industry - VERTICAL DEMO - Deploy AI Live Hub Fashion Retail demo showcases how a fashion retailer can evolve into an AI-driven business by connecting live enterprise data across multiple platforms and turning it into personalized, customer-facing experiences. The solution brings together operational, analytical, and external data to power intelligent conversations, better recommendations, and more effective digital engagement.
-- Telco-Asset_Value_Maximization - Data in Industry - VERTICAL DEMO - (https://oracle.sharepoint.com/db-outbound/ai-and-ml---the-art-of-possible/ai-and-ml-demos-and-examples)
-- PublicSector-Crowd_Counting - Data in Industry - VERTICAL DEMO - (https://oracle.sharepoint.com/db-outbound/ai-and-ml---the-art-of-possible/)
-- OracleDataModel-Manufacturing -  Data in Industry - VERTICAL DEMO - (https://oracle.sharepoint.com/sites/data-in-industry/)
+- PublicSector-Crowd_Counting
 - Deploy-ChatDB-Autonomous-Database-***Select-AI***-demonstration  
 - Deploy-ChatDB-Autonomous-Database-***oci-genai***-demonstration
-- Oracle-MovieStream - Full LiveLab
-- Deploy Autonomous Database and the MovieStream data sets for Oracle LiveLabs
 
 
 ***Data Management Platform - Architecture Center:***
@@ -46,9 +41,24 @@ Solutions implemented:
 ***Partners and Internal solutions bundles:***
 - Informatica-Secure-Agent-create-a-secure-ready-to-go-complete-data-platform-on-OCI
 - Informatica-Secure-Agent–create-a-ready-to-go-development-data-platform-on-OCI
-- Sam-Workbench - The Smart Anomaly Monitoring (SAM) solution is a machine learning-based anomaly detection system. It is designed to monitor data streams and detect anomalies in real-time using Oracle’s patented MSET2 algorithm
 
 
 ***Beyond the Data Management Platform:***
 
 - ATP Deployment
+
+## Archived Solutions and Live AI Hub
+
+Several older solutions have been moved to the `archived-solutions` folder.
+
+These archived solutions remain available in the repository for reference, but they are no longer part of the active solution portfolio. They are solutions we do not plan to actively revisit, maintain, or update.
+
+Other assets have been moved to the `Live-ai-hub` folder.
+
+`Live-ai-hub` is the practical way to take AI from concept to real business outcomes. It provides a reusable structure for AI-driven demos, shared assets, documentation, and extensions.
+
+The folder follows a pattern that brings AI to your data where it already lives, enabling the use of live, federated enterprise information across SaaS applications, databases, data lakes, catalogs, and content repositories. This allows users and agents to talk to data and reason across data with the right governance in place.
+
+This approach matters because most organizations are not blocked by AI models themselves. They are blocked by disconnected data, stale copies, and the complexity of moving and reshaping information. When AI runs on live data in place, it can provide more timely answers, better context, and higher trust, without requiring a long data platform transformation first.
+
+The benefits are tangible: faster time-to-value through quick wins that can scale, better outcomes because AI is grounded in current enterprise context, lower cost and risk by reducing replication and ETL sprawl, and production readiness with the controls enterprises need, including security, resiliency, observability, and scalability.
