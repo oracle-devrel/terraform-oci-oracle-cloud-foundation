@@ -225,15 +225,15 @@ variables:
     required: true
     visible: false 
 outputs:
-  ADW_Database_db_connection:
+  adb_database_db_connection:
     type: string
-    title: ADW_Database_db_connection
+    title: adb_database_db_connection
     visible: true
-  ADW_Database_private_endpoint_ip:
+  adb_database_private_endpoint_ip:
     type: string
-    title: ADW_Database_private_endpoint_ip
+    title: adb_database_private_endpoint_ip
     visible: true
-  Database_Actions:
+  database_actions:
     type: link
     title: url
     visible: true
@@ -245,17 +245,17 @@ outputs:
     type: link
     title: graph_studio_url
     visible: false
-  machine_learning_user_management_url:
+  machine_learning_ui_url:
     type: link
-    title: machine_learning_user_management_url
+    title: machine_learning_ui_url
     visible: true
   apex_url:
     type: link
     title: apex_url
     visible: true    
-  select_ai_demo_url:
+  askoracle_select_ai_app_url:
     type: link
-    title: select_ai_demo_url
+    title: askoracle_select_ai_app_url
     visible: true      
   adb_admin_password:
     type: string
@@ -272,16 +272,15 @@ outputs:
 outputGroups:
   - title: Database details
     outputs:
-      - ADW_Database_db_connection
-      - ADW_Database_private_endpoint_ip
+      - adb_database_db_connection
+      - adb_database_private_endpoint_ip
       - database_fully_qualified_name
   - title: ADB user details
     outputs: 
-      - Database_Actions
+      - database_actions
       - apex_url
       - graph_studio_url
-      - machine_learning_user_management_url
+      - machine_learning_ui_url
       - adb_user_name
       - adb_user_password
 primaryOutputButton: graph_studio_url
-

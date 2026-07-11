@@ -124,7 +124,7 @@ Example of output:
 ```
 Apply complete! Resources: 5 added, 0 changed, 0 destroyed.
 Outputs:
-ADW_Database_db_connection = tolist([
+adb_database_db_connection = tolist([
   {
     "all_connection_strings" = tomap({
       "HIGH" = "adb.us-ashburn-1.oraclecloud.com:1522/rddainsuh6u1okc_moviestreamworkshopg_high.adb.oraclecloud.com"
@@ -169,7 +169,7 @@ ADW_Database_db_connection = tolist([
     ])
   },
 ])
-Database_Actions = [
+database_actions = [
   "https://RDDAINSUH6U1OKC-MOVIESTREAMWORKSHOPG.adb.us-ashburn-1.oraclecloudapps.com/ords/sql-developer",
 ]
 adb_admin_password = <sensitive>
@@ -182,10 +182,10 @@ database_fully_qualified_name = "rddainsuh6u1okc-moviestreamworkshopg.adb.us-ash
 graph_studio_url = [
   "https://RDDAINSUH6U1OKC-MOVIESTREAMWORKSHOPG.adb.us-ashburn-1.oraclecloudapps.com/graphstudio/",
 ]
-machine_learning_user_management_url = [
-  "https://RDDAINSUH6U1OKC-MOVIESTREAMWORKSHOPG.adb.us-ashburn-1.oraclecloudapps.com/omlusers/",
+machine_learning_ui_url = [
+  "https://RDDAINSUH6U1OKC-MOVIESTREAMWORKSHOPG.adb.us-ashburn-1.oraclecloudapps.com/oml/index.html",
 ]
-select_ai_demo_url = "https://rddainsuh6u1okc-moviestreamworkshopg.adb.us-ashburn-1.oraclecloudapps.com/ords/r/moviestream/chatdb" 
+askoracle_select_ai_app_url = "https://rddainsuh6u1okc-moviestreamworkshopg.adb.us-ashburn-1.oraclecloudapps.com/ords/r/moviestream/chatdb" 
 
 ```
 
@@ -231,8 +231,8 @@ https://RDDAINSUH6U1OKC-ORACLEMOVIESTREAM.adb.us-ashburn-1.oraclecloudapps.com/o
 
 The stack's job output also includes URLs that take you directly to the tools.
 
-Access Link is the machine_learning_user_management_url URL from the output. Example:
-https://RDDAINSUH6U1OKC-ORACLEMOVIESTREAM.adb.us-ashburn-1.oraclecloudapps.com/omlusers/
+Access Link is the machine_learning_ui_url URL from the output. Example:
+https://RDDAINSUH6U1OKC-ORACLEMOVIESTREAM.adb.us-ashburn-1.oraclecloudapps.com/oml/index.html
 
 
 
@@ -538,7 +538,7 @@ Example of output:
 ```
 Apply complete! Resources: 5 added, 0 changed, 0 destroyed.
 Outputs:
-ADW_Database_db_connection = tolist([
+adb_database_db_connection = tolist([
   {
     "all_connection_strings" = tomap({
       "HIGH" = "adb.us-ashburn-1.oraclecloud.com:1522/rddainsuh6u1okc_moviestreamworkshopg_high.adb.oraclecloud.com"
@@ -583,7 +583,7 @@ ADW_Database_db_connection = tolist([
     ])
   },
 ])
-Database_Actions = [
+database_actions = [
   "https://RDDAINSUH6U1OKC-MOVIESTREAMWORKSHOPG.adb.us-ashburn-1.oraclecloudapps.com/ords/sql-developer",
 ]
 adb_admin_password = <sensitive>
@@ -596,10 +596,10 @@ database_fully_qualified_name = "rddainsuh6u1okc-moviestreamworkshopg.adb.us-ash
 graph_studio_url = [
   "https://RDDAINSUH6U1OKC-MOVIESTREAMWORKSHOPG.adb.us-ashburn-1.oraclecloudapps.com/graphstudio/",
 ]
-machine_learning_user_management_url = [
-  "https://RDDAINSUH6U1OKC-MOVIESTREAMWORKSHOPG.adb.us-ashburn-1.oraclecloudapps.com/omlusers/",
+machine_learning_ui_url = [
+  "https://RDDAINSUH6U1OKC-MOVIESTREAMWORKSHOPG.adb.us-ashburn-1.oraclecloudapps.com/oml/index.html",
 ]
-select_ai_demo_url = "https://rddainsuh6u1okc-moviestreamworkshopg.adb.us-ashburn-1.oraclecloudapps.com/ords/r/moviestream/chatdb" 
+askoracle_select_ai_app_url = "https://rddainsuh6u1okc-moviestreamworkshopg.adb.us-ashburn-1.oraclecloudapps.com/ords/r/moviestream/chatdb" 
 
 ```
 
@@ -645,8 +645,8 @@ https://RDDAINSUH6U1OKC-ORACLEMOVIESTREAM.adb.us-ashburn-1.oraclecloudapps.com/o
 
 The stack's job output also includes URLs that take you directly to the tools.
 
-Access Link is the machine_learning_user_management_url URL from the output. Example:
-https://RDDAINSUH6U1OKC-ORACLEMOVIESTREAM.adb.us-ashburn-1.oraclecloudapps.com/omlusers/
+Access Link is the machine_learning_ui_url URL from the output. Example:
+https://RDDAINSUH6U1OKC-ORACLEMOVIESTREAM.adb.us-ashburn-1.oraclecloudapps.com/oml/index.html
 
 
 ## <a name="documentation"></a>Documentation
@@ -664,5 +664,4 @@ We welcome your feedback. To post feedback, submit feature ideas or report bugs,
 
 ## <a name="known-issues"></a>Known Issues
 **At the moment, there are no known issues for this solution**
-
 
