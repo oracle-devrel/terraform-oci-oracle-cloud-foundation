@@ -8,8 +8,6 @@ We have implemented the following stucture:
 
 - Solutions folder is the code as servers as examples for our solutions. The framework is “composable” in that all the modules in the toolkit can be used individually or in any combination for a specific solution.
 
-- Solutions-for-oracle-res-mgr - are the zipped solutions that are compatible with Resource Manager in Oracle Cloud Infrastructure.
-
 - archived-solutions - archived solutions that where posted on the Oracle Architecture Center.
 
 
