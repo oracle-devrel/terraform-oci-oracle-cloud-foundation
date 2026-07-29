@@ -5,12 +5,12 @@ variable "adw_params" {
   type = map(object({
     compartment_id              = string
 	  compute_model               = string
-	  compute_count               = number
+    effective_compute_count     = number
     size_in_tbs                 = number
     db_name                     = string
     db_workload                 = string
     db_version                  = string
-    license_model               = string
+    effective_license_model     = string
     database_admin_password     = string
     database_wallet_password    = string
     enable_auto_scaling         = bool

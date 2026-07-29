@@ -36,6 +36,10 @@ variable "private_key_path" {
     default = ""
 }
 
+locals {
+  effective_license_model = var.db_is_free_tier ? "LICENSE_INCLUDED" : var.db_license_model
+  effective_compute_count = var.db_is_free_tier ? 2 : var.db_compute_count
+}
 
 # ADW Database Variables:
 
@@ -72,7 +76,7 @@ variable "db_workload" {
 
 variable "db_version" {
   type = string
-  default = "23ai"
+  default = "26ai"
 }
 
 variable "db_enable_auto_scaling" {
