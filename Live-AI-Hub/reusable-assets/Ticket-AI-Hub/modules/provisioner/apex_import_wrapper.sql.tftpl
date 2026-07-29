@@ -1,0 +1,26 @@
+whenever sqlerror exit sql.sqlcode
+set define off;
+set serveroutput on;
+
+declare
+    l_workspace_id number;
+begin
+    select workspace_id
+      into l_workspace_id
+      from apex_workspaces
+     where workspace = upper('${apex_workspace_name}');
+
+    apex_application_install.clear_all;
+    apex_application_install.set_workspace_id(l_workspace_id);
+    apex_application_install.generate_offset;
+    apex_application_install.set_schema(upper('${apex_db_schema}'));
+    apex_application_install.set_application_id(${apex_app_id});
+    apex_application_install.set_application_alias('${apex_app_alias}');
+    apex_application_install.set_application_name('${apex_app_name}');
+
+    dbms_output.put_line('Workspace ID: ' || l_workspace_id);
+    dbms_output.put_line('Schema      : ${apex_db_schema}');
+    dbms_output.put_line('App ID      : ${apex_app_id}');
+end;
+/
+@${apex_export_file}

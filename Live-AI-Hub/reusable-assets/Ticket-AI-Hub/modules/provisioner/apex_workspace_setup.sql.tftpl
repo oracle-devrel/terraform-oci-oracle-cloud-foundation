@@ -1,0 +1,70 @@
+whenever sqlerror exit sql.sqlcode
+set define off;
+set serveroutput on;
+
+declare
+    l_workspace   varchar2(100) := upper('${apex_workspace_name}');
+    l_db_schema   varchar2(100) := upper('${apex_db_schema}');
+    l_apex_user   varchar2(100) := upper('${apex_builder_username}');
+    l_apex_pwd    varchar2(4000) := '${apex_builder_password}';
+    l_workspace_exists number := 0;
+begin
+    select count(*)
+      into l_workspace_exists
+      from apex_workspaces
+     where workspace = l_workspace;
+
+    if l_workspace_exists = 0 then
+        apex_instance_admin.add_workspace(
+            p_workspace_id       => ${apex_workspace_id},
+            p_workspace          => l_workspace,
+            p_primary_schema     => l_db_schema,
+            p_additional_schemas => null
+        );
+        dbms_output.put_line('Workspace created: ' || l_workspace);
+    else
+        dbms_output.put_line('Workspace already exists: ' || l_workspace);
+    end if;
+
+    begin
+        apex_instance_admin.add_schema(
+            p_workspace             => l_workspace,
+            p_schema                => l_db_schema,
+            p_grant_apex_privileges => true
+        );
+        dbms_output.put_line('Schema mapped to workspace: ' || l_db_schema);
+    exception
+        when others then
+            dbms_output.put_line('Schema mapping may already exist: ' || sqlerrm);
+    end;
+
+    apex_util.set_workspace(
+        p_workspace => l_workspace
+    );
+
+    begin
+        apex_util.create_user(
+            p_user_name                    => l_apex_user,
+            p_web_password                 => l_apex_pwd,
+            p_developer_privs              => 'ADMIN:CREATE:DATA_LOADER:EDIT:HELP:MONITOR:SQL',
+            p_email_address                => lower(l_apex_user) || '@example.com',
+            p_default_schema               => l_db_schema,
+            p_change_password_on_first_use => 'N'
+        );
+        dbms_output.put_line('APEX developer user created: ' || l_apex_user);
+    exception
+        when others then
+            dbms_output.put_line('APEX developer user may already exist: ' || sqlerrm);
+    end;
+
+    begin
+        apex_util.unexpire_workspace_account(
+            p_user_name => l_apex_user
+        );
+        dbms_output.put_line('APEX account unexpired: ' || l_apex_user);
+    exception
+        when others then
+            dbms_output.put_line('APEX account unexpire skipped: ' || sqlerrm);
+    end;
+end;
+/

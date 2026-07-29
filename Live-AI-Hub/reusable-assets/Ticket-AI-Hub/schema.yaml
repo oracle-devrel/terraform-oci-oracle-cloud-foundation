@@ -1,0 +1,422 @@
+# Copyright © 2026, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+title: "Deploy Ticket AI Hub"
+stackDescription: "Ticket AI Hub is an Oracle Autonomous Database workload that receives support tickets through Oracle REST Data Services (ORDS), processes them asynchronously with an AI agent team, and returns an answer or escalation payload to external notification integrations. An Oracle APEX application provides administration, operational visibility, access control, and analytics."
+schemaVersion: 1.1.0
+version: "20260728"
+locale: "en"
+
+groupings:
+  - title: "General Settings"
+    visible: true
+    variables:
+      - tenancy_ocid
+      - region
+      - compartment_id
+      - user_ocid
+      - fingerprint
+      - oci_private_key_pem
+
+  - title: "Autonomous Database Configuration"
+    visible: true
+    variables:
+      - adw_db_name
+      - adw_db_is_free_tier
+      - adw_db_license_model
+      - adw_db_password
+      - adw_db_version
+      - adw_db_size_in_tbs
+      - adw_db_enable_auto_scaling
+      - adw_db_compute_model
+      - adw_db_compute_count
+      - adw_db_workload
+      - adw_db_data_safe_status
+      - adw_db_operations_insights_status
+      - adw_db_database_management_status
+
+  - title: "AI and LLM Settings"
+    visible: true
+    variables:
+      - rag_region
+      - select_ai_model_nl2sql
+      - select_ai_model_agent
+      - genai_embedding_region
+      - select_ai_model_rag
+      - select_ai_embedding_model
+
+  - title: "Object Storage"
+    visible: true
+    variables:
+      - files_bucket_name
+      - files_bucket_access_type
+      - files_bucket_storage_tier
+      - files_bucket_events_enabled
+
+  - title: "Oracle APEX Settings"
+    visible: true
+    variables:
+      - apex_workspace_name
+      - apex_app_alias
+      - apex_builder_username
+      - apex_builder_password
+
+  - title: "Hidden Variables"
+    visible: false
+    variables:
+      - private_key_path
+
+variables:
+  # --------------------------------------------------------------------------
+  # General Settings
+  # --------------------------------------------------------------------------
+  tenancy_ocid:
+    title: Tenancy OCID
+    description: Enter the OCID of the OCI tenancy where Ticket AI Hub will be deployed.
+    type: string
+    required: true
+    visible: true
+
+  region:
+    title: Deployment Region
+    description: Select the OCI region where the Autonomous Database and Object Storage bucket will be created.
+    type: oci:identity:region:name
+    required: true
+    visible: true
+
+  compartment_id:
+    title: Compartment
+    description: Select the OCI compartment where the Ticket AI Hub resources will be created.
+    type: oci:identity:compartment:id
+    required: true
+    visible: true
+
+  user_ocid:
+    title: OCI User OCID
+    description: Enter the OCID of the OCI user that owns the API signing key used by Terraform and the database OCI credential.
+    type: string
+    required: true
+    visible: true
+
+  fingerprint:
+    title: API Key Fingerprint
+    description: Enter the fingerprint of the OCI API public key associated with the selected OCI user.
+    type: string
+    required: true
+    visible: true
+
+  oci_private_key_pem:
+    title: OCI API Private Key
+    description: "Paste the OCI API private key as a single line with no line breaks. Mac/Linux: tr -d '\r\n' < mykeysep_privatepem.pem | pbcopy"
+    type: password
+    required: true
+    visible: true
+
+  private_key_path:
+    title: OCI API Private Key Path
+    description: Hidden compatibility variable used only when deploying with Terraform CLI. Resource Manager uses oci_private_key_pem.
+    type: string
+    required: false
+    visible: false
+
+  # --------------------------------------------------------------------------
+  # Autonomous Database Configuration
+  # --------------------------------------------------------------------------
+  adw_db_name:
+    title: Autonomous Database Name
+    description: Enter the Autonomous Database name. It must start with a letter and contain no more than 14 alphanumeric characters.
+    type: string
+    default: "TicketAIHub"
+    required: true
+    visible: true
+    maxLength: 14
+    pattern: '^[A-Za-z][A-Za-z0-9]{0,13}$'
+
+  adw_db_is_free_tier:
+    title: Use Always Free Autonomous Database
+    description: Select true to deploy an Always Free Autonomous Database when supported.
+    type: enum
+    enum:
+      - true
+      - false
+    default: false
+    required: true
+    visible: true
+
+  adw_db_license_model:
+    title: Autonomous Database License Model
+    description: Select License Included or Bring Your Own License for a paid Autonomous Database.
+    type: enum
+    enum:
+      - "LICENSE_INCLUDED"
+      - "BRING_YOUR_OWN_LICENSE"
+    default: "BRING_YOUR_OWN_LICENSE"
+    required: true
+    visible:
+      eq:
+        - adw_db_is_free_tier
+        - false
+
+  adw_db_password:
+    title: Autonomous Database ADMIN Password
+    description: Enter a password between 12 and 30 characters containing at least one uppercase letter, one lowercase letter, and one number. Do not use the ADMIN username or a double quote character.
+    type: password
+    default: "V2xzQXRwRGIxMjM0Iw=="
+    required: true
+    confirmation: true
+    visible: true
+    minLength: 12
+    maxLength: 30
+
+  adw_db_version:
+    title: Oracle Database Version
+    description: Select the Oracle Database version used by Autonomous Database.
+    type: enum
+    enum:
+      - "26ai"
+    default: "26ai"
+    required: true
+    visible: true
+
+  adw_db_size_in_tbs:
+    title: Database Storage in TB
+    description: Select the amount of storage allocated to the Autonomous Database.
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 4
+      - 6
+      - 8
+      - 10
+      - 12
+      - 16
+      - 24
+      - 36
+      - 52
+      - 128
+    default: 1
+    required: true
+    visible:
+      eq:
+        - adw_db_is_free_tier
+        - false
+
+  adw_db_enable_auto_scaling:
+    title: Enable Compute Auto Scaling
+    description: Enable automatic compute scaling for the Autonomous Database.
+    type: enum
+    enum:
+      - true
+      - false
+    default: true
+    required: true
+    visible:
+      eq:
+        - adw_db_is_free_tier
+        - false
+
+  adw_db_compute_model:
+    title: Compute Model
+    description: Select the Autonomous Database compute model.
+    type: enum
+    enum:
+      - "ECPU"
+    default: "ECPU"
+    required: true
+    visible:
+      eq:
+        - adw_db_is_free_tier
+        - false
+
+  adw_db_compute_count:
+    title: ECPU Count
+    description: Enter the number of ECPUs allocated to the Autonomous Database.
+    type: number
+    default: 4
+    minimum: 2
+    maximum: 512
+    multipleOf: 2
+    required: true
+    visible:
+      eq:
+        - adw_db_is_free_tier
+        - false
+
+  adw_db_workload:
+    title: Autonomous Database Workload
+    description: Ticket AI Hub uses an Autonomous Data Warehouse workload.
+    type: enum
+    enum:
+      - "DW"
+    default: "DW"
+    required: true
+    visible: true
+
+  adw_db_data_safe_status:
+    title: Data Safe Status
+    description: Select the Data Safe registration status for the Autonomous Database.
+    type: enum
+    enum:
+      - "NOT_REGISTERED"
+      - "REGISTERED"
+    default: "NOT_REGISTERED"
+    required: true
+    visible: true
+
+  adw_db_operations_insights_status:
+    title: Operations Insights Status
+    description: Select whether Operations Insights is enabled for the Autonomous Database.
+    type: enum
+    enum:
+      - "NOT_ENABLED"
+      - "ENABLED"
+    default: "NOT_ENABLED"
+    required: true
+    visible: true
+
+  adw_db_database_management_status:
+    title: Database Management Status
+    description: Select whether Database Management is enabled for the Autonomous Database.
+    type: enum
+    enum:
+      - "NOT_ENABLED"
+      - "ENABLED"
+    default: "ENABLED"
+    required: true
+    visible: true
+
+  # --------------------------------------------------------------------------
+  # AI and LLM Settings
+  # --------------------------------------------------------------------------
+  rag_region:
+    title: RAG and Select AI Region
+    description: Select the OCI Generative AI region used by the Ticket AI Hub RAG and Select AI profiles. The selected models must be available in this region.
+    type: oci:identity:region:name
+    default: "us-ashburn-1"
+    required: true
+    visible: true
+
+  select_ai_model_nl2sql:
+    title: NL2SQL Model
+    description: Model used by the Select AI NL2SQL profile to convert natural-language questions into SQL over the Ticket AI Hub data model.
+    type: string
+    default: "xai.grok-4-1-fast-reasoning"
+    required: true
+    visible: true
+
+  select_ai_model_agent:
+    title: Ticket Agent Model
+    description: Model used by the main Ticket AI Hub agent profile for ticket validation, categorisation, routing, answer generation, and tool execution.
+    type: string
+    default: "xai.grok-4-fast-non-reasoning"
+    required: true
+    visible: true
+
+  genai_embedding_region:
+    title: Embedding Region
+    description: Select the OCI Generative AI inference region used to create and query knowledge-base embeddings.
+    type: oci:identity:region:name
+    default: "us-chicago-1"
+    required: true
+    visible: true
+
+  select_ai_model_rag:
+    title: RAG Generation Model
+    description: Model used to generate answers from the Ticket AI Hub knowledge-base documents indexed from OCI Object Storage.
+    type: string
+    default: "meta.llama-4-maverick-17b-128e-instruct-fp8"
+    required: true
+    visible: true
+
+  select_ai_embedding_model:
+    title: Embedding Model
+    description: Embedding model used to build and query the Ticket AI Hub vector index.
+    type: string
+    default: "cohere.embed-english-v3.0"
+    required: true
+    visible: true
+
+  # --------------------------------------------------------------------------
+  # Object Storage
+  # --------------------------------------------------------------------------
+  files_bucket_name:
+    title: Knowledge-Base Bucket Name
+    description: Enter the Object Storage bucket name used for Ticket AI Hub knowledge-base files.
+    type: string
+    default: "TicketAIFiles"
+    required: true
+    visible: true
+    minLength: 1
+    maxLength: 256
+
+  files_bucket_access_type:
+    title: Bucket Access Type
+    description: Select the public-access setting for the knowledge-base bucket.
+    type: enum
+    enum:
+      - "NoPublicAccess"
+      - "ObjectRead"
+      - "ObjectReadWithoutList"
+    default: "ObjectRead"
+    required: true
+    visible: true
+
+  files_bucket_storage_tier:
+    title: Bucket Storage Tier
+    description: Select the storage tier for the knowledge-base bucket.
+    type: enum
+    enum:
+      - "Standard"
+      - "Archive"
+    default: "Standard"
+    required: true
+    visible: true
+
+  files_bucket_events_enabled:
+    title: Enable Object Events
+    description: Select whether Object Storage emits events for object state changes.
+    type: enum
+    enum:
+      - true
+      - false
+    default: false
+    required: true
+    visible: true
+
+  # --------------------------------------------------------------------------
+  # Oracle APEX Settings
+  # --------------------------------------------------------------------------
+  apex_workspace_name:
+    title: APEX Workspace Name
+    description: Enter the Oracle APEX workspace name created or reused by the deployment.
+    type: string
+    default: "TICKET_AIHUB_WS"
+    required: true
+    visible: true
+
+  apex_app_alias:
+    title: APEX Application Alias
+    description: Enter the friendly alias used in the Ticket AI Hub APEX application URL.
+    type: string
+    default: "TICKET-AI-HUB"
+    required: true
+    visible: true
+
+  apex_builder_username:
+    title: APEX Username
+    description: Enter the Oracle APEX developer and application username.
+    type: string
+    default: "TICKET_AIHUB"
+    required: true
+    visible: true
+
+  apex_builder_password:
+    title: APEX Password
+    description: Enter the Oracle APEX developer and application password.
+    type: password
+    default: "AaBbCcDdEe123#"
+    required: true
+    confirmation: true
+    visible: true
+    minLength: 12
