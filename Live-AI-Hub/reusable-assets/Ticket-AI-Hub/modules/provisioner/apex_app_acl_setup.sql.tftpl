@@ -1,0 +1,45 @@
+whenever sqlerror exit sql.sqlcode
+set define off;
+set serveroutput on;
+
+declare
+    l_workspace varchar2(100) := upper('${apex_workspace_name}');
+    l_app_id    number        := ${apex_app_id};
+    l_user      varchar2(100) := upper('${apex_builder_username}');
+    l_has_admin number := 0;
+begin
+    apex_util.set_workspace(
+        p_workspace => l_workspace
+    );
+
+    select count(*)
+      into l_has_admin
+      from apex_appl_acl_roles
+     where application_id = l_app_id
+       and upper(role_static_id) = 'ADMINISTRATOR';
+
+    if l_has_admin > 0 then
+        apex_acl.add_user_role(
+            p_application_id => l_app_id,
+            p_user_name      => l_user,
+            p_role_static_id => 'ADMINISTRATOR'
+        );
+        dbms_output.put_line('Granted ADMINISTRATOR to ' || l_user || ' for app ' || l_app_id);
+    else
+        for r in (
+            select role_static_id
+              from apex_appl_acl_roles
+             where application_id = l_app_id
+        ) loop
+            apex_acl.add_user_role(
+                p_application_id => l_app_id,
+                p_user_name      => l_user,
+                p_role_static_id => r.role_static_id
+            );
+            dbms_output.put_line('Granted role ' || r.role_static_id || ' to ' || l_user);
+        end loop;
+    end if;
+
+    commit;
+end;
+/

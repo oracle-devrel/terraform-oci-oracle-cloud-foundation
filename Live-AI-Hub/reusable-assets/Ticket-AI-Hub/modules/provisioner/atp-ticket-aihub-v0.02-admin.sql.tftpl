@@ -1,0 +1,123 @@
+set define off;
+set serveroutput on;
+
+-------------------------------------------------------------------------
+-- 10) Run as Admin User to Grant Privileges
+-------------------------------------------------------------------------
+
+-- Create User
+begin
+  execute immediate 'create user ticket_aihub identified by "${ticket_aihub_password}"';
+exception
+  when others then
+    if sqlcode != -1920 then
+      raise;
+    end if;
+end;
+/
+
+-- Add Roles
+grant connect               to ticket_aihub;
+grant console_developer     to ticket_aihub;
+grant dwrole                to ticket_aihub;
+grant graph_developer       to ticket_aihub;
+grant oml_developer         to ticket_aihub;
+grant resource              to ticket_aihub;
+
+alter user ticket_aihub default role
+    console_developer,
+    dwrole,
+    graph_developer,
+    oml_developer;
+
+-- Enable Graph
+alter user ticket_aihub grant connect through graph$proxy_user;
+
+-- Enable OML
+alter user ticket_aihub grant connect through oml$proxy;
+
+-- Quota
+alter user ticket_aihub quota unlimited on data;
+
+-- Additional Roles
+grant db_developer_role       to ticket_aihub;
+grant odi_developer           to ticket_aihub;
+grant apex_administrator_role to ticket_aihub;
+
+alter user ticket_aihub default role
+    console_developer,
+    dwrole,
+    graph_developer,
+    oml_developer;
+
+-- Enable Data Sharing
+begin
+    dbms_share.enable_schema(
+        schema_name => 'TICKET_AIHUB',
+        enabled     => true
+    );
+    commit;
+end;
+/
+
+-- Grant Privileges: DBMS_CLOUD Packages
+grant execute on dbms_cloud_ai    to ticket_aihub;
+grant execute on dbms_cloud       to ticket_aihub;
+grant execute on dbms_cloud_admin to ticket_aihub;
+
+-- Grant Privileges: Database Links & Directories
+grant create database link       to ticket_aihub;
+grant drop public database link  to ticket_aihub;
+grant create any directory       to ticket_aihub;
+
+-- Grant Privileges: Select AI Agent
+grant execute on dbms_cloud_ai_agent to ticket_aihub;
+
+-- Grant Privileges: Vectors
+grant create any index to ticket_aihub;
+grant execute on dbms_vector to ticket_aihub;
+
+-- Grant Privileges: Select AI RAG
+grant execute on dbms_cloud_pipeline to ticket_aihub;
+
+-- Grant Privileges: Statistics
+grant execute on sys.dbms_stats to ticket_aihub;
+
+-- Grant Privileges: Scheduler & Jobs
+grant create job to ticket_aihub;
+grant execute on dbms_scheduler to ticket_aihub;
+
+-- REST Enable Schema
+begin
+    ords_admin.enable_schema(
+        p_enabled             => true,
+        p_schema              => 'TICKET_AIHUB',
+        p_url_mapping_type    => 'BASE_PATH',
+        p_url_mapping_pattern => 'ticket_aihub',
+        p_auto_rest_auth      => true
+    );
+end;
+/
+
+-- Grant Privileges: DDL via ADB-S MCP Server
+grant create table to ticket_aihub;
+alter user ticket_aihub quota 100m on users;
+
+-- ACL: ORDS Endpoints
+begin
+    dbms_network_acl_admin.append_host_ace(
+        host       => '${adb_host}',
+        lower_port => 443,
+        upper_port => 443,
+        ace        => xs$ace_type(
+                        privilege_list => xs$name_list('http'),
+                        principal_name => 'TICKET_AIHUB',
+                        principal_type => xs_acl.ptype_db
+                     )
+    );
+end;
+/
+
+-- Grant Privileges: Cloud Notification
+grant execute on dbms_cloud              to ticket_aihub;
+grant execute on dbms_cloud_notification to ticket_aihub;
