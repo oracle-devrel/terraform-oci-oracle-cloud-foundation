@@ -771,7 +771,7 @@ END;
 
 ## <a name="team"></a>The Team
 
-- **Owners**: [Panaitescu Ionel](https://github.com/ionelpanaitescu), [José Cruz](https://github.com/josecrcruz)
+- **Owners**: [Panaitescu Ionel](https://github.com/ionelpanaitescu), [José Cruz](https://github.com/josecrcruz), [Madhusudhan Rao](https://github.com/madhusudhanrao-ppm)
 
 
 ## <a name="feedback"></a>Feedback
