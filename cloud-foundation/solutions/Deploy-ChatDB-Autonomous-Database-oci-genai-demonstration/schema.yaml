@@ -68,7 +68,7 @@ variables:
     type: string
     maxLength: 30
   db_is_free_tier:
-    title: Do do want a always Free Oracle Autonomous Database instance?
+    title: Do you want a always Free Oracle Autonomous Database instance?
     description: "Provision Always Free Oracle Autonomous Database instance (20 GB Storage)?"
     type: enum
     enum:
@@ -204,7 +204,10 @@ variables:
       - "uk-london-1"
     default: "us-chicago-1"
     required: true
-    visible: true 
+    visible:
+      eq:
+        - db_is_free_tier
+        - false 
   tag:
     title: Pick the datasets to load. 
     description: "Pick one from below"
@@ -234,7 +237,7 @@ outputs:
     title: adb_database_private_endpoint_ip
     visible: true
   database_actions:
-    type: link
+    type: string
     title: url
     visible: true
   database_fully_qualified_name:
@@ -242,19 +245,19 @@ outputs:
     title: database_fully_qualified_name
     visible: true      
   graph_studio_url:
-    type: link
+    type: string
     title: graph_studio_url
     visible: false
   machine_learning_ui_url:
-    type: link
+    type: string
     title: machine_learning_ui_url
     visible: true
   apex_url:
-    type: link
+    type: string
     title: apex_url
     visible: true    
   askoracle_select_ai_app_url:
-    type: link
+    type: string
     title: askoracle_select_ai_app_url
     visible: true      
   adb_admin_password:

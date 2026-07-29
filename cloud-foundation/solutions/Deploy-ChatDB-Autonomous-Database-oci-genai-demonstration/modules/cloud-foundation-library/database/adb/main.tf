@@ -23,13 +23,13 @@ resource "oci_database_autonomous_database" "adw" {
   admin_password              = each.value.database_admin_password
   compartment_id              = each.value.compartment_id
 	compute_model               = each.value.compute_model
-	compute_count               = each.value.compute_count
+	compute_count               = each.value.effective_compute_count
   data_storage_size_in_tbs    = each.value.size_in_tbs
   db_name                     = each.value.db_name
   display_name                = each.value.db_name
   db_workload                 = each.value.db_workload
   db_version                  = each.value.db_version
-  license_model               = each.value.license_model
+  license_model               = each.value.effective_license_model
   is_mtls_connection_required = each.value.is_mtls_connection_required
   subnet_id                   = each.value.subnet_id
   nsg_ids                     = each.value.nsg_ids 
