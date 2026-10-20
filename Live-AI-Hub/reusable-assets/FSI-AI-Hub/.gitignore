@@ -1,0 +1,10 @@
+.terraform/
+terraform.tfstate
+terraform.tfstate.*
+crash.log
+crash.*.log
+terraform.tfvars
+wallet_*.zip
+modules/provisioner/generated-*.sql
+modules/provisioner/.*.sql
+*.in

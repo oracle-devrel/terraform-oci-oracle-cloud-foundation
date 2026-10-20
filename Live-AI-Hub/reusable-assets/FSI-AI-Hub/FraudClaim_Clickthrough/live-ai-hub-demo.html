@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Live AI Hub - Automated Insurance Claim Fraud Screening</title>
+  <style>
+    :root {
+      --page: #f6f1e9;
+      --paper: #fffaf4;
+      --ink: #342f2c;
+      --muted: #80766f;
+      --brown: #75513f;
+      --brown-dark: #55392e;
+      --teal: #558279;
+      --line: #e6dbcf;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--page);
+    }
+    * { box-sizing: border-box; }
+    body { min-width: 320px; margin: 0; background: var(--page); }
+    button { font: inherit; }
+    button:focus-visible { outline: 3px solid rgba(85, 130, 121, .6); outline-offset: 2px; }
+    [hidden] { display: none !important; }
+
+    .welcome {
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 26px clamp(24px, 5vw, 78px) 22px;
+      background:
+        radial-gradient(ellipse at 76% 46%, rgba(85, 130, 121, .12), transparent 38%),
+        radial-gradient(ellipse at 8% 88%, rgba(170, 133, 71, .08), transparent 34%),
+        var(--page);
+    }
+    .welcome-top, .welcome-foot { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 650; letter-spacing: -.02em; }
+    .shield {
+      display: grid;
+      width: 38px;
+      height: 42px;
+      place-items: center;
+      clip-path: polygon(50% 0, 94% 18%, 88% 68%, 50% 100%, 12% 68%, 6% 18%);
+      color: white;
+      background: linear-gradient(145deg, #6a9a8e, #426e67);
+      font-size: 19px;
+      font-weight: 700;
+    }
+    .demo-label { color: var(--muted); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+    .welcome-stage {
+      display: grid;
+      width: min(1240px, 100%);
+      margin: auto;
+      padding: 52px 0 62px;
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr);
+      align-items: center;
+      gap: clamp(40px, 8vw, 120px);
+    }
+    .eyebrow { display: flex; align-items: center; gap: 10px; color: var(--teal); font-size: 12px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
+    .eyebrow-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 0 5px rgba(85, 130, 121, .12); }
+    h1 { max-width: 710px; margin: 26px 0 22px; font-size: clamp(43px, 6.1vw, 78px); line-height: 1.02; letter-spacing: -.065em; font-weight: 680; }
+    h1 span { display: block; }
+    h1 span:last-child { max-width: 640px; margin-top: 16px; color: #66574e; font-size: clamp(13px, 2.25vw, 29px); line-height: 1.16; letter-spacing: -.045em; font-weight: 500; white-space: nowrap; }
+    .welcome-copy > p { max-width: 480px; margin: 0; color: var(--muted); font-size: 16px; line-height: 1.65; }
+    .begin-button {
+      display: inline-flex;
+      min-width: 154px;
+      min-height: 54px;
+      margin-top: 34px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 0 19px 0 22px;
+      border: 0;
+      border-radius: 7px;
+      color: #fffaf4;
+      background: var(--brown);
+      box-shadow: 0 8px 18px rgba(85, 57, 46, .17);
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 650;
+      transition: transform .18s ease, background .18s ease;
+    }
+    .begin-button:hover { transform: translateY(-2px); background: var(--brown-dark); }
+    .begin-button span { font-size: 21px; font-weight: 400; }
+    .welcome-foot { color: var(--muted); font-size: 12px; }
+    .page-count { color: #9b8c7d; letter-spacing: .13em; }
+    .screen-art {
+      position: relative;
+      min-height: 440px;
+      overflow: hidden;
+      border: 1px solid rgba(117, 81, 63, .12);
+      border-radius: 18px;
+      background: linear-gradient(142deg, rgba(255,250,244,.9), rgba(240,230,217,.78));
+      box-shadow: 0 18px 54px rgba(75, 59, 43, .08);
+    }
+    .screen-art:before, .screen-art:after { position: absolute; content: ""; border: 1px solid rgba(85,130,121,.19); border-radius: 50%; }
+    .screen-art:before { width: 350px; height: 350px; top: 40px; left: 50%; transform: translateX(-50%); }
+    .screen-art:after { width: 260px; height: 260px; top: 86px; left: 50%; transform: translateX(-50%); border-color: rgba(117,81,63,.18); }
+    .art-label { position: absolute; top: 24px; left: 26px; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .14em; }
+    .art-center { position: absolute; top: 50%; left: 50%; z-index: 1; display: grid; width: 148px; height: 148px; place-items: center; transform: translate(-50%,-50%); border: 1px solid rgba(85,130,121,.3); border-radius: 50%; color: white; background: linear-gradient(145deg,#6f9d92,#426f68); box-shadow: 0 16px 38px rgba(69,115,106,.25); }
+    .art-center-inner { display: grid; width: 104px; height: 104px; place-items: center; border: 1px solid rgba(255,255,255,.45); border-radius: 50%; font-size: 13px; font-weight: 650; letter-spacing: .1em; text-align: center; text-transform: uppercase; }
+    .art-node { position: absolute; z-index: 2; display: flex; align-items: center; gap: 9px; padding: 10px 13px; border: 1px solid var(--line); border-radius: 7px; color: #62564f; background: rgba(255,250,244,.95); box-shadow: 0 2px 8px rgba(68,49,36,.09); font-size: 12px; font-weight: 600; }
+    .art-node i { width: 8px; height: 8px; border-radius: 50%; background: #aa8547; }
+    .node-one { top: 24%; left: 8%; }
+    .node-two { top: 32%; right: 7%; }
+    .node-three { right: 13%; bottom: 15%; }
+    .art-line { position: absolute; height: 1px; background: rgba(85,130,121,.32); transform-origin: left center; }
+    .line-one { width: 100px; top: 38%; left: 26%; transform: rotate(19deg); }
+    .line-two { width: 98px; top: 43%; left: 65%; transform: rotate(55deg); }
+    .line-three { width: 112px; top: 66%; left: 57%; transform: rotate(32deg); }
+    .art-foot { position: absolute; right: 26px; bottom: 23px; left: 26px; display: flex; justify-content: space-between; color: #95877b; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+    .opening-visual { align-self: center; width: 100%; }
+    .opening-image { display: block; width: 100%; height: auto; border: 1px solid rgba(117, 81, 63, .14); border-radius: 10px; box-shadow: 0 18px 40px rgba(25, 48, 55, .16); }
+
+    .image-screen { min-height: 100vh; padding: 14px; background: var(--page); }
+    .closing-message { display: inline-flex; width: fit-content; margin-top: 28px !important; padding: 11px 15px; border: 1px solid rgba(85, 130, 121, .24); border-radius: 7px; color: var(--teal) !important; background: rgba(85, 130, 121, .08); font-size: 15px !important; font-weight: 650; }
+    .guide-bubble {
+      position: fixed;
+      z-index: 8;
+      bottom: 22px;
+      left: 20px;
+      display: block;
+      width: min(370px, calc(100vw - 32px));
+      padding: 13px 15px;
+      border: 1px solid var(--line);
+      border-radius: 15px 15px 15px 5px;
+      color: var(--ink);
+      background: rgba(255, 250, 244, .97);
+      box-shadow: 0 8px 26px rgba(55, 42, 32, .2);
+      font-size: 13px;
+      line-height: 1.45;
+      pointer-events: none;
+      transform: scale(1.5);
+      transform-origin: bottom left;
+    }
+    .guide-bubble:after {
+      position: absolute;
+      bottom: -8px;
+      left: 18px;
+      width: 14px;
+      height: 14px;
+      transform: rotate(45deg);
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: var(--paper);
+      content: "";
+    }
+    .guide-bubble[data-route^="report"] { right: 20px; left: auto; transform-origin: bottom right; border-radius: 15px 15px 5px 15px; }
+    .guide-bubble[data-route^="report"]:after { right: 18px; left: auto; }
+    .guide-bubble[data-route="dashboard"] { bottom: 18px; left: 10px; width: 320px; font-size: 12px; line-height: 1.38; }
+    .guide-bubble[data-route="worklist"] { bottom: 18px; left: 10px; width: 320px; font-size: 12px; line-height: 1.38; }
+    .guide-bubble[data-route="supervisor"] { bottom: 18px; left: 10px; width: 320px; font-size: 12px; line-height: 1.38; }
+    .guide-message { display: block; }
+    @media (max-width: 520px) {
+      .guide-bubble, .guide-bubble[data-route^="report"] { right: 12px; bottom: 16px; left: 12px; width: auto; padding: 19px 22px; transform: none; font-size: 19px; }
+      .guide-bubble[data-route="dashboard"], .guide-bubble[data-route="worklist"], .guide-bubble[data-route="supervisor"] { right: 12px; left: 12px; width: auto; font-size: 19px; }
+    }
+    .screenshot-frame { position: relative; width: min(100%, 2048px); margin: 0 auto; line-height: 0; }
+    .reference-image { display: block; width: 100%; height: auto; user-select: none; }
+    .hotspot {
+      position: absolute;
+      z-index: 2;
+      display: block;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+    .hotspot:hover { background: rgba(85,130,121,.13); box-shadow: inset 0 0 0 2px rgba(85,130,121,.72); }
+    .hotspot:focus-visible { outline: 3px solid #456f67; outline-offset: 1px; background: rgba(85,130,121,.12); }
+    .dashboard-next { top: 19.5%; left: 1.45%; width: 12%; height: 5%; }
+    .claim-processing-next { top: 14.1%; left: 1.45%; width: 13%; height: 4.7%; }
+    .claim-processing-advance { inset: 0; }
+    .supervisor-hotspot { top: 24.2%; left: 1.45%; width: 13.4%; height: 4.6%; }
+    .worklist-next { top: 48.8%; left: 19%; width: 78.5%; height: 4.3%; }
+    .worklist-supervisor-next { top: 27.8%; left: 1.4%; width: 14%; height: 4.4%; }
+    .report-next { top: 95.7%; left: 74.4%; width: 15.8%; height: 3.2%; }
+    .report-advance, .report-evidence-advance, .report-action-advance, .report-dashboard-return { inset: 0; }
+    .supervisor-investigation-hotspot { top: 19.3%; left: 1.4%; width: 14%; height: 4.7%; }
+    .investigation-menu {
+      position: absolute;
+      z-index: 4;
+      top: 23.9%;
+      left: 2.7%;
+      width: 13.5%;
+      min-width: 150px;
+      padding: 1.3% 0;
+      border: 1px solid #e6dbcf;
+      border-radius: 0 0 5px 5px;
+      background: rgba(255,250,244,.98);
+      box-shadow: 0 7px 18px rgba(68,49,36,.16);
+    }
+    .investigation-menu button {
+      display: flex;
+      width: 100%;
+      min-height: 40px;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      border: 0;
+      color: #655950;
+      background: transparent;
+      text-align: left;
+      font-size: clamp(7px, .75vw, 13px);
+      font-weight: 650;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .investigation-menu button:hover { background: #f0e6da; }
+    .supervisor-menu {
+      position: absolute;
+      z-index: 4;
+      top: 28.3%;
+      left: 2.7%;
+      display: grid;
+      width: 13.5%;
+      min-width: 150px;
+      padding: 4% 0;
+      border: 1px solid #e6dbcf;
+      border-radius: 0 0 5px 5px;
+      background: rgba(255,250,244,.98);
+      box-shadow: 0 7px 18px rgba(68,49,36,.16);
+      line-height: 1.2;
+    }
+    .supervisor-menu button, .supervisor-menu span {
+      display: flex;
+      min-height: 39px;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      border: 0;
+      color: #655950;
+      background: transparent;
+      text-align: left;
+      font-size: clamp(7px, .75vw, 13px);
+      white-space: nowrap;
+    }
+    .supervisor-menu button { cursor: pointer; font-weight: 650; }
+    .supervisor-menu button:hover { background: #f0e6da; }
+    .claim-detail {
+      min-height: 100vh;
+      padding: clamp(20px, 5vw, 68px);
+      background: var(--page);
+    }
+    .detail-wrap { width: min(1050px, 100%); margin: 0 auto; }
+    .back-button { min-height: 38px; padding: 0 3px; border: 0; color: #687c73; background: transparent; cursor: pointer; font-size: 13px; }
+    .detail-wrap h2 { margin: 17px 0 18px; font-size: clamp(25px, 4vw, 36px); letter-spacing: -.04em; }
+    .detail-card { overflow: hidden; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); box-shadow: 0 2px 8px rgba(68,49,36,.09); }
+    .detail-card h3 { margin: 0; padding: 17px 20px; border-bottom: 1px solid #e1d5c9; background: #f3e7d9; font-size: 15px; }
+    .detail-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .detail-field { min-height: 76px; padding: 16px 20px; border-bottom: 1px solid #ece3da; }
+    .detail-field:nth-child(odd) { border-right: 1px solid #ece3da; }
+    .detail-field span { display: block; margin-bottom: 6px; color: #7f766f; font-size: 11px; text-transform: uppercase; }
+    .detail-field strong { color: #4f736d; font-size: 15px; font-weight: 650; }
+
+    @media (max-width: 760px) {
+      .welcome { padding: 19px 20px 17px; }
+      .welcome-stage { grid-template-columns: 1fr; gap: 32px; padding: 48px 0 38px; }
+      h1 { font-size: clamp(42px, 10vw, 68px); }
+      h1 span:last-child { font-size: clamp(13px, 4vw, 29px); }
+      .screen-art { min-height: 340px; }
+      .screen-art:before { width: 280px; height: 280px; top: 25px; }
+      .screen-art:after { width: 210px; height: 210px; top: 60px; }
+      .node-one { top: 23%; left: 4%; }
+      .node-two { top: 29%; right: 3%; }
+      .node-three { right: 4%; bottom: 13%; }
+      .image-screen { padding: 6px; }
+      .hotspot:hover { box-shadow: inset 0 0 0 1px rgba(85,130,121,.72); }
+    }
+    @media (max-width: 420px) {
+      .welcome-top .demo-label { display: none; }
+      .welcome-stage { padding-top: 42px; }
+      .screen-art { min-height: 300px; }
+      .art-node { padding: 8px 9px; font-size: 10px; }
+      .art-center { width: 126px; height: 126px; }
+      .art-center-inner { width: 90px; height: 90px; font-size: 11px; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .detail-field:nth-child(odd) { border-right: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *:before, *:after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <section id="welcomeScreen" class="welcome" aria-labelledby="welcomeTitle">
+    <header class="welcome-top">
+      <div class="brand"><span class="shield" aria-hidden="true">✓</span><span>CrossShield Auto Insurance</span></div>
+      <div class="demo-label">Claims intelligence · guided demo</div>
+    </header>
+    <div class="welcome-stage">
+      <main class="welcome-copy">
+        <h1 id="welcomeTitle">Live AI Hub <span>Automated Insurance Claim Fraud Screening</span></h1>
+        <p>A guided walkthrough of the claims screening workspace.</p>
+        <button id="beginButton" class="begin-button" type="button">begin <span aria-hidden="true">→</span></button>
+      </main>
+      <aside class="opening-visual" aria-label="Live AI Hub data ecosystem diagram">
+        <img class="opening-image" src="opening-hub-diagram.png" alt="Live AI Hub connecting users, applications, and data sources across clouds, databases, and catalogs">
+      </aside>
+    </div>
+    <footer class="welcome-foot"><span>CrossShield Auto Insurance · Demo environment</span><span class="page-count">01 / 11</span></footer>
+  </section>
+
+  <section id="dashboardScreen" class="image-screen" aria-label="Dashboard screenshot" hidden>
+    <div class="screenshot-frame">
+      <img class="reference-image" src="dashboard-reference.png" alt="CrossShield Auto Insurance dashboard with claim status, risk tier, incident date and fraud management charts">
+      <button class="hotspot claim-processing-next" type="button" aria-label="Open Claim Processing" title="Claim Processing"></button>
+      <button class="hotspot dashboard-next" type="button" aria-label="Click Investigation Unit to open the SIU Worklist" title="Investigation Unit"></button>
+      <button class="hotspot supervisor-hotspot" type="button" aria-label="Open Supervisor menu" aria-expanded="false" title="Supervisor"></button>
+      <div id="supervisorMenu" class="supervisor-menu" role="menu" aria-label="Supervisor navigation" hidden>
+        <button id="allClaimsMenuItem" type="button" role="menuitem">◀ &nbsp; All Claims</button>
+        <span>↗ &nbsp; Reference Data</span>
+        <span>♟ &nbsp; Employees</span>
+        <span>✦ &nbsp; Service Representatives</span>
+        <span>⌁ &nbsp; Repairers (Databricks)</span>
+        <span>✚ &nbsp; Reinsurance</span>
+        <span>◎ &nbsp; Audit Log</span>
+        <span>＋ &nbsp; Flow Diagram</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="claimProcessingScreen" class="image-screen" aria-label="Claim Processing screenshot" hidden>
+    <div class="screenshot-frame">
+      <img class="reference-image" src="claim-processing-reference.png" alt="Claim Processor view of non-fraud claims filtered by risk status">
+      <button class="hotspot claim-processing-advance" type="button" aria-label="End the click-through demo"></button>
+    </div>
+  </section>
+
+  <section id="endScreen" class="welcome closing-screen" aria-labelledby="endTitle" hidden>
+    <header class="welcome-top">
+      <div class="brand"><span class="shield" aria-hidden="true">✓</span><span>CrossShield Auto Insurance</span></div>
+      <div class="demo-label">Claims intelligence · guided demo</div>
+    </header>
+    <div class="welcome-stage">
+      <main class="welcome-copy">
+        <h1 id="endTitle">Live AI Hub <span>Automated Insurance Claim Fraud Screening</span></h1>
+        <p class="closing-message">end of click-through demo</p>
+      </main>
+      <aside class="opening-visual" aria-label="Live AI Hub data ecosystem diagram">
+        <img class="opening-image" src="opening-hub-diagram.png" alt="Live AI Hub connecting users, applications, and data sources across clouds, databases, and catalogs">
+      </aside>
+    </div>
+    <footer class="welcome-foot"><span>CrossShield Auto Insurance · Demo environment</span><span class="page-count">11 / 11</span></footer>
+  </section>
+
+  <section id="worklistScreen" class="image-screen" aria-label="SIU Worklist screenshot" hidden>
+    <div class="screenshot-frame">
+      <img class="reference-image" src="siu-worklist-reference.png" alt="SIU Worklist showing ten claims with IDs, names, dates, types, statuses and amounts">
+      <button class="hotspot worklist-next" type="button" aria-label="Open claim 28381 for Mia Anderson" title="Claim 28381 — Mia Anderson"></button>
+      <button class="hotspot worklist-supervisor-next" type="button" aria-label="Open Supervisor menu" title="Supervisor (Admin)"></button>
+    </div>
+  </section>
+
+  <section id="supervisorScreen" class="image-screen" aria-label="Supervisor All Claims screenshot" hidden>
+    <div class="screenshot-frame">
+      <img class="reference-image" src="supervisor-all-claims-reference.png" alt="Supervisor - View All Claims and Filter by Risk, showing the All Claims table">
+      <button class="hotspot supervisor-investigation-hotspot" type="button" aria-label="Open Investigation Unit menu" aria-expanded="false" title="Investigation Unit"></button>
+      <div id="investigationMenu" class="investigation-menu" role="menu" aria-label="Investigation Unit navigation" hidden>
+        <button id="siuWorklistMenuItem" type="button" role="menuitem">◉ &nbsp; SIU Worklist</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="claimDetailScreen" class="image-screen" aria-label="Claim Overview screenshot" hidden>
+    <div class="screenshot-frame">
+      <img class="reference-image" src="claim-overview-reference.png" alt="Claim Overview for claim 28381, with incident timeline, financial details and settlement decision">
+      <button class="hotspot report-next" type="button" aria-label="View Fraud Investigation Report" title="View Fraud Investigation Report"></button>
+    </div>
+  </section>
+
+  <section id="reportScreen" class="image-screen" aria-label="Claim Investigation Report screenshot" hidden>
+    <div class="screenshot-frame">
+      <img class="reference-image" src="claim-investigation-report-reference.png" alt="Claim Investigation Report for claim 28381 with executive summary and fraud probability">
+      <button class="hotspot report-advance" type="button" aria-label="Continue to the Explainable AI report section" title="Continue"></button>
+    </div>
+  </section>
+
+  <section id="reportContinuationScreen" class="image-screen" aria-label="Explainable AI report section" hidden>
+    <div class="screenshot-frame">
+      <img class="reference-image" src="claim-investigation-report-continuation.png" alt="Continuation of the Claim Investigation Report showing Explainable AI analysis and supporting evidence">
+      <button class="hotspot report-evidence-advance" type="button" aria-label="Continue to Risk Evidence and Document Findings" title="Continue"></button>
+    </div>
+  </section>
+
+  <section id="reportEvidenceScreen" class="image-screen" aria-label="Risk Evidence and Document Findings report section" hidden>
+    <div class="screenshot-frame">
+      <img class="reference-image" src="claim-investigation-report-evidence.png" alt="Claim Investigation Report showing Risk Evidence, External Evidence, and Document Findings">
+      <button class="hotspot report-action-advance" type="button" aria-label="Continue to Recommended Action" title="Continue"></button>
+    </div>
+  </section>
+
+  <section id="reportActionScreen" class="image-screen" aria-label="Recommended Action report section" hidden>
+    <div class="screenshot-frame">
+      <img class="reference-image" src="claim-investigation-report-action.png" alt="Claim Investigation Report showing recommended investigation steps and report generation time">
+      <button class="hotspot report-dashboard-return" type="button" aria-label="Return to dashboard" title="Return to Dashboard"></button>
+    </div>
+  </section>
+
+  <aside id="guideBubble" class="guide-bubble" aria-live="polite" hidden>
+    <span id="guideMessage" class="guide-message"></span>
+  </aside>
+
+  <script>
+    const welcomeScreen = document.getElementById('welcomeScreen');
+    const dashboardScreen = document.getElementById('dashboardScreen');
+    const claimProcessingScreen = document.getElementById('claimProcessingScreen');
+    const endScreen = document.getElementById('endScreen');
+    const worklistScreen = document.getElementById('worklistScreen');
+    const supervisorScreen = document.getElementById('supervisorScreen');
+    const claimDetailScreen = document.getElementById('claimDetailScreen');
+    const reportScreen = document.getElementById('reportScreen');
+    const reportContinuationScreen = document.getElementById('reportContinuationScreen');
+    const reportEvidenceScreen = document.getElementById('reportEvidenceScreen');
+    const reportActionScreen = document.getElementById('reportActionScreen');
+    const guideBubble = document.getElementById('guideBubble');
+    const guideMessage = document.getElementById('guideMessage');
+    const guideNarration = {
+      dashboard: 'This is the Dashboard showing the status of all incoming claims. Once a claim is received by the system an AI agent will screen it for fraud signals. If the signals reach a defined threshold the new claim is put on the work queue for the claim investigation department. Let\'s see the full list first...',
+      'claim-processing': 'This is the same screen we\'ve seen before. A claim will be normally processed and closed by the claim worker. This concludes our click-through demo.',
+      worklist: 'This is the work list of the investigative department; let us zoom on one claim...',
+      supervisor: 'this is the list of all claims, some are closed, some are non-fraud, and some are flagged for further investigation. Let us go and look at such an example...',
+      'claim-detail': 'Since this claim has been screened by the AI Agent, let us look at the reason why this was flagged as potential fraud...',
+      report: '...here you can see in details all the angles the AI Agent took in consideration to calculate the fraud probability...',
+      'report-continuation': '...here you can see in details all the angles the AI Agent took in consideration to calculate the fraud probability...',
+      'report-evidence': '...here you can see in details all the angles the AI Agent took in consideration to calculate the fraud probability...',
+      'report-action': '...here you can see in details all the angles the AI Agent took in consideration to calculate the fraud probability...'
+    };
+    const dashboardAfterReportNarration = 'Let us look also at the claims that are not flagged as being potentially fraudolent...';
+    let returnedToDashboardFromReport = false;
+
+    function routeFromHash() {
+      if (window.location.hash === '#dashboard') return 'dashboard';
+      if (window.location.hash === '#claim-processing') return 'claim-processing';
+      if (window.location.hash === '#end') return 'end';
+      if (window.location.hash === '#worklist') return 'worklist';
+      if (window.location.hash === '#supervisor-all-claims') return 'supervisor';
+      if (window.location.hash === '#claim-28381') return 'claim-detail';
+      if (window.location.hash === '#claim-report') return 'report';
+      if (window.location.hash === '#report-continuation') return 'report-continuation';
+      if (window.location.hash === '#report-evidence') return 'report-evidence';
+      if (window.location.hash === '#report-action') return 'report-action';
+      return 'welcome';
+    }
+
+    function renderRoute(route) {
+      welcomeScreen.hidden = route !== 'welcome';
+      dashboardScreen.hidden = route !== 'dashboard';
+      claimProcessingScreen.hidden = route !== 'claim-processing';
+      endScreen.hidden = route !== 'end';
+      worklistScreen.hidden = route !== 'worklist';
+      supervisorScreen.hidden = route !== 'supervisor';
+      claimDetailScreen.hidden = route !== 'claim-detail';
+      reportScreen.hidden = route !== 'report';
+      reportContinuationScreen.hidden = route !== 'report-continuation';
+      reportEvidenceScreen.hidden = route !== 'report-evidence';
+      reportActionScreen.hidden = route !== 'report-action';
+      const narration = route === 'dashboard' && returnedToDashboardFromReport
+        ? dashboardAfterReportNarration
+        : guideNarration[route];
+      guideBubble.hidden = !narration;
+      if (narration) {
+        guideBubble.dataset.route = route;
+        guideMessage.textContent = narration;
+      }
+      if (route !== 'supervisor') {
+        document.getElementById('investigationMenu').hidden = true;
+        document.querySelector('.supervisor-investigation-hotspot').setAttribute('aria-expanded', 'false');
+      }
+      if (route !== 'dashboard') {
+        document.getElementById('supervisorMenu').hidden = true;
+        document.querySelector('.supervisor-hotspot').setAttribute('aria-expanded', 'false');
+      }
+      document.title = route === 'claim-detail'
+        ? 'Claim 28381 — Live AI Hub'
+        : route === 'claim-processing'
+          ? 'Claim Processing — Live AI Hub'
+        : route === 'end'
+          ? 'End of Demo — Live AI Hub'
+        : route === 'report'
+          ? 'Claim Investigation Report — Live AI Hub'
+        : route === 'report-continuation'
+          ? 'Explainable AI — Live AI Hub'
+        : route === 'report-evidence'
+          ? 'Risk Evidence — Live AI Hub'
+        : route === 'report-action'
+          ? 'Recommended Action — Live AI Hub'
+        : route === 'supervisor'
+          ? 'Supervisor - All Claims — Live AI Hub'
+        : route === 'worklist'
+          ? 'SIU Worklist — Live AI Hub'
+          : route === 'dashboard'
+            ? 'Dashboard — Live AI Hub'
+            : 'Live AI Hub - Automated Insurance Claim Fraud Screening';
+      window.scrollTo(0, 0);
+    }
+
+    function navigate(route) {
+      const hash = route === 'welcome' ? '' : route === 'claim-detail' ? '#claim-28381' : route === 'claim-processing' ? '#claim-processing' : route === 'end' ? '#end' : route === 'report' ? '#claim-report' : route === 'report-continuation' ? '#report-continuation' : route === 'report-evidence' ? '#report-evidence' : route === 'report-action' ? '#report-action' : route === 'supervisor' ? '#supervisor-all-claims' : '#' + route;
+      if (window.location.hash !== hash) window.history.pushState({ route: route }, '', hash || window.location.pathname);
+      renderRoute(route);
+    }
+
+    document.getElementById('beginButton').addEventListener('click', function () {
+      returnedToDashboardFromReport = false;
+      navigate('dashboard');
+    });
+    document.querySelector('.claim-processing-next').addEventListener('click', function () { navigate('claim-processing'); });
+    document.querySelector('.claim-processing-advance').addEventListener('click', function () { navigate('end'); });
+    document.querySelector('.dashboard-next').addEventListener('click', function () { navigate('worklist'); });
+    document.querySelector('.worklist-next').addEventListener('click', function () { navigate('claim-detail'); });
+    document.querySelector('.report-next').addEventListener('click', function () { navigate('report'); });
+    document.querySelector('.report-advance').addEventListener('click', function () { navigate('report-continuation'); });
+    document.querySelector('.report-evidence-advance').addEventListener('click', function () { navigate('report-evidence'); });
+    document.querySelector('.report-action-advance').addEventListener('click', function () { navigate('report-action'); });
+    document.querySelector('.report-dashboard-return').addEventListener('click', function () {
+      returnedToDashboardFromReport = true;
+      navigate('dashboard');
+    });
+    document.querySelector('.worklist-supervisor-next').addEventListener('click', function () { navigate('supervisor'); });
+    document.querySelector('.supervisor-hotspot').addEventListener('click', function () {
+      const menu = document.getElementById('supervisorMenu');
+      const isOpen = !menu.hidden;
+      menu.hidden = isOpen;
+      this.setAttribute('aria-expanded', String(!isOpen));
+    });
+    document.getElementById('allClaimsMenuItem').addEventListener('click', function () { navigate('supervisor'); });
+    document.querySelector('.supervisor-investigation-hotspot').addEventListener('click', function () {
+      const menu = document.getElementById('investigationMenu');
+      const isOpen = !menu.hidden;
+      menu.hidden = isOpen;
+      this.setAttribute('aria-expanded', String(!isOpen));
+    });
+    document.getElementById('siuWorklistMenuItem').addEventListener('click', function () { navigate('worklist'); });
+    window.addEventListener('popstate', function () { renderRoute(routeFromHash()); });
+    window.addEventListener('hashchange', function () { renderRoute(routeFromHash()); });
+    renderRoute(routeFromHash());
+  </script>
+</body>
+</html>

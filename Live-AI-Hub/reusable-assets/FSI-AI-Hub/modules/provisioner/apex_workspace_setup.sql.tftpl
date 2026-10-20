@@ -1,0 +1,110 @@
+whenever sqlerror exit sql.sqlcode rollback
+set define off
+set serveroutput on
+
+declare
+  l_workspace       varchar2(100) := upper('${apex_workspace_name}');
+  l_schema          varchar2(100) := upper('${apex_db_schema}');
+  l_user            varchar2(100) := upper('${apex_builder_username}');
+  l_password        varchar2(4000) := q'~$APEX_BUILDER_PASSWORD~';
+  l_exists          number := 0;
+  l_apex_user_id    number;
+  l_quoted_password varchar2(8000);
+begin
+  l_user := dbms_assert.simple_sql_name(l_user);
+  l_quoted_password := '"' || replace(l_password, '"', '""') || '"';
+
+  -- ADB App Builder SSO authenticates against a database account.
+  select count(*) into l_exists
+    from dba_users
+   where username = l_user;
+
+  if l_exists = 0 then
+    execute immediate 'create user ' || l_user || ' identified by ' || l_quoted_password;
+  else
+    begin
+      execute immediate 'alter user ' || l_user || ' identified by ' || l_quoted_password || ' account unlock';
+    exception
+      when others then
+        if sqlcode = -28007 then
+          -- Oracle rejects reusing the active password; keep it and unlock the account.
+          execute immediate 'alter user ' || l_user || ' account unlock';
+        else
+          raise;
+        end if;
+    end;
+  end if;
+
+  execute immediate 'grant connect, console_developer, oml_developer to ' || l_user;
+  execute immediate 'alter user ' || l_user ||
+    ' default role connect, console_developer, oml_developer';
+
+  -- Match the REST/Web access shown in Database Actions, with authorization required.
+  ords_admin.enable_schema(
+    p_enabled             => true,
+    p_schema              => l_user,
+    p_url_mapping_type    => 'BASE_PATH',
+    p_url_mapping_pattern => lower(l_user),
+    p_auto_rest_auth      => true
+  );
+
+  select count(*) into l_exists
+    from apex_workspaces
+   where workspace = l_workspace;
+
+  if l_exists = 0 then
+    apex_instance_admin.add_workspace(
+      p_workspace_id       => ${apex_workspace_id},
+      p_workspace          => l_workspace,
+      p_primary_schema     => l_schema,
+      p_additional_schemas => null
+    );
+  end if;
+
+  begin
+    apex_instance_admin.add_schema(
+      p_workspace             => l_workspace,
+      p_schema                => l_schema,
+      p_grant_apex_privileges => true
+    );
+  exception
+    when others then
+      dbms_output.put_line('APEX schema mapping warning: ' || sqlerrm);
+  end;
+
+  apex_util.set_workspace(p_workspace => l_workspace);
+  select count(*) into l_exists
+    from apex_workspace_apex_users
+   where workspace_name = l_workspace
+     and user_name = l_user;
+
+  if l_exists = 0 then
+    apex_util.create_user(
+      p_user_name                    => l_user,
+      p_web_password                 => l_password,
+      p_developer_privs              => 'ADMIN:CREATE:DATA_LOADER:EDIT:HELP:MONITOR:SQL',
+      p_email_address                => lower(l_user) || '@example.com',
+      p_default_schema               => l_schema,
+      p_change_password_on_first_use => 'N'
+    );
+  else
+    l_apex_user_id := apex_util.get_user_id(p_username => l_user);
+    apex_util.edit_user(
+      p_user_id                      => l_apex_user_id,
+      p_user_name                    => l_user,
+      p_web_password                 => l_password,
+      p_new_password                 => l_password,
+      p_email_address                => lower(l_user) || '@example.com',
+      p_default_schema               => l_schema,
+      p_developer_roles              => 'ADMIN:CREATE:DATA_LOADER:EDIT:HELP:MONITOR:SQL',
+      p_account_locked               => 'N',
+      p_failed_access_attempts       => 0,
+      p_change_password_on_first_use => 'N',
+      p_first_password_use_occurred  => 'Y'
+    );
+  end if;
+
+  apex_util.unexpire_workspace_account(p_user_name => l_user);
+end;
+/
+commit;

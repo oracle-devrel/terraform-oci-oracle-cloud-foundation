@@ -1,0 +1,26 @@
+whenever sqlerror exit sql.sqlcode rollback
+set define off
+set serveroutput on
+
+declare
+  l_workspace_id number;
+begin
+  select workspace_id
+    into l_workspace_id
+    from apex_workspaces
+   where workspace = upper('${apex_workspace_name}');
+
+  apex_application_install.clear_all;
+  -- The database schema and runtime are provisioned by Terraform.  Do not let
+  -- the APEX export's supporting-object scripts overwrite them in an order
+  -- that can leave dependent FSI functions invalid.
+  apex_application_install.set_auto_install_sup_obj(false);
+  apex_application_install.set_workspace_id(l_workspace_id);
+  apex_application_install.set_schema(upper('${apex_db_schema}'));
+  apex_application_install.set_application_id(${apex_app_id});
+  apex_application_install.set_application_alias('${apex_app_alias}');
+  apex_application_install.set_application_name('${apex_app_name}');
+  apex_application_install.generate_offset;
+end;
+/
+@${apex_export_file}
