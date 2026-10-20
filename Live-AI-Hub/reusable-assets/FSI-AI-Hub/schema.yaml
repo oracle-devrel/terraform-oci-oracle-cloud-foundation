@@ -1,0 +1,816 @@
+# Copyright © 2026, Oracle and/or its affiliates.
+# All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+title: "Deploy FSI CrossShield Insurance"
+stackDescription: "FSI CrossShield Insurance is a database-first Oracle APEX proof of value for claims operations and explainable fraud investigation. The stack provisions Autonomous AI Database, Object Storage, the FSI schema and data, governed Select AI/RAG/Agent objects, and the CrossShield Insurance APEX application."
+schemaVersion: 1.1.0
+version: "20261007"
+locale: "en"
+
+groupings:
+  - title: "General Settings"
+    visible: true
+    variables:
+      - tenancy_ocid
+      - region
+      - compartment_id
+      - user_ocid
+      - fingerprint
+      - oci_private_key_pem
+
+  - title: "Autonomous Database Configuration"
+    visible: true
+    variables:
+      - adw_db_name
+      - adw_db_is_free_tier
+      - adw_db_license_model
+      - adw_db_password
+      - fsi_db_schema
+      - fsi_db_password
+      - adw_db_version
+      - adw_db_size_in_tbs
+      - adw_db_enable_auto_scaling
+      - adw_db_compute_model
+      - adw_db_compute_count
+      - adw_db_workload
+      - adw_db_data_safe_status
+      - adw_db_operations_insights_status
+      - adw_db_database_management_status
+      - load_sample_data
+
+  - title: "AI, RAG and Resource Principal Settings"
+    visible: true
+    variables:
+      - profile_apex_model
+      - profile_nl2sql_model
+      - profile_rag_model
+      - rag_embedding_model
+      - enable_rag
+      - enable_adb_resource_principal
+      - use_adb_resource_principal_for_ai
+      - rag_vector_index_name
+      - rag_vector_dimension
+      - load_dump_vector_index_snapshot
+      - rag_chunk_overlap
+      - rag_chunk_size
+      - rag_refresh_rate_minutes
+      - rag_match_limit
+      - rag_similarity_threshold
+
+  - title: "Object Storage"
+    visible: true
+    variables:
+      - files_bucket_name
+      - files_bucket_access_type
+      - files_bucket_storage_tier
+      - files_bucket_events_enabled
+      - upload_knowledge_base
+
+  - title: "Oracle APEX Settings"
+    visible: true
+    variables:
+      - apex_workspace_name
+      - apex_workspace_id
+      - apex_builder_username
+      - apex_builder_password
+      - apex_app_id
+      - apex_app_alias
+      - apex_app_name
+      - fsi_apex_ai_service_static_id
+      - fsi_apex_fraud_team
+      - fsi_apex_generic_team
+      - fsi_apex_rag_team
+
+  - title: "FSI Runtime and Scheduler Configuration"
+    visible: true
+    variables:
+      - enable_fsi_ai_request_worker
+      - fsi_ai_request_worker_interval
+      - enable_fsi_claim_generation_job
+      - fsi_claim_generation_interval
+      - enable_fsi_new_claim_investigation_job
+      - fsi_new_claim_investigation_interval
+
+  - title: "External Integration Settings"
+    visible: true
+    variables:
+      - fraud_notification_threshold
+      - google_sheet_url
+      - fsi_application_data_par_url
+      - fsi_vector_snapshot_par_url
+      - fsi_apex_export_par_url
+      - fsi_runtime_config
+      - fsi_apex_llm_instructions
+
+  - title: "Hidden Compatibility Variables"
+    visible: false
+    variables:
+      - private_key_path
+      - oci_credential_name
+      - profile_apex_name
+      - profile_nl2sql_name
+      - profile_rag_name
+      - ai_max_tokens
+      - rag_vector_distance_metric
+      - fsi_runtime_config_defaults
+
+variables:
+  tenancy_ocid:
+    title: Tenancy OCID
+    description: Enter the OCID of the OCI tenancy where CrossShield Insurance will be deployed.
+    type: string
+    required: true
+    visible: true
+
+  region:
+    title: Deployment Region
+    description: Region for OCI resources and Select AI profiles. Generated Object Storage URLs follow this region.
+    type: oci:identity:region:name
+    required: true
+    visible: true
+
+  compartment_id:
+    title: Compartment
+    description: Target compartment for CrossShield resources and the runtime OCI_COMPARTMENT_ID.
+    type: oci:identity:compartment:id
+    required: true
+    visible: true
+
+  user_ocid:
+    title: OCI User OCID
+    description: Enter the OCID of the OCI user associated with the API signing key used by Terraform and the database credential.
+    type: string
+    required: true
+    visible: true
+
+  fingerprint:
+    title: API Key Fingerprint
+    description: Enter the fingerprint of the OCI API public key associated with the selected OCI user.
+    type: string
+    required: true
+    visible: true
+
+  oci_private_key_pem:
+    title: OCI API Private Key
+    description: Paste the complete OCI API private key used by Resource Manager. Keep this value secret and do not commit it to source control.
+    type: password
+    sensitive: true
+    required: true
+    visible: true
+
+  private_key_path:
+    title: OCI API Private Key Path
+    description: Local Terraform CLI compatibility variable. Leave empty in Resource Manager; use oci_private_key_pem instead.
+    type: string
+    sensitive: true
+    required: false
+    visible: false
+
+  adw_db_name:
+    title: Autonomous Database Name
+    description: Enter the Autonomous Database name. It must start with a letter and contain no more than 14 alphanumeric characters.
+    type: string
+    default: "FSIHub"
+    required: true
+    visible: true
+    maxLength: 14
+    pattern: '^[A-Za-z][A-Za-z0-9]{0,13}$'
+
+  adw_db_is_free_tier:
+    title: Use Always Free Autonomous Database
+    description: Select true to deploy an Always Free Autonomous Database when supported by the tenancy and region.
+    type: enum
+    enum: [true, false]
+    default: false
+    required: true
+    visible: true
+
+  adw_db_license_model:
+    title: Autonomous Database License Model
+    description: Select the license model for a paid Autonomous Database.
+    type: enum
+    enum: ["LICENSE_INCLUDED", "BRING_YOUR_OWN_LICENSE"]
+    default: "BRING_YOUR_OWN_LICENSE"
+    required: true
+    visible:
+      eq: [adw_db_is_free_tier, false]
+
+  adw_db_password:
+    title: Autonomous Database ADMIN Password
+    description: Enter a password between 12 and 30 characters containing uppercase, lowercase and numeric characters. Do not use ADMIN or a double quote.
+    type: password
+    sensitive: true
+    required: true
+    confirmation: true
+    visible: true
+    minLength: 12
+    maxLength: 30
+
+  fsi_db_schema:
+    title: FSI Database Schema
+    description: Oracle parsing schema and owner for the CrossShield Insurance objects.
+    type: string
+    default: "FSI_DB"
+    required: true
+    visible: true
+    maxLength: 30
+    pattern: '^[A-Za-z][A-Za-z0-9_$#]{0,29}$'
+
+  fsi_db_password:
+    title: FSI Schema Password
+    description: Password for the FSI parsing schema. Use the same password policy as the Autonomous Database.
+    type: password
+    sensitive: true
+    required: true
+    confirmation: true
+    visible: true
+    minLength: 12
+    maxLength: 30
+
+  adw_db_version:
+    title: Oracle Database Version
+    description: Select the Oracle Database version used by the solution.
+    type: enum
+    enum: ["26ai"]
+    default: "26ai"
+    required: true
+    visible: true
+
+  adw_db_size_in_tbs:
+    title: Database Storage in TB
+    description: Select the amount of storage allocated to a paid Autonomous Database.
+    type: enum
+    enum: [1, 2, 4, 6, 8, 10, 12, 16, 24, 36, 52, 128]
+    default: 1
+    required: true
+    visible:
+      eq: [adw_db_is_free_tier, false]
+
+  adw_db_enable_auto_scaling:
+    title: Enable Compute Auto Scaling
+    description: Enable automatic compute scaling for a paid Autonomous Database.
+    type: enum
+    enum: [true, false]
+    default: true
+    required: true
+    visible:
+      eq: [adw_db_is_free_tier, false]
+
+  adw_db_compute_model:
+    title: Compute Model
+    description: Select the Autonomous Database compute model.
+    type: enum
+    enum: ["ECPU"]
+    default: "ECPU"
+    required: true
+    visible:
+      eq: [adw_db_is_free_tier, false]
+
+  adw_db_compute_count:
+    title: ECPU Count
+    description: Enter the number of ECPUs allocated to the paid Autonomous Database.
+    type: number
+    default: 4
+    minimum: 2
+    maximum: 512
+    multipleOf: 2
+    required: true
+    visible:
+      eq: [adw_db_is_free_tier, false]
+
+  adw_db_workload:
+    title: Autonomous Database Workload
+    description: CrossShield Insurance uses an OLTP workload.
+    type: enum
+    enum: ["OLTP"]
+    default: "OLTP"
+    required: true
+    visible: true
+
+  adw_db_data_safe_status:
+    title: Data Safe Status
+    description: Select the Data Safe registration status for the Autonomous Database.
+    type: enum
+    enum: ["NOT_REGISTERED", "REGISTERED"]
+    default: "NOT_REGISTERED"
+    required: true
+    visible: true
+
+  adw_db_operations_insights_status:
+    title: Operations Insights Status
+    description: Select whether Operations Insights is enabled for the Autonomous Database.
+    type: enum
+    enum: ["NOT_ENABLED", "ENABLED"]
+    default: "NOT_ENABLED"
+    required: true
+    visible: true
+
+  adw_db_database_management_status:
+    title: Database Management Status
+    description: Select whether Database Management is enabled for the Autonomous Database.
+    type: enum
+    enum: ["NOT_ENABLED", "ENABLED"]
+    default: "ENABLED"
+    required: true
+    visible: true
+
+  load_sample_data:
+    title: Load CrossShield Sample Data
+    description: Load the curated CrossShield relational dataset during deployment. Disable for an empty schema.
+    type: enum
+    enum: [true, false]
+    default: true
+    required: true
+    visible: true
+
+  profile_apex_model:
+    title: APEX AI Model
+    description: Model used for CrossShield APEX investigation/report generation.
+    type: string
+    default: "xai.grok-4.20-reasoning"
+    required: true
+    visible: true
+
+  profile_nl2sql_model:
+    title: NL2SQL Model
+    description: Model used to convert approved natural-language questions into SQL over the FSI data model.
+    type: string
+    default: "xai.grok-4.3"
+    required: true
+    visible: true
+
+  profile_rag_model:
+    title: RAG Generation Model
+    description: Model used to generate grounded answers from approved CrossShield knowledge-base documents.
+    type: string
+    default: "meta.llama-4-maverick-17b-128e-instruct-fp8"
+    required: true
+    visible: true
+
+  rag_embedding_model:
+    title: RAG Embedding Model
+    description: OCI Cohere Embed 4 model used by the knowledge-base vector index. Select AI returns 1,536 dimensions by default; Terraform re-embeds the source documents instead of importing the 1,024-dimensional DMP snapshot.
+    type: string
+    default: "cohere.embed-v4.0"
+    required: true
+    visible: true
+
+  enable_rag:
+    title: Enable RAG Knowledge Base
+    description: Create and configure the Select AI RAG profile and vector index.
+    type: enum
+    enum: [true, false]
+    default: true
+    required: true
+    visible: true
+
+  enable_adb_resource_principal:
+    title: Enable ADB Resource Principal
+    description: Create the dynamic group and least-privilege policy used by Autonomous Database for Object Storage and Generative AI.
+    type: enum
+    enum: [true, false]
+    default: true
+    required: true
+    visible: true
+
+  use_adb_resource_principal_for_ai:
+    title: Use ADB Resource Principal for Runtime AI
+    description: Use OCI$RESOURCE_PRINCIPAL inside the database for Select AI, RAG and report-storage runtime calls.
+    type: enum
+    enum: [true, false]
+    default: true
+    required: true
+    visible: true
+
+  rag_vector_index_name:
+    title: RAG Vector Index Name
+    description: Oracle vector index name used for the CrossShield knowledge base.
+    type: string
+    default: "FSI_HUB_VECTOR_INDEX_KB"
+    required: true
+    visible: true
+
+  rag_vector_dimension:
+    title: RAG Vector Dimension
+    description: Vector dimension produced by the selected embedding model. Cohere Embed 4 defaults to 1,536 dimensions in Select AI.
+    type: number
+    default: 1536
+    minimum: 1
+    required: true
+    visible: true
+
+  rag_chunk_overlap:
+    title: RAG Chunk Overlap
+    description: Number of overlapping characters used when chunking knowledge-base documents.
+    type: number
+    default: 128
+    minimum: 0
+    required: true
+    visible: true
+
+  rag_chunk_size:
+    title: RAG Chunk Size
+    description: Maximum chunk size used when indexing knowledge-base documents.
+    type: number
+    default: 1024
+    minimum: 1
+    required: true
+    visible: true
+
+  rag_refresh_rate_minutes:
+    title: RAG Refresh Interval (minutes)
+    description: Refresh interval configured for the vector index pipeline.
+    type: number
+    default: 1440
+    minimum: 1
+    required: true
+    visible: true
+
+  rag_match_limit:
+    title: RAG Match Limit
+    description: Maximum number of knowledge-base matches returned to the RAG agent.
+    type: number
+    default: 12
+    minimum: 1
+    required: true
+    visible: true
+
+  rag_similarity_threshold:
+    title: RAG Similarity Threshold
+    description: Minimum similarity threshold for RAG matches. Zero uses the database profile default.
+    type: number
+    default: 0
+    minimum: 0
+    required: true
+    visible: true
+
+  files_bucket_name:
+    title: Knowledge-Base Bucket Name
+    description: Object Storage bucket used for approved knowledge-base files and generated report artefacts.
+    type: string
+    default: "fsi-crossshield-kb"
+    required: true
+    visible: true
+    minLength: 1
+    maxLength: 256
+
+  files_bucket_access_type:
+    title: Bucket Access Type
+    description: Keep the bucket private unless a reviewed integration requires another access mode.
+    type: enum
+    enum: ["NoPublicAccess", "ObjectRead", "ObjectReadWithoutList"]
+    default: "NoPublicAccess"
+    required: true
+    visible: true
+
+  files_bucket_storage_tier:
+    title: Bucket Storage Tier
+    description: Select the Object Storage tier for knowledge-base and report objects.
+    type: enum
+    enum: ["Standard", "Archive"]
+    default: "Standard"
+    required: true
+    visible: true
+
+  files_bucket_events_enabled:
+    title: Enable Object Events
+    description: Enable Object Storage events for bucket object changes when required.
+    type: enum
+    enum: [true, false]
+    default: false
+    required: true
+    visible: true
+
+  upload_knowledge_base:
+    title: Upload Knowledge Base
+    description: Upload the three approved Markdown documents from the packaged documentation/ folder before the database RAG setup runs.
+    type: enum
+    enum: [true, false]
+    default: true
+    required: true
+    visible: true
+
+  apex_workspace_name:
+    title: APEX Workspace Name
+    description: Oracle APEX workspace created or reused by the deployment.
+    type: string
+    default: "FSI_CROSSSHIELD_WS"
+    required: true
+    visible: true
+
+  apex_workspace_id:
+    title: APEX Workspace ID
+    description: Numeric APEX workspace ID used by the import script.
+    type: number
+    default: 101010108
+    minimum: 100000000
+    required: true
+    visible: true
+
+  apex_builder_username:
+    title: APEX Username
+    description: APEX workspace user created by the deployment.
+    type: string
+    default: "FSI_AIHUB"
+    required: true
+    visible: true
+
+  apex_builder_password:
+    title: APEX Password
+    description: Password for the FSI_AIHUB APEX workspace user.
+    type: password
+    sensitive: true
+    required: true
+    confirmation: true
+    visible: true
+    minLength: 12
+    maxLength: 30
+
+  apex_app_id:
+    title: APEX Application ID
+    description: Numeric application ID used when importing CrossShield Insurance.
+    type: number
+    default: 108
+    minimum: 1
+    required: true
+    visible: true
+
+  apex_app_alias:
+    title: APEX Application Alias
+    description: Friendly alias used in the CrossShield Insurance application URL.
+    type: string
+    default: "CROSSSHIELD-INSURANCE"
+    required: true
+    visible: true
+
+  apex_app_name:
+    title: APEX Application Name
+    description: Display name used when importing the application.
+    type: string
+    default: "CrossShield Insurance"
+    required: true
+    visible: true
+
+  fraud_notification_threshold:
+    title: SIU Notification Threshold
+    description: Fraud probability percentage at or above which the finalizer records and sends the SIU notification.
+    type: number
+    default: 50
+    minimum: 0
+    maximum: 100
+    required: true
+    visible: true
+
+  google_sheet_url:
+    title: Google Sheets CSV URL
+    description: Approved CSV-exportable fraud-score feed. Leave empty to disable the spreadsheet enrichment.
+    type: string
+    sensitive: true
+    default: ""
+    required: false
+    visible: true
+
+  oci_credential_name:
+    title: OCI API Credential Name
+    description: Database credential name used when Resource Principal runtime calls are disabled.
+    type: string
+    default: "FS_OCI_CRED"
+    required: false
+    visible: false
+
+  profile_apex_name:
+    title: APEX Select AI Profile Name
+    type: string
+    default: "FSI_APEX_GROK_PROFILE"
+    required: false
+    visible: false
+
+  profile_nl2sql_name:
+    title: NL2SQL Select AI Profile Name
+    type: string
+    default: "fsi_select_ai_hub_nl2sql"
+    required: false
+    visible: false
+
+  profile_rag_name:
+    title: RAG Select AI Profile Name
+    type: string
+    default: "FSI_SELECT_AI_RAG_KB_PROFILE"
+    required: false
+    visible: false
+
+  ai_max_tokens:
+    title: AI Maximum Tokens
+    type: number
+    default: 4096
+    required: false
+    visible: false
+
+  rag_vector_distance_metric:
+    title: RAG Distance Metric
+    type: enum
+    enum: ["cosine", "euclidean", "dot"]
+    default: "cosine"
+    required: false
+    visible: false
+  fsi_apex_ai_service_static_id:
+    title: APEX AI Service Static ID
+    description: Static ID of the CrossShield APEX AI service.
+    type: string
+    default: "CROSSSHIELD_GROK"
+    required: true
+    visible: true
+
+  fsi_apex_fraud_team:
+    title: Fraud Investigation Team
+    description: Select AI team used by the APEX fraud-investigation flow.
+    type: string
+    default: "FSI_FRAUD_INVESTIGATION_TEAM"
+    required: true
+    visible: true
+
+  fsi_apex_generic_team:
+    title: Generic AI Team
+    description: Fallback Select AI team used by the APEX application.
+    type: string
+    default: "FSI_GENERIC_AI_TEAM"
+    required: true
+    visible: true
+
+  fsi_apex_rag_team:
+    title: RAG Knowledge-Base Team
+    description: Search-only RAG team used by the APEX application.
+    type: string
+    default: "FSI_RAG_KNOWLEDGE_BASE_TEAM"
+    required: true
+    visible: true
+
+  fsi_apex_llm_instructions:
+    title: APEX Fraud Report Instructions
+    description: Default report instructions imported from the DMP. Override in Terraform variables when customizing the generated report.
+    type: string
+    required: false
+    visible: true
+
+  fsi_application_data_par_url:
+    title: Application Data Object PAR URL
+    description: ObjectReadWrite bearer URL scoped to FSI_files/01_fsi_application_data.sql in the Live-AI-Hub bucket.
+    type: password
+    sensitive: true
+    default: ""
+    required: true
+    visible: true
+
+  fsi_vector_snapshot_par_url:
+    title: Vector Snapshot Object PAR URL
+    description: ObjectReadWrite bearer URL scoped to FSI_files/03_fsi_vector_index_snapshot.sql in the Live-AI-Hub bucket.
+    type: password
+    sensitive: true
+    default: ""
+    required: true
+    visible: true
+
+  fsi_apex_export_par_url:
+    title: APEX Export Object PAR URL
+    description: ObjectReadWrite bearer URL scoped to FSI_files/f108.sql in the Live-AI-Hub bucket.
+    type: password
+    sensitive: true
+    default: ""
+    required: true
+    visible: true
+
+  fsi_runtime_config:
+    title: FSI Runtime Overrides
+    description: Enter only runtime settings to override. Supply integration credentials and private resource URLs here.
+    type: map
+    valueType: string
+    sensitive: true
+    default: {}
+    required: false
+    visible: true
+
+  fsi_runtime_config_defaults:
+    title: DMP Runtime Defaults
+    description: "Runtime defaults; credential values and deployment-specific endpoints are blank in source control."
+    type: map
+    valueType: string
+    sensitive: true
+    default:
+      APEX_LLM_PROFILE_NAME: "FSI_APEX_GROK_PROFILE"
+      AZURE_BLOB_CREDENTIAL_NAME: "AZURE_BLOB_CRED"
+      AZURE_BLOB_PASSWORD: ""
+      AZURE_BLOB_USERNAME: ""
+      DATABRICKS_CATALOG: ""
+      DATABRICKS_CATALOG_ENDPOINT: ""
+      DATABRICKS_CLIENT_ID: ""
+      DATABRICKS_CLIENT_SECRET: ""
+      DATABRICKS_ICEBERG_CATALOG_NAME: "DBX_ICEBERG_CATALOG"
+      DATABRICKS_OAUTH_CREDENTIAL_NAME: "UNITY_BEARER_CRED"
+      DATABRICKS_OAUTH_TOKEN_ENDPOINT: ""
+      DATABRICKS_OUTPUT_COLUMNS: "[\"repairer_name\", \"fraud_score\"]"
+      DATABRICKS_REPAIRER_FRAUD_TABLE: "REPAIRER_FRAUD_SCORES"
+      DATABRICKS_SCHEMA: "FSI_GOLD"
+      DATABRICKS_SERVER_HOSTNAME: ""
+      GOOGLE_SHEET_GID: "0"
+      GOOGLE_SHEET_URL: ""
+      GROK_MODEL_NAME: "xai.grok-4.20-reasoning"
+      MONGODB_CLAIM_API_KEY: ""
+      MONGODB_COLLECTION: "fsicollection"
+      MONGODB_CONNECTION_STRING: ""
+      MONGODB_DATABASE: "fsidb"
+      MONGODB_DATA_API_KEY: ""
+      MONGODB_DATA_API_URL: "http://127.0.0.1:3000/agent-api/mongodb/claim/find"
+      MONGODB_DATA_SOURCE: ""
+      MONGODB_DB: "fsidb"
+      MONGODB_REST_API_URL: "http://127.0.0.1:3000/agent-api/mongodb/claim/find"
+      MONGODB_URI: ""
+      NEWSAPI_API_KEY: ""
+      NEWSAPI_BASE_URL: "https://newsapi.org/v2/everything"
+      NEWSAPI_ENDPOINT: "https://newsapi.org/v2/everything"
+      NEWSAPI_QUERY: "Insurance"
+      OBJECT_STORAGE_CREDENTIAL_NAME: "FS_OCI_CRED"
+      OCI_CREDENTIAL_NAME: "FS_OCI_CRED"
+      OCI_MODEL_NAME: "meta.llama-4-maverick-17b-128e-instruct-fp8"
+      OPEN_METEO_ARCHIVE_URL: "https://archive-api.open-meteo.com/v1/archive"
+      OPEN_METEO_DEFAULT_LATITUDE: "17.9712"
+      OPEN_METEO_DEFAULT_LONGITUDE: "-76.7936"
+      OPEN_METEO_DEFAULT_TIMEZONE: "America%2FJamaica"
+      OPEN_METEO_FORECAST_URL: "https://api.open-meteo.com/v1/forecast"
+      OPEN_METEO_GEOCODING_URL: "https://geocoding-api.open-meteo.com/v1/search"
+      RAG_PROFILE_NAME: "FSI_SELECT_AI_RAG_KB_PROFILE"
+      RAG_VECTOR_INDEX_NAME: "FSI_HUB_VECTOR_INDEX_KB"
+      RAG_VECTOR_TABLE_NAME: "FSI_HUB_VECTOR_INDEX_KB$VECTAB"
+      REDSHIFT_ADDRESS_COLUMN: "address"
+      REDSHIFT_CUSTOMERS_TABLE: "customers"
+      REDSHIFT_CUSTOMER_ID_COLUMN: "customer_id"
+      REDSHIFT_DATABASE: "redshiftdb"
+      REDSHIFT_EMAIL_COLUMN: "email"
+      REDSHIFT_HOST: ""
+      REDSHIFT_PASSWORD: ""
+      REDSHIFT_PORT: "5439"
+      REDSHIFT_SSL: "false"
+      REDSHIFT_USER: ""
+      WEATHER_CITY_NAME: "Kingston"
+      WEATHER_DATE: "2024-08-16"
+    required: false
+    visible: false
+  enable_fsi_ai_request_worker:
+    title: Enable FSI AI Request Worker
+    description: Enable the asynchronous worker that processes queued APEX AI requests.
+    type: enum
+    enum: [true, false]
+    default: true
+    required: true
+    visible: true
+
+  fsi_ai_request_worker_interval:
+    title: AI Request Worker Interval
+    description: DBMS_SCHEDULER repeat interval for the AI request worker.
+    type: string
+    default: "FREQ=SECONDLY;INTERVAL=2"
+    required: true
+    visible: true
+
+  enable_fsi_claim_generation_job:
+    title: Enable Claim Generation Job
+    description: Create one simulated claim on each interval. Disabled by default.
+    type: enum
+    enum: [true, false]
+    default: false
+    required: true
+    visible: true
+
+  fsi_claim_generation_interval:
+    title: Claim Generation Interval
+    description: DBMS_SCHEDULER repeat interval for generating sample claims.
+    type: string
+    default: "FREQ=MINUTELY;INTERVAL=2"
+    required: true
+    visible: true
+
+  enable_fsi_new_claim_investigation_job:
+    title: Enable New Claim Investigation Job
+    description: Automatically investigate new claims. Disabled by default.
+    type: enum
+    enum: [true, false]
+    default: false
+    required: true
+    visible: true
+
+  fsi_new_claim_investigation_interval:
+    title: New Claim Investigation Interval
+    description: DBMS_SCHEDULER repeat interval for investigating new claims.
+    type: string
+    default: "FREQ=MINUTELY;INTERVAL=4"
+    required: true
+    visible: true
+
+  load_dump_vector_index_snapshot:
+    title: Load DMP Vector Snapshot
+    description: Import the 1,024-dimensional DMP vector snapshot only when it matches the configured embedding dimension. Defaults off so Select AI re-embeds the knowledge-base source documents for Cohere Embed 4.
+    type: enum
+    enum: [true, false]
+    default: false
+    required: true
+    visible: true
+

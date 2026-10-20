@@ -1,0 +1,146 @@
+whenever sqlerror exit sql.sqlcode rollback
+set define off
+set serveroutput on
+
+declare
+  l_schema   varchar2(128) := upper('${fsi_db_schema}');
+  l_password varchar2(4000) := q'~$FSI_DB_PASSWORD~';
+  l_created  boolean := false;
+begin
+  begin
+    execute immediate 'create user ' || dbms_assert.simple_sql_name(l_schema) ||
+                      ' identified by "' || replace(l_password, '"', '""') || '"';
+    l_created := true;
+  exception
+    when others then
+      if sqlcode != -1920 then
+        raise;
+      end if;
+  end;
+
+  if not l_created then
+    begin
+      execute immediate 'alter user ' || dbms_assert.simple_sql_name(l_schema) ||
+                        ' identified by "' || replace(l_password, '"', '""') || '"';
+    exception
+      when others then
+        if sqlcode != -28007 then
+          raise;
+        end if;
+        dbms_output.put_line('FSI schema password is already current; preserving it.');
+    end;
+  end if;
+  execute immediate 'alter user ' || dbms_assert.simple_sql_name(l_schema) || ' quota unlimited on data';
+end;
+/
+
+grant connect                  to ${fsi_db_schema};
+grant resource                 to ${fsi_db_schema};
+grant dwrole                   to ${fsi_db_schema};
+grant apex_administrator_role  to ${fsi_db_schema};
+alter user ${fsi_db_schema} default role all;
+
+-- Enable the database Resource Principal after the IAM policy is in place.
+-- This is idempotent: ORA-20031 means the credential is already enabled.
+begin
+  begin
+    dbms_cloud_admin.enable_resource_principal();
+  exception
+    when others then
+      if sqlcode != -20031 then raise; end if;
+  end;
+  begin
+    dbms_cloud_admin.enable_resource_principal(username => '${fsi_db_schema}');
+  exception
+    when others then
+      if sqlcode != -20031 then raise; end if;
+  end;
+end;
+/
+
+-- Select AI's OCI provider also requires OCI principal authentication to be
+-- enabled. Keep the resource-principal credential grants above for DBMS_CLOUD
+-- Object Storage calls, and enable the provider path used by DBMS_CLOUD_AI.
+begin
+  begin
+    dbms_cloud_admin.enable_principal_auth(provider => 'OCI');
+  exception
+    when others then
+      if sqlcode != -20031
+         and instr(lower(sqlerrm), 'already') = 0
+         and instr(lower(sqlerrm), 'enabled') = 0 then
+        raise;
+      end if;
+  end;
+  begin
+    dbms_cloud_admin.enable_principal_auth(
+      provider => 'OCI',
+      username => '${fsi_db_schema}'
+    );
+  exception
+    when others then
+      if sqlcode != -20031
+         and instr(lower(sqlerrm), 'already') = 0
+         and instr(lower(sqlerrm), 'enabled') = 0 then
+        raise;
+      end if;
+  end;
+end;
+/
+
+-- Required by the database-owned Select AI, vector and scheduler features.
+grant execute on dbms_cloud              to ${fsi_db_schema};
+grant execute on dbms_cloud_admin        to ${fsi_db_schema};
+grant execute on dbms_catalog             to ${fsi_db_schema};
+grant execute on dbms_share               to ${fsi_db_schema};
+grant create database link               to ${fsi_db_schema};
+grant execute on dbms_cloud_ai           to ${fsi_db_schema};
+grant execute on dbms_cloud_ai_agent     to ${fsi_db_schema};
+grant execute on dbms_cloud_pipeline     to ${fsi_db_schema};
+grant execute on dbms_cloud_notification to ${fsi_db_schema};
+grant execute on dbms_scheduler          to ${fsi_db_schema};
+grant execute on dbms_vector             to ${fsi_db_schema};
+grant execute on utl_http                to ${fsi_db_schema};
+grant execute on sys.dbms_stats          to ${fsi_db_schema};
+grant create job                          to ${fsi_db_schema};
+
+-- Permit only the HTTPS hosts used by the FSI enrichment functions.
+begin
+  for r in (
+    select 'docs.google.com' host_name from dual union all
+    select '*.googleusercontent.com' from dual union all
+    select 'api.open-meteo.com' from dual union all
+    select 'archive-api.open-meteo.com' from dual union all
+    select 'geocoding-api.open-meteo.com' from dual union all
+    select regexp_replace(regexp_substr('${databricks_server_hostname}', '^((https?://)?[^/:]+)', 1, 1, 'i', 1), '^https?://', '', 1, 1, 'i') from dual
+     where trim('${databricks_server_hostname}') is not null union all
+    select regexp_replace(regexp_substr('${databricks_oauth_token_endpoint}', '^((https?://)?[^/:]+)', 1, 1, 'i', 1), '^https?://', '', 1, 1, 'i') from dual
+     where trim('${databricks_oauth_token_endpoint}') is not null union all
+    select regexp_replace(regexp_substr('${databricks_catalog_endpoint}', '^((https?://)?[^/:]+)', 1, 1, 'i', 1), '^https?://', '', 1, 1, 'i') from dual
+     where trim('${databricks_catalog_endpoint}') is not null union all
+    select '${azure_blob_storage_hostname}' from dual
+     where trim('${azure_blob_storage_hostname}') is not null
+  ) loop
+    begin
+      dbms_network_acl_admin.append_host_ace(
+        host => r.host_name,
+        lower_port => 443,
+        upper_port => 443,
+        ace => xs$ace_type(
+          privilege_list => xs$name_list('http', 'http_proxy'),
+          principal_name => upper('${fsi_db_schema}'),
+          principal_type => xs_acl.ptype_db
+        )
+      );
+    exception
+      when others then
+        if instr(lower(sqlerrm), 'duplicate') = 0
+           and instr(lower(sqlerrm), 'already exists') = 0 then
+          raise;
+        end if;
+    end;
+  end loop;
+end;
+/
+
+commit;

@@ -15,8 +15,9 @@ The initial demo assets focus on two example experiences:
 
 - **Retail Hub / Fashion Advisor Team Agent** - demonstrates a multi-agent retail experience where specialized agents work together to understand the customer, gather customer profile and analytics data, retrieve weather context, search back-office FAQs and terms, research fashion articles and product catalog information, generate grounded fashion recommendations, and support add-to-cart actions.
 
-- **Ticket AI Hub** - demonstrates an intelligent service and ticketing hub that connects to existing ticketing systems, customer channels, customer data, and enterprise knowledge bases. It is designed to improve customer satisfaction, increase resolution accuracy, reduce response time, support intelligent automation, provide knowledge-grounded answers, improve quality and accuracy, support smart escalation, and deliver operational insights and analytics.
+- **Ticket AI Hub - Healthcare** - demonstrates an intelligent service and ticketing hub that connects to existing ticketing systems, customer channels, customer data, and enterprise knowledge bases. It is designed to improve customer satisfaction, increase resolution accuracy, reduce response time, support intelligent automation, provide knowledge-grounded answers, improve quality and accuracy, support smart escalation, and deliver operational insights and analytics.
 
+- **CrossShield Insurance / FSI Hub** - demonstrates an AI-assisted insurance claims solution that connects claim, policy, customer, and supporting-document data to guide claims through policy verification, investigation, fraud scoring, and human review. Claims are routed according to configurable fraud thresholds, while authorised officers make the final acceptance or rejection decision. The solution combines an Oracle APEX application and Autonomous Database with grounded AI and RAG workflows, private Object Storage, and external Databricks data accessed through its Iceberg catalog.
 
 More assets and reusable components will be added as the Live AI Hub evolves.
 
@@ -25,5 +26,7 @@ More assets and reusable components will be added as the Live AI Hub evolves.
 
 Click one of the links below to start the corresponding demo video:
 
-- [Watch the Retail Hub demo](https://objectstorage.us-ashburn-1.oraclecloud.com/p/26EMYRIJ1V62pa3CeHKrVcF08cJMNy8nQ3JsCGk-Hc27cEUd5ORVvSX5TVw3koVK/n/idukzrqavn8q/b/Live-AI-Hub/o/Retail%20Hub%20-%20Live%20AI%20Hub%20demo%20-%201080p.mp4)
-- [Watch the Ticket Hub demo](https://objectstorage.us-ashburn-1.oraclecloud.com/p/PMIFNigFhznKpjn0S7ac_YIQeJPEZsCvLN5skH3e-B3eL10xrB65EGPIG-J7tKAc/n/idukzrqavn8q/b/Live-AI-Hub/o/Ticket%20Hub%20-%20Live%20AI%20Hub%20demo%20-%201080p.mp4)
+- [Watch the Retail Hub - Live AI Hub demo](https://objectstorage.us-ashburn-1.oraclecloud.com/p/26EMYRIJ1V62pa3CeHKrVcF08cJMNy8nQ3JsCGk-Hc27cEUd5ORVvSX5TVw3koVK/n/idukzrqavn8q/b/Live-AI-Hub/o/Retail%20Hub%20-%20Live%20AI%20Hub%20demo%20-%201080p.mp4)
+- [Watch the Ticket Hub - Healthcare - Live AI Hub demo](https://objectstorage.us-ashburn-1.oraclecloud.com/p/lwON8_9DJJc-mHv2IAKrNiip4i0QRGW6a19tcYP1EPsV_EKVawcU8XLypX8HLmvK/n/idukzrqavn8q/b/Live-AI-Hub/o/Ticket%20Hub%20-%20Healthcare%20-%20Live%20AI%20Hub%20demo%20-%201080p.mp4)
+- [Watch the Ticket Hub - Telco - Live AI Hub demo](https://objectstorage.us-ashburn-1.oraclecloud.com/p/k8l12tUE_qcXBwkfTFR4pwU80AwClIVuBbPmlZpI_9I9x7w7JaDCzVBx7QAfHvww/n/idukzrqavn8q/b/Live-AI-Hub/o/Ticket%20Hub%20-%20Telco%20-%20Live%20AI%20Hub%20demo%20-%201080p.mp4)
+- [Watch the FSI Hub - Live AI Hub demo](https://objectstorage.us-ashburn-1.oraclecloud.com/p/HHimh9bsMqrhyY5naEr32DV1Envx9A_AKduFN9uQIV7aWOmQstM_lNHMdTfhDRci/n/idukzrqavn8q/b/Live-AI-Hub/o/FSI%20Hub%20-%20Live%20AI%20Hub%20demo%20-%201080p.mp4)

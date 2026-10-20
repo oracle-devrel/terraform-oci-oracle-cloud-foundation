@@ -1,0 +1,30 @@
+whenever sqlerror exit sql.sqlcode rollback
+set define off
+set serveroutput on
+
+declare
+  l_workspace varchar2(100) := upper('${apex_workspace_name}');
+  l_app_id    number := ${apex_app_id};
+  l_user      varchar2(100) := upper('${apex_builder_username}');
+begin
+  apex_util.set_workspace(p_workspace => l_workspace);
+
+  for r in (
+    select role_static_id
+      from apex_appl_acl_roles
+     where application_id = l_app_id
+  ) loop
+    begin
+      apex_acl.add_user_role(
+        p_application_id => l_app_id,
+        p_user_name      => l_user,
+        p_role_static_id => r.role_static_id
+      );
+    exception
+      when others then
+        dbms_output.put_line('APEX ACL role warning: ' || sqlerrm);
+    end;
+  end loop;
+  commit;
+end;
+/
