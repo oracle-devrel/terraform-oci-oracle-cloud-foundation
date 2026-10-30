@@ -3,7 +3,7 @@
 
 ### Route tables
 resource "oci_core_route_table" "these" {
-  for_each       = {for k, v in var.subnets_route_tables : k => v if k != ""} 
+  for_each       = { for k, v in var.subnets_route_tables : k => v if k != "" }
   display_name   = each.key
   vcn_id         = each.value.vcn_id
   compartment_id = var.compartment_id
@@ -27,8 +27,8 @@ resource "oci_core_route_table" "these" {
 
 ### Route Table Attachments
 resource "oci_core_route_table_attachment" "these" {
-  for_each = var.subnets_route_tables 
-  subnet_id = each.value.subnet_id
+  for_each       = var.subnets_route_tables
+  subnet_id      = each.value.subnet_id
   route_table_id = each.key != "" ? oci_core_route_table.these[each.key].id : each.value.route_table_id
 }
 

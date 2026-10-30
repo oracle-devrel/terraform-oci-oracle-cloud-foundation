@@ -16,7 +16,6 @@ module "adb" {
 
 module "os" {
   source       = "./modules/cloud-foundation-library/object-storage"
-  depends_on   = [module.adb]
   tenancy_ocid = var.tenancy_ocid
   bucket_params = {
     for k, v in local.bucket_params : k => v if v.compartment_id != ""
@@ -42,6 +41,10 @@ module "provisioner" {
 
   adb_ords_host                     = local.adb_host
   rag_object_storage_location       = local.rag_object_storage_location
+  rag_region                        = var.rag_region
+  rag_embedding_model               = var.rag_embedding_model
+  rag_model                         = var.rag_model
+  rag_vector_dimension              = var.rag_vector_dimension
   attachment_genai_compartment_ocid = var.compartment_id
 
   apex_workspace_name   = "TICKET_AIHUB_WS"
@@ -91,6 +94,87 @@ resource "null_resource" "upload_files_to_object_storage" {
       done
 
       echo "Done."
+    EOT
+  }
+}
+
+
+resource "null_resource" "empty_object_storage_bucket_before_destroy" {
+  # OCI will not delete a bucket that contains objects or old object versions.
+  # This provisioner runs while the bucket still exists and removes both.
+  depends_on = [module.os]
+
+  triggers = {
+    bucket_name = var.files_bucket_name
+    namespace   = data.oci_objectstorage_namespace.this.namespace
+  }
+
+  provisioner "local-exec" {
+    when = destroy
+
+    command = <<-EOT
+      set -euo pipefail
+
+      NAMESPACE="${self.triggers.namespace}"
+      BUCKET="${self.triggers.bucket_name}"
+
+      echo "Emptying Object Storage bucket before destroy: $BUCKET"
+
+      while true; do
+        OBJECT_VERSIONS_JSON="$(mktemp)"
+        trap 'rm -f "$OBJECT_VERSIONS_JSON"' EXIT
+
+        oci os object list-object-versions \
+          --namespace-name "$NAMESPACE" \
+          --bucket-name "$BUCKET" \
+          --all \
+          --output json > "$OBJECT_VERSIONS_JSON"
+
+        VERSION_COUNT="$(python3 - "$OBJECT_VERSIONS_JSON" <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as fh:
+    print(len(json.load(fh).get("data", [])))
+PY
+)"
+
+        if [ "$VERSION_COUNT" -eq 0 ]; then
+          rm -f "$OBJECT_VERSIONS_JSON"
+          trap - EXIT
+          break
+        fi
+
+        python3 - "$OBJECT_VERSIONS_JSON" "$NAMESPACE" "$BUCKET" <<'PY'
+import json
+import subprocess
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as fh:
+    objects = json.load(fh).get("data", [])
+
+for item in objects:
+    name = item.get("name")
+    version_id = item.get("version-id")
+    if not name:
+        continue
+    command = [
+        "oci", "os", "object", "delete",
+        "--namespace-name", sys.argv[2],
+        "--bucket-name", sys.argv[3],
+        "--name", name,
+        "--force",
+    ]
+    if version_id and version_id != "null":
+        command.extend(["--version-id", version_id])
+    subprocess.run(command, check=True)
+PY
+
+        rm -f "$OBJECT_VERSIONS_JSON"
+        trap - EXIT
+      done
+
+      echo "Object Storage bucket emptied: $BUCKET"
     EOT
   }
 }

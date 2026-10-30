@@ -282,7 +282,7 @@
 -- rem Defaults (no prompts)
 -- rem =======================================================
 
--- DEFINE pass = "AaBbCcDdEe123#"
+DEFINE pass = "${oracle_mongo_password}"
 
 -- rem =======================================================
 -- rem Stop if CO schema already exists (no overwrite)
@@ -407,7 +407,7 @@ WHENEVER SQLERROR EXIT SQL.SQLCODE
 
 SPOOL co_install.log
 
-DEFINE pass = "AaBbCcDdEe123#"
+DEFINE pass = "${oracle_mongo_password}"
 
 rem Stop if CO schema already exists (no overwrite)
 SET SERVEROUTPUT ON;
@@ -431,7 +431,7 @@ SELECT property_value
   FROM database_properties
  WHERE property_name = 'DEFAULT_PERMANENT_TABLESPACE';
 
-CREATE USER co IDENTIFIED BY &pass;
+CREATE USER co IDENTIFIED BY "&pass";
 
 ALTER USER co QUOTA UNLIMITED ON &var_default_tablespace;
 

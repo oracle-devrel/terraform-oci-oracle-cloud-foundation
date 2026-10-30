@@ -5,10 +5,10 @@
 
 resource "oci_identity_dynamic_group" "these" {
   for_each       = var.dynamic_groups
-    name           = each.key
-    compartment_id = each.value.compartment_id
-    description    = each.value.description
-    matching_rule  = each.value.matching_rule
+  name           = each.key
+  compartment_id = each.value.compartment_id
+  description    = each.value.description
+  matching_rule  = each.value.matching_rule
 
   #Optional
   # defined_tags = each.defined_tags

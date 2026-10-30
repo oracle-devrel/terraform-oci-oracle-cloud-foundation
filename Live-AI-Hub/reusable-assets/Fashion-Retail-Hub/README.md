@@ -207,7 +207,7 @@ variable "select_ai_embedding_model" {
 
 # <a name="Deploy-Using-Oracle-Resource-Manager"></a>Deploy Using Oracle Resource Manager
 
-1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation/releases/download/v1.0.0/AI-Live-Hub-Fashion-Retail-Demo-RM.zip)
+1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-devrel/terraform-oci-oracle-cloud-foundation/releases/download/v1.0.0/Fashion-Retail-Hub-RM.zip)
 
 
 If you aren't already signed in, when prompted, enter the tenancy and user credentials.
@@ -275,6 +275,8 @@ Install Terraform by unzipping it and moving it to a directory included in your 
 ### Prepare Terraform Provider Values
 
 **variables.tf** is located in the root directory. This file is used in order to be able to make API calls in OCI, hence it will be needed by all terraform automations.
+
+All editable test-environment inputs are declared in **variables.tf**. For OCI Resource Manager, set them directly as Stack Variables; mark passwords, private keys, Atlas credentials, and connection strings as sensitive. For local Terraform CLI runs, use `TF_VAR_*` environment variables. No extra `.tfvars` file is required, and the variable names, descriptions, defaults, and validation rules remain visible in **variables.tf**.
 
 In order to populate the **variables.tf** file, you will need the following:
 
@@ -508,8 +510,6 @@ If you want to use other OCI Generative AI models, modify these variables with m
 
 * **README.md** - Main project documentation file.
 
-* **cleanup_buckets.sh** - Shell helper script placed in the root directory of the solution. It reads the Object Storage bucket names from `variables.tf`, detects the OCI Object Storage namespace automatically, deletes all object versions, and deletes all remaining objects from the buckets before running `terraform destroy`.
-
 * **schema.yaml** - Defines the OCI Resource Manager schema used to improve the stack deployment experience in the OCI Console.
 
 * **variables.tf** - Contains the global Terraform input variables used by the project.
@@ -555,8 +555,9 @@ variable "adw_db_name" {
 }
 
 variable "adw_db_password" {
-  type    = string
-  default = "V2xzQXRwRGIxMjM0Iw=="
+  type      = string
+  default   = ""
+  sensitive = true
 }
 
 variable "adw_db_compute_model" {
@@ -653,8 +654,9 @@ variable "atp_db_name" {
 }
 
 variable "atp_db_password" {
-  type    = string
-  default = "V2xzQXRwRGIxMjM0Iw=="
+  type      = string
+  default   = ""
+  sensitive = true
 }
 
 variable "atp_db_compute_model" {
@@ -833,8 +835,9 @@ variable "mongodb_atlas_public_key" {
 }
 
 variable "mongodb_atlas_private_key" {
-  type    = string
-  default = "f3a91c84-de13-2c8a7d5f4b90"
+  type      = string
+  default   = ""
+  sensitive = true
 }
 
 variable "mongodb_atlas_org_id" {
@@ -863,8 +866,9 @@ variable "mongodb_db_username" {
 }
 
 variable "mongodb_db_password" {
-  type    = string
-  default = "somepassword"
+  type      = string
+  default   = ""
+  sensitive = true
 }
 
 variable "mongodb_database_name" {
@@ -939,8 +943,9 @@ variable "oracle_mongo_username" {
 }
 
 variable "oracle_mongo_password" {
-  type    = string
-  default = "AaBbCcDdEe123#"
+  type      = string
+  default   = ""
+  sensitive = true
 }
 
 variable "oracle_mongo_schema" {
@@ -1114,7 +1119,7 @@ Creates a bucket in the given namespace with a bucket name and optional user-def
 
 * Parameters:
     * __files_bucket_name__ - The name of the bucket. Valid characters are uppercase or lowercase letters, numbers, hyphens, underscores, and periods. Bucket names must be unique within an Object Storage namespace. Avoid entering confidential information. Example: my-new-bucket1
-    * __files_bucket_access_type__ - The type of public access enabled on this bucket. A bucket is set to NoPublicAccess by default, which only allows an authenticated caller to access the bucket and its contents. When ObjectRead is enabled on the bucket, public access is allowed for the GetObject, HeadObject, and ListObjects operations. When ObjectReadWithoutList is enabled on the bucket, public access is allowed for the GetObject and HeadObject operations.
+    * __files_bucket_access_type__ - The Object Storage access mode for the AI/RAG files bucket. This deployment requires `NoPublicAccess`; the bucket can only be read by authenticated OCI callers. The application and database scripts use authenticated OCI requests, so they do not require public object URLs.
     * __files_bucket_storage_tier__ - The type of storage tier of this bucket. A bucket is set to 'Standard' tier by default, which means the bucket will be put in the standard storage tier. When 'Archive' tier type is set explicitly, the bucket is put in the Archive Storage tier. The 'storageTier' property is immutable after bucket is created.
     * __files_bucket_events_enabled__ - Whether or not events are emitted for object state changes in this bucket. By default, objectEventsEnabled is set to false. Set objectEventsEnabled to true to emit events for object state changes. For more information about events, see Overview of Events.
 
@@ -1122,7 +1127,7 @@ Creates a bucket in the given namespace with a bucket name and optional user-def
 
 * Parameters:
     * __atp_creds_bucket_name__ - The name of the bucket. Valid characters are uppercase or lowercase letters, numbers, hyphens, underscores, and periods. Bucket names must be unique within an Object Storage namespace. Avoid entering confidential information. Example: my-new-bucket1
-    * __atp_creds_bucket_access_type__ - The type of public access enabled on this bucket. A bucket is set to NoPublicAccess by default, which only allows an authenticated caller to access the bucket and its contents. When ObjectRead is enabled on the bucket, public access is allowed for the GetObject, HeadObject, and ListObjects operations. When ObjectReadWithoutList is enabled on the bucket, public access is allowed for the GetObject and HeadObject operations.
+    * __atp_creds_bucket_access_type__ - The Object Storage access mode for the ATP credentials bucket. This deployment requires `NoPublicAccess`; the wallet and credential objects are never exposed through public URLs and are read through authenticated OCI requests.
     * __atp_creds_bucket_storage_tier__ - The type of storage tier of this bucket. A bucket is set to 'Standard' tier by default, which means the bucket will be put in the standard storage tier. When 'Archive' tier type is set explicitly, the bucket is put in the Archive Storage tier. The 'storageTier' property is immutable after bucket is created.
     * __atp_creds_bucket_events_enabled__ - Whether or not events are emitted for object state changes in this bucket. By default, objectEventsEnabled is set to false. Set objectEventsEnabled to true to emit events for object state changes. For more information about events, see Overview of Events.
 
@@ -1138,7 +1143,7 @@ variable "files_bucket_name" {
 
 variable "files_bucket_access_type" {
   type    = string
-  default = "ObjectRead"
+  default = "NoPublicAccess"
 }
 
 variable "files_bucket_storage_tier" {
@@ -1162,7 +1167,7 @@ variable "atp_creds_bucket_name" {
 
 variable "atp_creds_bucket_access_type" {
   type    = string
-  default = "ObjectRead"
+  default = "NoPublicAccess"
 }
 
 variable "atp_creds_bucket_storage_tier" {
@@ -1555,8 +1560,9 @@ $ terraform init
 # Create the infrastructure
 $ terraform apply --auto-approve
 
-# If you are done with this infrastructure, take it down
-$ ./cleanup_buckets.sh && terraform destroy --auto-approve
+# If you are done with this infrastructure, take it down.
+# Terraform automatically empties the Object Storage buckets before deletion.
+$ terraform destroy --auto-approve
 ```
 
 ## What to do after deployment: 

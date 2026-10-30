@@ -3,15 +3,15 @@
 
 output "atp_db_id" {
   value = {
-   for adw in oci_database_autonomous_database.adw:
+    for adw in oci_database_autonomous_database.adw :
     adw.display_name => adw.id
   }
 }
 
 output "ad" {
   value = {
-    for idx, ad in oci_database_autonomous_database.adw:
-      ad.db_name => { "connection_strings" : ad.connection_strings.0.all_connection_strings}
+    for idx, ad in oci_database_autonomous_database.adw :
+    ad.db_name => { "connection_strings" : ad.connection_strings.0.all_connection_strings }
   }
 }
 
@@ -50,7 +50,7 @@ output "machine_learning_user_management_url" {
 }
 
 output "adb_wallet_content" {
-value = oci_database_autonomous_database_wallet.autonomous_database_wallet["adw"].content
+  value = oci_database_autonomous_database_wallet.autonomous_database_wallet["adw"].content
 }
 
 output "database_fully_qualified_name" {
@@ -59,14 +59,14 @@ output "database_fully_qualified_name" {
 
 output "adw" {
   value = {
-   for adw in oci_database_autonomous_database.adw:
+    for adw in oci_database_autonomous_database.adw :
     adw.display_name => adw.id
   }
 }
 
 output "autonomous_database_connection_strings_high" {
   description = "A comma-separated list of HIGH connection strings for all autonomous databases."
-  value = join(", ", [for db in oci_database_autonomous_database.adw : db.connection_strings[0].high])
+  value       = join(", ", [for db in oci_database_autonomous_database.adw : db.connection_strings[0].high])
 }
 
 # output "high_mutual_connection_string" {

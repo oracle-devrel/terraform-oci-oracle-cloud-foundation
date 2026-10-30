@@ -9,10 +9,10 @@
 # }
 
 
-output "buckets_id"{
+output "buckets_id" {
   value = {
-    for bucket in oci_objectstorage_bucket.os:
-      bucket.name => {"compartment_id": bucket.compartment_id, "id": bucket.id}
+    for bucket in oci_objectstorage_bucket.os :
+    bucket.name => { "compartment_id" : bucket.compartment_id, "id" : bucket.id }
   }
 }
 

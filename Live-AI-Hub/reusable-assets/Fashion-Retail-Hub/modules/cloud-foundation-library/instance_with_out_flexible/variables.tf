@@ -2,7 +2,7 @@
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 variable "tenancy_ocid" {
-    type = string
+  type = string
 }
 
 variable "instance_params" {
@@ -14,23 +14,23 @@ variable "instance_params" {
     display_name        = string
     shape               = string
 
-    defined_tags = map(string)
+    defined_tags  = map(string)
     freeform_tags = map(string)
 
-    subnet_id        = string
+    subnet_id         = string
     vnic_display_name = string
-    assign_public_ip = string
-    hostname_label   = string
-  
+    assign_public_ip  = string
+    hostname_label    = string
+
     source_type = string
     source_id   = string
 
     metadata = map(string)
-    
+
     fault_domain = string
- 
+
     provisioning_timeout_mins = string
-    
-}))
+
+  }))
 
 }

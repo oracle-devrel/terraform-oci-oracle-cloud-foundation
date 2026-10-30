@@ -2,33 +2,33 @@
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 variable "tenancy_ocid" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "region" {
-    type = string
-    default = ""
+  type    = string
+  default = ""
 }
 
 variable "compartment_id" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "user_ocid" {
-    type = string
-    default = ""
+  type    = string
+  default = ""
 }
 
 variable "fingerprint" {
-    type = string
-    default = ""
+  type    = string
+  default = ""
 }
 
 variable "private_key_path" {
-    type = string
-    default = ""
+  type    = string
+  default = ""
 }
 
 
@@ -113,6 +113,26 @@ variable "rag_region" {
   default = "us-ashburn-1"
 }
 
+variable "rag_embedding_model" {
+  type    = string
+  default = "cohere.embed-v4.0"
+}
+
+variable "rag_vector_dimension" {
+  type    = number
+  default = 1536
+
+  validation {
+    condition     = contains([256, 512, 1024, 1536], var.rag_vector_dimension)
+    error_message = "rag_vector_dimension must be 256, 512, 1024, or 1536."
+  }
+}
+
+variable "rag_model" {
+  type    = string
+  default = "meta.llama-3.3-70b-instruct"
+}
+
 variable "select_ai_model_nl2sql" {
   type        = string
   default     = "xai.grok-4-1-fast-reasoning"
@@ -139,7 +159,7 @@ variable "select_ai_model_rag" {
 
 variable "select_ai_embedding_model" {
   type        = string
-  default     = "cohere.embed-english-v3.0"
+  default     = "cohere.embed-v4.0"
   description = "Embedding model used to build and query the vector indexes for RAG content. This affects how documents are vectorized for similarity search. Change this only when you intentionally want a different embedding strategy and are prepared to recreate or refresh the vector indexes."
 }
 
@@ -151,8 +171,14 @@ variable "files_bucket_name" {
 }
 
 variable "files_bucket_access_type" {
-  type    = string
-  default = "ObjectRead"
+  type        = string
+  default     = "NoPublicAccess"
+  description = "Keep the Ticket AI Hub knowledge-base bucket private; authenticated OCI/DBMS_CLOUD access is used for its objects."
+
+  validation {
+    condition     = var.files_bucket_access_type == "NoPublicAccess"
+    error_message = "files_bucket_access_type must be NoPublicAccess."
+  }
 }
 
 variable "files_bucket_storage_tier" {

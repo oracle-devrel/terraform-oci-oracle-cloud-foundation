@@ -769,6 +769,7 @@ set serveroutput on;
               '{"provider": "' || tkt_agent_config.c_ai_provider || '",
               "credential_name": "' || tkt_agent_config.c_oci_credential_name || '",
               "region":"' || tkt_agent_config.c_rag_region || '",
+              "oci_apiformat":"' || tkt_agent_config.c_ai_api_format || '",
               "oci_compartment_id":"' || tkt_agent_config.c_oci_compartment_ocid || '",
               "vector_index_name": "' || tkt_agent_config.c_rag_vector_index_name || '",
               "embedding_model": "' || tkt_agent_config.c_rag_embedding_model || '",
@@ -859,6 +860,8 @@ set serveroutput on;
             || tkt_agent_config.c_rag_embedding_model
             || TO_CLOB('"},"inputs":')
             || l_inputs_json
+            || TO_CLOB(',"outputDimensions":')
+            || TO_CHAR(tkt_agent_config.c_rag_vector_dimension)
             || TO_CLOB(',"compartmentId":"')
             || tkt_agent_config.c_oci_compartment_ocid
             || TO_CLOB('"}');

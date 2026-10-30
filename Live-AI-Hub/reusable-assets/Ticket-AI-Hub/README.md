@@ -317,7 +317,7 @@ The local account running Terraform must therefore be able to read `private_key_
 
 * **apex_app_acl_setup.sql.tftpl** - Assigns the configured APEX user the required application Access Control role after import.
 
-* **f101-ticket-ai-hub-2026-06-23-16-52.sql** - Oracle APEX application export imported by the wrapper. Update the filename in `provisioner.tf` when replacing the export.
+* **f101-ticket-ai-hub-2026-07-09-15-49.sql** - Oracle APEX application export imported by the wrapper. Update the filename in `provisioner.tf` when replacing the export.
 
 #### Terraform files inside `modules/provisioner/`
 
@@ -591,10 +591,10 @@ terraform output
 To destroy the deployment:
 
 ```bash
-./cleanup_buckets.sh && terraform destroy --auto-approve
+terraform destroy --auto-approve
 ```
 
-Empty the Object Storage bucket, including object versions where applicable, before destroying the bucket if the provider cannot delete a non-empty bucket.
+Terraform empties the Object Storage bucket, including object versions where applicable, before destroying it.
 
 
 ## <a name="what-to-do-after-deployment"></a>What to Do After Deployment

@@ -2,33 +2,39 @@
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 variable "tenancy_ocid" {
-  type = string
-  default = ""
+  type        = string
+  default     = ""
+  description = "OCI tenancy OCID for the local Fashion Retail test deployment."
 }
 
 variable "region" {
-    type = string
-    default = ""
+  type        = string
+  default     = ""
+  description = "OCI region where the current Fashion Retail test deployment is created."
 }
 
 variable "compartment_id" {
-  type = string
-  default = ""
+  type        = string
+  default     = ""
+  description = "OCI compartment OCID where the Fashion Retail test solution is deployed."
 }
 
 variable "user_ocid" {
-    type = string
-    default = ""
+  type        = string
+  default     = ""
+  description = "OCI user OCID used by the local Terraform provider."
 }
 
 variable "fingerprint" {
-    type = string
-    default = ""
+  type        = string
+  default     = ""
+  description = "Fingerprint of the OCI API signing key used by the local Terraform provider."
 }
 
 variable "private_key_path" {
-    type = string
-    default = ""
+  type        = string
+  default     = ""
+  description = "Local path to the OCI API private key. The key remains outside Git."
 }
 
 
@@ -36,6 +42,7 @@ variable "private_key_path" {
 variable "oci_private_key_pem" {
   type        = string
   default     = ""
+  sensitive   = true
   description = "OCI API private key content, used mainly by Resource Manager. Leave empty when using private_key_path with Terraform CLI."
 }
 
@@ -47,8 +54,17 @@ variable "adw_db_name" {
 }
 
 variable "adw_db_password" {
-  type    = string
-  default = "V2xzQXRwRGIxMjM0Iw=="
+  type        = string
+  default     = "V2xzQXRwRGIxMjM0Iw"
+  sensitive   = true
+  description = "Password for the ADW ADMIN account. Supply as TF_VAR_adw_db_password; never commit it to source."
+}
+
+variable "cohub_db_password" {
+  type        = string
+  default     = "AaBbCcDdEe123#"
+  sensitive   = true
+  description = "Password for the COHUB runtime schema. Supply as TF_VAR_cohub_db_password; never commit it to source."
 }
 
 variable "adw_db_compute_model" {
@@ -73,7 +89,7 @@ variable "adw_db_workload" {
 
 variable "adw_db_version" {
   type    = string
-  default = "23ai"
+  default = "26ai"
 }
 
 variable "adw_db_enable_auto_scaling" {
@@ -114,8 +130,10 @@ variable "atp_db_name" {
 }
 
 variable "atp_db_password" {
-  type    = string
-  default = "V2xzQXRwRGIxMjM0Iw=="
+  type        = string
+  default     = "V2xzQXRwRGIxMjM0Iw"
+  sensitive   = true
+  description = "Password for the ATP ADMIN account. Supply as TF_VAR_atp_db_password; never commit it to source."
 }
 
 variable "atp_db_compute_model" {
@@ -182,14 +200,14 @@ variable "rag_region" {
 
 variable "select_ai_model_nl2sql" {
   type        = string
-  default     = "xai.grok-4-1-fast-reasoning"
-  description = "Model used by the Select AI NL2SQL profile (select_ai_hub_nl2sql). This profile converts user questions into SQL over the business views and metadata. Change this when you want to improve SQL generation quality, reasoning depth, or latency for database querying."
+  default     = "xai.grok-4.3"
+  description = "Model used by the Select AI NL2SQL profile (select_ai_hub_nl2sql). The previous xAI Grok 4 Fast model IDs were retired on 2026-08-15; xai.grok-4.3 is the supported replacement."
 }
 
 variable "select_ai_model_agent" {
   type        = string
-  default     = "xai.grok-4-fast-non-reasoning"
-  description = "Model used by the main Select AI agent profile (select_ai_hub). This profile is consumed by the operational agents and tasks such as customer360, fashion advisor, weather assistant, backoffice assistant, and shopping cart assistant. Change this when you want to tune general agent behavior, tool usage, speed, or cost."
+  default     = "xai.grok-4.3"
+  description = "Model used by the main Select AI agent profile (select_ai_hub). The previous xAI Grok 4 Fast model IDs were retired on 2026-08-15; xai.grok-4.3 is the supported replacement for the operational agents and tasks."
 }
 
 variable "genai_embedding_region" {
@@ -218,8 +236,9 @@ variable "mongodb_atlas_public_key" {
 }
 
 variable "mongodb_atlas_private_key" {
-  type    = string
-  default = ""
+  type      = string
+  default   = ""
+  sensitive = true
 }
 
 variable "mongodb_atlas_org_id" {
@@ -229,17 +248,17 @@ variable "mongodb_atlas_org_id" {
 
 variable "mongodb_atlas_project_name" {
   type    = string
-  default = "agentic-ai-project"
+  default = ""
 }
 
 variable "mongodb_atlas_cluster_name" {
   type    = string
-  default = "agentic-ai-free"
+  default = ""
 }
 
 variable "mongodb_atlas_region" {
   type    = string
-  default = "EU_WEST_1"
+  default = ""
 }
 
 variable "mongodb_db_username" {
@@ -248,13 +267,14 @@ variable "mongodb_db_username" {
 }
 
 variable "mongodb_db_password" {
-  type    = string
-  default = ""
+  type      = string
+  default   = ""
+  sensitive = true
 }
 
 variable "mongodb_database_name" {
   type    = string
-  default = "co"
+  default = ""
 }
 
 # Project Settings
@@ -280,8 +300,10 @@ variable "oracle_mongo_username" {
 }
 
 variable "oracle_mongo_password" {
-  type    = string
-  default = "AaBbCcDdEe123#"
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Password for the ATP CO schema used by Oracle Database API for MongoDB. Supply as TF_VAR_oracle_mongo_password; never commit it to source."
 }
 
 variable "oracle_mongo_schema" {
@@ -297,8 +319,14 @@ variable "files_bucket_name" {
 }
 
 variable "files_bucket_access_type" {
-  type    = string
-  default = "ObjectRead"
+  type        = string
+  default     = "NoPublicAccess"
+  description = "Object Storage access mode for the fashion/RAG files bucket. This deployment intentionally keeps the bucket private."
+
+  validation {
+    condition     = var.files_bucket_access_type == "NoPublicAccess"
+    error_message = "files_bucket_access_type must remain NoPublicAccess so the fashion/RAG bucket is private."
+  }
 }
 
 variable "files_bucket_storage_tier" {
@@ -319,8 +347,14 @@ variable "atp_creds_bucket_name" {
 }
 
 variable "atp_creds_bucket_access_type" {
-  type    = string
-  default = "ObjectRead"
+  type        = string
+  default     = "NoPublicAccess"
+  description = "Object Storage access mode for the ATP credentials bucket. This deployment intentionally keeps the bucket private."
+
+  validation {
+    condition     = var.atp_creds_bucket_access_type == "NoPublicAccess"
+    error_message = "atp_creds_bucket_access_type must remain NoPublicAccess so the ATP credentials bucket is private."
+  }
 }
 
 variable "atp_creds_bucket_storage_tier" {

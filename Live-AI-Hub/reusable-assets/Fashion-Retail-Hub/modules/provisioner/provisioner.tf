@@ -35,7 +35,7 @@ locals {
   app_db_env = var.mongo_mode == "oracle_api" ? "oracle_adb" : (var.mongo_mode == "atlas" ? "atlas" : "oracle_sql")
 
   oracle_runtime_user     = "cohub"
-  oracle_runtime_password = "AaBbCcDdEe123#"
+  oracle_runtime_password = var.cohub_db_password
   oracle_runtime_dsn      = "${lower(var.db_name)}_tp"
   oracle_runtime_wallet   = "/home/opc/wallet_${var.db_name}"
 
@@ -44,14 +44,17 @@ locals {
   effective_oci_fingerprint  = trimspace(var.oci_fingerprint)
   effective_oci_private_key  = trimspace(replace(var.oci_private_key_pem, "\r", ""))
 
-  oci_private_key_sql = replace(local.effective_oci_private_key, "'", "''")
+  oci_private_key_sql       = replace(local.effective_oci_private_key, "'", "''")
+  cohub_db_password_sql     = replace(var.cohub_db_password, "'", "''")
+  oracle_mongo_password_sql = replace(var.oracle_mongo_password, "'", "''")
 
   adw_cohub_user_sql = templatefile("${path.module}/adw-co-hub-v0.01-cohub-user.sql.tftpl", {
-    mongo_mode       = var.mongo_mode
-    mongodb_hostname = var.mongodb_hostname
-    mongodb_db_name  = var.mongodb_db_name
-    mongodb_username = var.mongodb_username
-    mongodb_password = var.mongodb_password
+    mongo_mode            = var.mongo_mode
+    mongodb_hostname      = var.mongodb_hostname
+    mongodb_db_name       = var.mongodb_db_name
+    mongodb_username      = var.mongodb_username
+    mongodb_password      = var.mongodb_password
+    oracle_mongo_password = local.oracle_mongo_password_sql
 
     oci_user_ocid       = local.effective_oci_user_ocid
     oci_tenancy_ocid    = local.effective_oci_tenancy_ocid
@@ -67,29 +70,35 @@ locals {
     atp_service_name       = data.external.atp_wallet_meta.result.service_name
     atp_ssl_server_cert_dn = data.external.atp_wallet_meta.result.ssl_server_cert_dn
 
-    rag_region              = var.rag_region
-    genai_embedding_region  = var.genai_embedding_region
-    rag_compartment_id      = var.rag_compartment_id
-    files_bucket_name       = var.files_bucket_name
-    cart_items_api_url      = var.cart_items_api_url
-    cart_summary_api_url    = var.cart_summary_api_url
+    rag_region             = var.rag_region
+    genai_embedding_region = var.genai_embedding_region
+    rag_compartment_id     = var.rag_compartment_id
+    files_bucket_name      = var.files_bucket_name
+    cart_items_api_url     = var.cart_items_api_url
+    cart_summary_api_url   = var.cart_summary_api_url
 
     select_ai_model_nl2sql    = var.select_ai_model_nl2sql
     select_ai_model_agent     = var.select_ai_model_agent
     select_ai_model_rag       = var.select_ai_model_rag
     select_ai_embedding_model = var.select_ai_embedding_model
+    cohub_db_password         = local.cohub_db_password_sql
   })
 
   adw_admin_user_sql = templatefile("${path.module}/adw-co-hub-v0.01-admin-user.sql.tftpl", {
     api_gateway_hostname = var.api_gateway_hostname
+    cohub_db_password    = local.cohub_db_password_sql
   })
 
   atp_co_mongo_setup_sql = templatefile("${path.module}/atp-co-mongo-setup.sql.tftpl", {})
 
+  co_install_sql = templatefile("${path.module}/co_install.sql", {
+    oracle_mongo_password = var.oracle_mongo_password
+  })
+
   adw_ai_profiles_oracle_sql = templatefile("${path.module}/adw_ai_profiles_oracle.sql.tftpl", {
-    rag_region                = var.rag_region
-    select_ai_model_nl2sql    = var.select_ai_model_nl2sql
-    select_ai_model_agent     = var.select_ai_model_agent
+    rag_region             = var.rag_region
+    select_ai_model_nl2sql = var.select_ai_model_nl2sql
+    select_ai_model_agent  = var.select_ai_model_agent
   })
 
   adw_analytics_oracle_api_sql = templatefile("${path.module}/adw_analytics_oracle_api.sql.tftpl", {
@@ -97,6 +106,30 @@ locals {
     select_ai_model_nl2sql = var.select_ai_model_nl2sql
     select_ai_model_agent  = var.select_ai_model_agent
   })
+
+  remote_bootstrap_script = templatefile("${path.module}/remote-bootstrap.sh.tftpl", {
+    app_db_env              = local.app_db_env
+    db_name                 = var.db_name
+    atp_db_name             = var.atp_db_name
+    mongo_mode              = var.mongo_mode
+    mongo_db_name           = var.mongo_db_name
+    conn_db                 = var.conn_db
+    conn_db_atp             = var.conn_db_atp
+    host                    = var.host
+    oci_user_ocid_length    = length(local.effective_oci_user_ocid)
+    oci_tenancy_ocid_length = length(local.effective_oci_tenancy_ocid)
+    oci_fingerprint_length  = length(local.effective_oci_fingerprint)
+    oci_private_key_length  = length(local.effective_oci_private_key)
+  })
+
+  remote_bootstrap_secrets = <<-EOT
+    export DB_PASSWORD_B64=${base64encode(var.db_password)}
+    export ATP_DB_PASSWORD_B64=${base64encode(var.atp_db_password)}
+    export COHUB_DB_PASSWORD_B64=${base64encode(var.cohub_db_password)}
+    export ORACLE_MONGO_PASSWORD_B64=${base64encode(var.oracle_mongo_password)}
+    export MONGO_URI_B64=${base64encode(var.mongo_uri)}
+    export MONGO_DB_NAME_B64=${base64encode(var.mongo_db_name)}
+  EOT
 }
 
 resource "local_sensitive_file" "adw_cohub_user_sql" {
@@ -114,6 +147,11 @@ resource "local_file" "atp_co_mongo_setup_sql" {
   filename = "${path.module}/atp-co-mongo-setup.sql"
 }
 
+resource "local_sensitive_file" "co_install_sql" {
+  content  = local.co_install_sql
+  filename = "${path.module}/co_install.generated.sql"
+}
+
 resource "local_sensitive_file" "adw_ai_profiles_oracle_sql" {
   filename = "${path.module}/adw_ai_profiles_oracle.generated.sql"
   content  = local.adw_ai_profiles_oracle_sql
@@ -124,14 +162,41 @@ resource "local_sensitive_file" "adw_analytics_oracle_api_sql" {
   content  = local.adw_analytics_oracle_api_sql
 }
 
+resource "local_sensitive_file" "remote_bootstrap_script" {
+  filename = "${path.module}/remote-bootstrap.sh"
+  content  = local.remote_bootstrap_script
+}
+
+resource "local_sensitive_file" "remote_bootstrap_secrets" {
+  filename        = "${path.module}/remote-bootstrap-secrets.env"
+  content         = local.remote_bootstrap_secrets
+  file_permission = "0600"
+}
+
 resource "null_resource" "remote-exec" {
-depends_on = [
-  local_sensitive_file.adw_cohub_user_sql,
-  local_sensitive_file.adw_admin_user_sql,
-  local_file.atp_co_mongo_setup_sql,
-  local_sensitive_file.adw_ai_profiles_oracle_sql,
-  local_sensitive_file.adw_analytics_oracle_api_sql
-]
+  depends_on = [
+    local_sensitive_file.adw_cohub_user_sql,
+    local_sensitive_file.adw_admin_user_sql,
+    local_file.atp_co_mongo_setup_sql,
+    local_sensitive_file.co_install_sql,
+    local_sensitive_file.adw_ai_profiles_oracle_sql,
+    local_sensitive_file.adw_analytics_oracle_api_sql,
+    local_sensitive_file.remote_bootstrap_script,
+    local_sensitive_file.remote_bootstrap_secrets
+  ]
+
+  # Re-run the remote bootstrap whenever the generated database scripts or
+  # application archive changes. A depends_on relationship alone does not
+  # replace a null_resource when one of its dependencies is replaced.
+  triggers = {
+    adw_cohub_user_sql_sha  = sha256(local.adw_cohub_user_sql)
+    adw_ai_profiles_sql_sha = sha256(local.adw_ai_profiles_oracle_sql)
+    adw_analytics_sql_sha   = sha256(local.adw_analytics_oracle_api_sql)
+    co_install_sql_sha      = sha256(local.co_install_sql)
+    remote_bootstrap_sha    = sha256(local.remote_bootstrap_script)
+    bootstrap_secrets_sha   = sha256(local.remote_bootstrap_secrets)
+    app_archive_sha         = filesha256("${path.module}/fashion-retail-app-2026-02-10-11-53.zip")
+  }
 
   provisioner "file" {
     source      = "wallet_${var.db_name}.zip"
@@ -206,7 +271,7 @@ depends_on = [
   }
 
   provisioner "file" {
-    source      = "./modules/provisioner/co_install.sql"
+    source      = local_sensitive_file.co_install_sql.filename
     destination = "/home/opc/co_install.sql"
     connection {
       agent       = false
@@ -313,17 +378,17 @@ depends_on = [
     }
   }
 
-provisioner "file" {
-  source      = "${path.module}/adw_ai_profiles_oracle.generated.sql"
-  destination = "/home/opc/adw_ai_profiles_oracle.sql"
-  connection {
-    agent       = false
-    timeout     = "30m"
-    host        = var.host
-    user        = "opc"
-    private_key = var.private_key
+  provisioner "file" {
+    source      = "${path.module}/adw_ai_profiles_oracle.generated.sql"
+    destination = "/home/opc/adw_ai_profiles_oracle.sql"
+    connection {
+      agent       = false
+      timeout     = "30m"
+      host        = var.host
+      user        = "opc"
+      private_key = var.private_key
+    }
   }
-}
 
   provisioner "file" {
     source      = "./modules/provisioner/adw_verify_customer_profile_oracle.sql"
@@ -337,7 +402,7 @@ provisioner "file" {
     }
   }
 
-# databricks
+  # databricks
   provisioner "file" {
     source      = "./modules/provisioner/atp_customer_analytics_kpi.sql"
     destination = "/home/opc/atp_customer_analytics_kpi.sql"
@@ -362,17 +427,17 @@ provisioner "file" {
     }
   }
 
-provisioner "file" {
-  source      = "${path.module}/adw_analytics_oracle_api.generated.sql"
-  destination = "/home/opc/adw_analytics_oracle_api.sql"
-  connection {
-    agent       = false
-    timeout     = "30m"
-    host        = var.host
-    user        = "opc"
-    private_key = var.private_key
+  provisioner "file" {
+    source      = "${path.module}/adw_analytics_oracle_api.generated.sql"
+    destination = "/home/opc/adw_analytics_oracle_api.sql"
+    connection {
+      agent       = false
+      timeout     = "30m"
+      host        = var.host
+      user        = "opc"
+      private_key = var.private_key
+    }
   }
-}
 
   provisioner "remote-exec" {
     connection {
@@ -384,22 +449,38 @@ provisioner "file" {
     }
 
     inline = [
+      # Legacy sensitive inline commands are intentionally skipped. The
+      # visible local-exec runner below uploads and executes the safe wrapper.
+      "exit 0",
+      # Terraform suppresses this provisioner's stdout because the same
+      # connection/inline configuration contains sensitive SSH and database
+      # credentials. Keep a safe diagnostic trail on the VM so operators can
+      # inspect the real step and exit code after a failure.
+      "set -eu",
+      "LOG_FILE=/home/opc/fashion-retail-provisioner.log; LOG_PIPE=/tmp/fashion-retail-provisioner.pipe; rm -f \"$LOG_PIPE\"; mkfifo \"$LOG_PIPE\"; : > \"$LOG_FILE\"; chmod 600 \"$LOG_FILE\"; tee -a \"$LOG_FILE\" < \"$LOG_PIPE\" & TEE_PID=$!; exec > \"$LOG_PIPE\" 2>&1",
+      "CURRENT_STEP='initialization'",
+      "trap 'rc=$?; if [ \"$rc\" -eq 0 ]; then echo \"[DONE] remote provisioning finished successfully\"; else echo \"[ERROR] remote provisioning failed: step=$CURRENT_STEP exit_code=$rc\"; echo \"[ERROR] diagnostic log: $LOG_FILE\"; fi; rm -f \"$LOG_PIPE\"; exit \"$rc\"' 0",
+      "echo '=== Remote provisioning started; detailed log: /home/opc/fashion-retail-provisioner.log ==='",
       "echo 'OCI user ocid length: ${length(local.effective_oci_user_ocid)}'",
       "echo 'OCI tenancy ocid length: ${length(local.effective_oci_tenancy_ocid)}'",
       "echo 'OCI fingerprint length: ${length(local.effective_oci_fingerprint)}'",
       "echo 'OCI private key length: ${length(local.effective_oci_private_key)}'",
 
+      "CURRENT_STEP='preparing uploaded files'; echo '[STEP] Preparing uploaded files'",
       "sudo chmod 777 /tmp/file_envs.sh",
       "sudo chmod 777 /home/opc/fashion-retail-app-2026-02-10-11-53.zip",
       "sh /tmp/file_envs.sh",
 
+      "CURRENT_STEP='installing operating-system packages'; echo '[STEP] Installing operating-system packages'",
       "sudo dnf -y install unzip python39 python39-pip firewalld oracle-instantclient-release-el8 oracle-instantclient-basic || sudo yum -y install unzip python39 python39-pip firewalld oracle-instantclient-basic",
 
+      "CURRENT_STEP='configuring firewall'; echo '[STEP] Configuring firewall'",
       "sudo systemctl enable --now firewalld || true",
       "ZONE=$(sudo firewall-cmd --get-active-zones 2>/dev/null | head -n 1); if [ -z \"$ZONE\" ]; then ZONE=public; fi; echo \"Using firewalld zone: $ZONE\"",
       "sudo firewall-cmd --zone=$ZONE --permanent --add-port=5000/tcp || true",
       "sudo firewall-cmd --reload || true",
 
+      "CURRENT_STEP='extracting database wallet'; echo '[STEP] Extracting database wallet'",
       "mkdir -p /home/opc/wallet_${var.db_name}",
       "unzip -o /home/opc/wallet_${var.db_name}.zip -d /home/opc/wallet_${var.db_name}",
 
@@ -409,49 +490,60 @@ provisioner "file" {
       "mkdir -p /home/opc/fashion-retail-app",
       "unzip -o /home/opc/fashion-retail-app-2026-02-10-11-53.zip -d /home/opc/fashion-retail-app",
 
+      "CURRENT_STEP='creating application environment'; echo '[STEP] Creating application environment'",
       "APP_DIR=/home/opc/fashion-retail-app/fashion-retail-app",
       "echo \"APP_DIR=$APP_DIR\"",
 
-      "cat > $APP_DIR/.env <<'EOF'\nDOCUMENT_BACKEND=${var.mongo_mode}\nDB_ENV=${local.app_db_env}\nMONGO_URI=${var.mongo_uri}\nMONGO_DBNAME=${var.mongo_db_name}\nORACLE_USER=cohub\nORACLE_PASSWORD=AaBbCcDdEe123#\nORACLE_DSN=${lower(var.db_name)}_tp\nORACLE_WALLET_LOCATION=/home/opc/wallet_${var.db_name}\nTNS_ADMIN=/home/opc/wallet_${var.db_name}\nEOF",
+      "cat > $APP_DIR/.env <<'EOF'\nDOCUMENT_BACKEND=${var.mongo_mode}\nDB_ENV=${local.app_db_env}\nMONGO_URI=${var.mongo_uri}\nMONGO_DBNAME=${var.mongo_db_name}\nORACLE_USER=cohub\nORACLE_PASSWORD=${var.cohub_db_password}\nORACLE_DSN=${lower(var.db_name)}_tp\nORACLE_WALLET_LOCATION=/home/opc/wallet_${var.db_name}\nTNS_ADMIN=/home/opc/wallet_${var.db_name}\nEOF",
 
-      "cat > /home/opc/sync_mongo_atp_to_adw.env <<'EOF'\nexport MONGO_URI='${var.mongo_uri}'\nexport MONGO_DBNAME='${var.mongo_db_name}'\nexport ORACLE_USER='cohub'\nexport ORACLE_PASSWORD='AaBbCcDdEe123#'\nexport ORACLE_DSN='${lower(var.db_name)}_tp'\nexport ORACLE_WALLET_LOCATION='/home/opc/wallet_${var.db_name}'\nEOF",
+      "cat > /home/opc/sync_mongo_atp_to_adw.env <<'EOF'\nexport MONGO_URI='${var.mongo_uri}'\nexport MONGO_DBNAME='${var.mongo_db_name}'\nexport ORACLE_USER='cohub'\nexport ORACLE_PASSWORD='${var.cohub_db_password}'\nexport ORACLE_DSN='${lower(var.db_name)}_tp'\nexport ORACLE_WALLET_LOCATION='/home/opc/wallet_${var.db_name}'\nEOF",
 
+      "CURRENT_STEP='creating Python virtual environment'; echo '[STEP] Creating Python virtual environment'",
       "cd $APP_DIR && if [ -d flask_session ]; then mv flask_session flask_session_local_backup_$(date +%s); fi",
       "cd $APP_DIR && rm -rf venv",
       "cd $APP_DIR && python3.9 -m venv venv",
+      "CURRENT_STEP='installing Python dependencies'; echo '[STEP] Installing Python dependencies'",
       "cd $APP_DIR && ./venv/bin/python -m pip install --upgrade pip",
       "cd $APP_DIR && ./venv/bin/python -m pip install 'Flask==2.0.3' 'Werkzeug==2.0.3' 'Flask-Session==0.4.0' 'pymongo[srv]==4.0.2' 'oracledb' 'python-dotenv' 'select_ai' 'Markdown' 'PyYAML'",
 
+      "CURRENT_STEP='initializing ADW and ATP schemas'; echo '[STEP] Initializing ADW and ATP schemas'",
       "sql -cloudconfig /home/opc/wallet_${var.db_name}.zip \"ADMIN/${var.db_password}@${var.conn_db}\" @/home/opc/adw-co-hub-v0.01-admin-user.sql",
       "sql -cloudconfig /home/opc/wallet_${var.atp_db_name}.zip \"ADMIN/${var.atp_db_password}@${var.conn_db_atp}\" @/home/opc/co_install.sql",
-      "sql -cloudconfig /home/opc/wallet_${var.atp_db_name}.zip \"CO/AaBbCcDdEe123#@${var.conn_db_atp}\" @/home/opc/co_create.sql",
-      "sql -cloudconfig /home/opc/wallet_${var.atp_db_name}.zip \"CO/AaBbCcDdEe123#@${var.conn_db_atp}\" @/home/opc/co_populate.sql",
+      "CURRENT_STEP='initializing ATP CO schema'; echo '[STEP] Initializing ATP CO schema'",
+      "sql -cloudconfig /home/opc/wallet_${var.atp_db_name}.zip \"CO/${var.oracle_mongo_password}@${var.conn_db_atp}\" @/home/opc/co_create.sql",
+      "sql -cloudconfig /home/opc/wallet_${var.atp_db_name}.zip \"CO/${var.oracle_mongo_password}@${var.conn_db_atp}\" @/home/opc/co_populate.sql",
 
+      "CURRENT_STEP='loading customer profiles'; echo '[STEP] Loading customer profiles'",
       "if [ \"${var.mongo_mode}\" = \"oracle_api\" ]; then echo '=== Running ATP CO Mongo Setup ==='; sql -cloudconfig /home/opc/wallet_${var.atp_db_name}.zip \"ADMIN/${var.atp_db_password}@${var.conn_db_atp}\" @/home/opc/atp-co-mongo-setup.sql; fi",
 
       "echo '=== Importing co-customer_profile.csv into Mongo-compatible backend ==='",
       "ls -lah /home/opc/co-customer_profile.csv",
       "if [ \"${var.mongo_mode}\" = \"atlas\" ] || [ \"${var.mongo_mode}\" = \"oracle_api\" ]; then cd $APP_DIR && ./venv/bin/python - <<'PY'\nimport csv\nimport json\nfrom pymongo import MongoClient\n\nmongo_uri = '${var.mongo_uri}'\ndb_name = '${var.mongo_db_name}'\ncsv_file = '/home/opc/co-customer_profile.csv'\n\nprint('Connecting to Mongo-compatible backend...')\nclient = MongoClient(mongo_uri, serverSelectionTimeoutMS=10000, connectTimeoutMS=10000, retryWrites=False)\nclient.admin.command('ping')\ndb = client[db_name]\n\ncustomer_profile = db['customer_profile']\napp_users = db['app_users']\nshopping_cart = db['shopping_cart']\nchat_history = db['chat_history']\n\ncustomer_profile.drop()\napp_users.delete_many({})\nshopping_cart.delete_many({})\nchat_history.delete_many({})\n\ndocs = []\nusers = []\nseen_emails = set()\n\nwith open(csv_file, newline='', encoding='utf-8-sig') as f:\n    reader = csv.DictReader(f)\n    for row in reader:\n        if not row.get('DATA'):\n            continue\n\n        doc = json.loads(row['DATA'])\n        docs.append(doc)\n\n        customer_id = doc.get('customerId')\n        personal = doc.get('personalInfo', {}) or {}\n        email = personal.get('email')\n        full_name = personal.get('fullName')\n\n        if email and email not in seen_emails:\n            users.append({\n                'email': email,\n                'full_name': full_name or email,\n                'password': 'user',\n                'customer_id': customer_id,\n                'is_active': 'Y'\n            })\n            seen_emails.add(email)\n\nif docs:\n    customer_profile.insert_many(docs)\n    print(f'Inserted into customer_profile: {len(docs)}')\nelse:\n    print('No documents found in DATA column')\n\nif users:\n    app_users.insert_many(users)\n    print(f'Inserted into app_users from customer profiles: {len(users)}')\nelse:\n    print('No users generated from CSV')\n\napp_users.delete_many({'email': 'demo@demo.com'})\napp_users.insert_one({\n    'email': 'demo@demo.com',\n    'full_name': 'Demo User',\n    'password': 'demo',\n    'customer_id': 1,\n    'is_active': 'Y'\n})\nprint('Inserted demo user into app_users')\n\nshopping_cart.insert_one({'_bootstrap': True})\nshopping_cart.delete_one({'_bootstrap': True})\nchat_history.insert_one({'_bootstrap': True})\nchat_history.delete_one({'_bootstrap': True})\n\nprint('customer_profile count =', customer_profile.count_documents({}))\nprint('app_users count =', app_users.count_documents({}))\nprint('shopping_cart count =', shopping_cart.count_documents({}))\nprint('chat_history count =', chat_history.count_documents({}))\nprint('sample profile =', customer_profile.find_one({}, {'customerId': 1, 'personalInfo.email': 1, 'personalInfo.fullName': 1}))\nprint('sample app user =', app_users.find_one({}, {'email': 1, 'full_name': 1, 'customer_id': 1}))\nPY\nfi",
 
-      "sql -cloudconfig /home/opc/wallet_${var.db_name}.zip \"cohub/AaBbCcDdEe123#@${var.conn_db}\" @/home/opc/cohub-create_tables_ddl.sql",
-      "sql -cloudconfig /home/opc/wallet_${var.db_name}.zip \"cohub/AaBbCcDdEe123#@${var.conn_db}\" @/home/opc/cohub-product_catalog.sql",
-      "sql -cloudconfig /home/opc/wallet_${var.db_name}.zip \"cohub/AaBbCcDdEe123#@${var.conn_db}\" @/home/opc/adw-co-hub-v0.01-cohub-user.sql",
+      "CURRENT_STEP='initializing COHUB catalog and AI SQL'; echo '[STEP] Initializing COHUB catalog and AI SQL'",
+      "sql -cloudconfig /home/opc/wallet_${var.db_name}.zip \"cohub/${var.cohub_db_password}@${var.conn_db}\" @/home/opc/cohub-create_tables_ddl.sql",
+      "sql -cloudconfig /home/opc/wallet_${var.db_name}.zip \"cohub/${var.cohub_db_password}@${var.conn_db}\" @/home/opc/cohub-product_catalog.sql",
+      "sql -cloudconfig /home/opc/wallet_${var.db_name}.zip \"cohub/${var.cohub_db_password}@${var.conn_db}\" @/home/opc/adw-co-hub-v0.01-cohub-user.sql",
 
       "if [ \"${var.mongo_mode}\" = \"oracle_api\" ]; then echo '=== Syncing Mongo ATP profiles into ADW ==='; set -a; . /home/opc/sync_mongo_atp_to_adw.env; set +a; /home/opc/fashion-retail-app/fashion-retail-app/venv/bin/python /home/opc/sync_mongo_atp_to_adw.py; fi",
-      "if [ \"${var.mongo_mode}\" = \"oracle_api\" ]; then echo '=== Applying Oracle customer profile function ==='; sql -cloudconfig /home/opc/wallet_${var.db_name}.zip \"cohub/AaBbCcDdEe123#@${var.conn_db}\" @/home/opc/adw_customer_profile_function_oracle.sql; fi",
-      "if [ \"${var.mongo_mode}\" = \"oracle_api\" ]; then echo '=== Applying Oracle AI profiles ==='; sql -cloudconfig /home/opc/wallet_${var.db_name}.zip \"cohub/AaBbCcDdEe123#@${var.conn_db}\" @/home/opc/adw_ai_profiles_oracle.sql; fi",
+      "if [ \"${var.mongo_mode}\" = \"oracle_api\" ]; then echo '=== Applying Oracle customer profile function ==='; sql -cloudconfig /home/opc/wallet_${var.db_name}.zip \"cohub/${var.cohub_db_password}@${var.conn_db}\" @/home/opc/adw_customer_profile_function_oracle.sql; fi",
+      "if [ \"${var.mongo_mode}\" = \"oracle_api\" ]; then echo '=== Applying Oracle AI profiles ==='; sql -cloudconfig /home/opc/wallet_${var.db_name}.zip \"cohub/${var.cohub_db_password}@${var.conn_db}\" @/home/opc/adw_ai_profiles_oracle.sql; fi",
 
-      "if [ \"${var.mongo_mode}\" = \"oracle_api\" ]; then echo '=== Creating ATP analytics table ==='; sql -cloudconfig /home/opc/wallet_${var.atp_db_name}.zip \"CO/AaBbCcDdEe123#@${var.conn_db_atp}\" @/home/opc/atp_customer_analytics_kpi.sql; fi",
-      "if [ \"${var.mongo_mode}\" = \"oracle_api\" ]; then echo '=== Loading ATP analytics data ==='; sql -cloudconfig /home/opc/wallet_${var.atp_db_name}.zip \"CO/AaBbCcDdEe123#@${var.conn_db_atp}\" @/home/opc/databricks-customer_analytics_kpi.sql; fi",
-      "if [ \"${var.mongo_mode}\" = \"oracle_api\" ]; then echo '=== Wiring ADW analytics over atp_co_link ==='; sql -cloudconfig /home/opc/wallet_${var.db_name}.zip \"cohub/AaBbCcDdEe123#@${var.conn_db}\" @/home/opc/adw_analytics_oracle_api.sql; fi",
+      "CURRENT_STEP='initializing analytics'; echo '[STEP] Initializing analytics'",
+      "if [ \"${var.mongo_mode}\" = \"oracle_api\" ]; then echo '=== Creating ATP analytics table ==='; sql -cloudconfig /home/opc/wallet_${var.atp_db_name}.zip \"CO/${var.oracle_mongo_password}@${var.conn_db_atp}\" @/home/opc/atp_customer_analytics_kpi.sql; fi",
+      "if [ \"${var.mongo_mode}\" = \"oracle_api\" ]; then echo '=== Loading ATP analytics data ==='; sql -cloudconfig /home/opc/wallet_${var.atp_db_name}.zip \"CO/${var.oracle_mongo_password}@${var.conn_db_atp}\" @/home/opc/databricks-customer_analytics_kpi.sql; fi",
+      "if [ \"${var.mongo_mode}\" = \"oracle_api\" ]; then echo '=== Wiring ADW analytics over atp_co_link ==='; sql -cloudconfig /home/opc/wallet_${var.db_name}.zip \"cohub/${var.cohub_db_password}@${var.conn_db}\" @/home/opc/adw_analytics_oracle_api.sql; fi",
 
+      "CURRENT_STEP='checking database connectivity'; echo '[STEP] Checking database connectivity'",
       "cd $APP_DIR && ./venv/bin/python db_connection.py",
 
+      "CURRENT_STEP='starting application'; echo '[STEP] Starting application'",
       "sudo pkill -f 'app.py' || true",
       "cd $APP_DIR && nohup ./venv/bin/python -u ./app.py > app.log 2>&1 &",
       "sleep 3",
       "cd $APP_DIR && tail -n 200 app.log || true",
 
+      "CURRENT_STEP='completed'; echo '[STEP] Application startup commands completed'",
       "echo '=== Application deployment finished ==='",
       "echo 'You can now access the application in your browser.'",
       "echo 'URL: http://${var.host}:5000'",
@@ -461,5 +553,22 @@ provisioner "file" {
       "echo '  Password: user'",
       "echo '=== Application is ready ==='"
     ]
+  }
+
+  # Run the real bootstrap through local SSH so Terraform can stream the
+  # remote stdout/stderr. The script and credentials are uploaded separately;
+  # credentials are read once and removed by the remote script.
+  provisioner "local-exec" {
+    command = <<-EOT
+      set -eu
+      echo "[BOOTSTRAP] Uploading diagnostic bootstrap script and temporary secrets ..."
+      scp -q -o StrictHostKeyChecking=no -i "${var.private_key_path}" \
+        "${local_sensitive_file.remote_bootstrap_script.filename}" \
+        "${local_sensitive_file.remote_bootstrap_secrets.filename}" \
+        "opc@${var.host}:/home/opc/"
+      echo "[BOOTSTRAP] Starting remote bootstrap; stdout/stderr will be shown below."
+      ssh -o StrictHostKeyChecking=no -i "${var.private_key_path}" "opc@${var.host}" \
+        "chmod 700 /home/opc/remote-bootstrap.sh && chmod 600 /home/opc/remote-bootstrap-secrets.env && bash /home/opc/remote-bootstrap.sh"
+    EOT
   }
 }

@@ -423,7 +423,9 @@ END;
 
   begin 
       dbms_cloud.get_object(
-          credential_name => 'oci',
+          -- This is an authenticated Object Storage URI. The OCI credential
+          -- signs the request; the bucket does not need public access.
+          credential_name => 'OCI',
           object_uri => 'https://objectstorage.${objectstorage_region}.oraclecloud.com/n/${objectstorage_namespace}/b/${atp_creds_bucket_name}/o/cwallet.sso',
           directory_name => 'atp_dblink_wallet_dir'); 
   end;
@@ -434,7 +436,7 @@ END;
     dbms_cloud.create_credential(
       credential_name => 'atp_co',
       username => 'CO',
-      password => 'AaBbCcDdEe123#' );  --- password of the atp db.
+      password => '${oracle_mongo_password}' );  --- password of the atp db.
   end;
   /
 
@@ -725,6 +727,8 @@ select a.profile_name, a.status, b.attribute_name, b.attribute_value
 begin
     dbms_cloud_ai.create_vector_index(
         index_name  => 'hub_vector_index_fashion_articles',
+        -- DBMS_CLOUD uses the OCI credential below to authenticate reads
+        -- from the private Object Storage bucket.
         attributes  => '{"vector_db_provider": "oracle",
                         "location": "https://objectstorage.${objectstorage_region}.oraclecloud.com/n/${objectstorage_namespace}/b/${files_bucket_name}/o/fashion-articles*.md",
                         "object_storage_credential_name": "OCI",
@@ -759,6 +763,8 @@ end;
 begin
     dbms_cloud_ai.create_vector_index(
         index_name  => 'hub_vector_index_faqs',
+        -- DBMS_CLOUD uses the OCI credential below to authenticate reads
+        -- from the private Object Storage bucket.
         attributes  => '{"vector_db_provider": "oracle",
                         "location": "https://objectstorage.${objectstorage_region}.oraclecloud.com/n/${objectstorage_namespace}/b/${files_bucket_name}/o/faq*.md",
                         "object_storage_credential_name": "OCI",
@@ -1925,6 +1931,182 @@ end get_customer_profile_json;
                       "process": "sequential"}');                                                                
   end;                                                                      
   /  
+
+  -- Fast routing teams. These avoid running all five sequential tasks for
+  -- questions that need only one specialist. The original full team remains
+  -- available for cart actions and requests that need several data sources.
+  begin
+    dbms_cloud_ai_agent.drop_team(
+      team_name => 'fashion_fast_team',
+      force     => true
+    );
+  exception when others then null;
+  end;
+  /
+
+  begin
+    dbms_cloud_ai_agent.drop_team(
+      team_name => 'weather_fast_team',
+      force     => true
+    );
+  exception when others then null;
+  end;
+  /
+
+  begin
+    dbms_cloud_ai_agent.drop_team(
+      team_name => 'faq_fast_team',
+      force     => true
+    );
+  exception when others then null;
+  end;
+  /
+
+  begin
+    dbms_cloud_ai_agent.drop_team(
+      team_name => 'customer_fast_team',
+      force     => true
+    );
+  exception when others then null;
+  end;
+  /
+
+  begin
+    dbms_cloud_ai_agent.drop_team(
+      team_name => 'shopping_cart_fast_team',
+      force     => true
+    );
+  exception when others then null;
+  end;
+  /
+
+  begin
+    dbms_cloud_ai_agent.drop_task(
+      task_name => 'research_fashion_advice_fast',
+      force     => true
+    );
+  exception when others then null;
+  end;
+  /
+
+  begin
+    dbms_cloud_ai_agent.drop_task(
+      task_name => 'customer_profile_fast',
+      force     => true
+    );
+  exception when others then null;
+  end;
+  /
+
+  begin
+    dbms_cloud_ai_agent.drop_task(
+      task_name => 'add_cart_item_fast',
+      force     => true
+    );
+  exception when others then null;
+  end;
+  /
+
+  begin
+    dbms_cloud_ai_agent.create_task(
+      task_name => 'research_fashion_advice_fast',
+      attributes => '{
+        "instruction": "Answer the fashion question using the fashion articles knowledge base and RAG. Use an informal, concise and helpful style. Recommend catalog products only when they are available through the RAG output and have a valid SKU. Use get_product_catalog_tool to verify product details. If customer profile context is already present, use it; do not require a separate customer profile task. Default to English; if the user clearly writes in another language, answer in that language. User request: {query}",
+        "tools": ["rag_tool", "get_product_catalog_tool"],
+        "enable_human_tool": "false"
+      }'
+    );
+  end;
+  /
+
+  begin
+    dbms_cloud_ai_agent.create_task(
+      task_name => 'add_cart_item_fast',
+      attributes => '{
+        "instruction": "Add the item to the cart that the user asked for. Reuse the immediately preceding recommendations and conversation context when the user says add them, add those, cart, pe ele, le vreau or similar. If exactly one product was recommended, resolve that reference automatically. Ask only for missing or ambiguous shopper-facing fields: product choice, size, color and quantity. Interpret short follow-ups such as yes, all black and just one using the previous cart request. Never ask for the customer name when Customer Name or customer_id is already in context. Use the product catalog tool to resolve product details. Never ask for backend-only fields. Reuse product details from prior recommendations whenever possible. Confirm success only when the cart tool returned HTTP 200 or 201 and success=true. Default to English; if the user clearly writes in another language, answer in that language. User request: {query}",
+        "tools": ["add_cart_item_tool", "get_product_catalog_tool"],
+        "enable_human_tool": "true"
+      }'
+    );
+  end;
+  /
+
+  begin
+    dbms_cloud_ai_agent.create_task(
+      task_name => 'customer_profile_fast',
+      attributes => '{
+        "instruction": "Use the authenticated Customer Name and customer_id already supplied in the conversation context to retrieve the customer profile and analytics. Do not ask for the customer name again when the context already contains it. Use the profile internally to personalize the answer; never expose raw JSON unless the user explicitly asks for the raw data. Default to English; if the user clearly writes in another language, answer in that language. User request: {query}",
+        "tools": ["get_customer360_profile_tool"],
+        "enable_human_tool": "false"
+      }'
+    );
+  end;
+  /
+
+  begin
+    dbms_cloud_ai_agent.create_team(
+      team_name => 'fashion_fast_team',
+      attributes => '{
+        "agents": [
+          {"name":"fashion_advisor_agent","task":"research_fashion_advice_fast"}
+        ],
+        "process": "sequential"
+      }'
+    );
+  end;
+  /
+
+  begin
+    dbms_cloud_ai_agent.create_team(
+      team_name => 'weather_fast_team',
+      attributes => '{
+        "agents": [
+          {"name":"weather_research_agent","task":"get_weather_averages"}
+        ],
+        "process": "sequential"
+      }'
+    );
+  end;
+  /
+
+  begin
+    dbms_cloud_ai_agent.create_team(
+      team_name => 'faq_fast_team',
+      attributes => '{
+        "agents": [
+          {"name":"backoffice_agent","task":"research_faqs"}
+        ],
+        "process": "sequential"
+      }'
+    );
+  end;
+  /
+
+  begin
+    dbms_cloud_ai_agent.create_team(
+      team_name => 'customer_fast_team',
+      attributes => '{
+        "agents": [
+          {"name":"customer360_research_agent","task":"customer_profile_fast"}
+        ],
+        "process": "sequential"
+      }'
+    );
+  end;
+  /
+
+  begin
+    dbms_cloud_ai_agent.create_team(
+      team_name => 'shopping_cart_fast_team',
+      attributes => '{
+        "agents": [
+          {"name":"shopping_cart_assistant","task":"add_cart_item_fast"}
+        ],
+        "process": "sequential"
+      }'
+    );
+  end;
+  /
 
 -------------------------------------------------------------------------
 -- 13) Test AI Agent - Fashion Advisor

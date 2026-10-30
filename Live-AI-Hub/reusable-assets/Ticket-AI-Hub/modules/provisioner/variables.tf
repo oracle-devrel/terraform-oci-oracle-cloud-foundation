@@ -137,7 +137,7 @@ variable "profile_judge_model" {
 
 variable "rag_region" {
   type    = string
-  default = "eu-frankfurt-1"
+  default = "us-ashburn-1"
 }
 
 variable "rag_vector_index_name" {
@@ -147,7 +147,7 @@ variable "rag_vector_index_name" {
 
 variable "rag_embedding_model" {
   type    = string
-  default = "cohere.embed-multilingual-v3.0"
+  default = "cohere.embed-v4.0"
 }
 
 variable "rag_model" {
@@ -166,7 +166,7 @@ variable "rag_object_storage_credential" {
 
 variable "rag_vector_dimension" {
   type    = number
-  default = 1024
+  default = 1536
 }
 
 variable "rag_vector_distance_metric" {
