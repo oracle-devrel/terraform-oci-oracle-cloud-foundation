@@ -8,7 +8,7 @@ locals {
     "''"
   )
 
-  apex_export_url = "https://objectstorage.us-ashburn-1.oraclecloud.com/p/a9SODSOjMvoDNJlzX6CeJ88VFp_yzxQdkNmaJkEd5DI4iDNBOKFC-0iUGtuOSv9Y/n/idukzrqavn8q/b/Live-AI-Hub/o/f101-ticket-ai-hub-2026-07-09-15-49.sql"
+  apex_export_url = "https://idukzrqavn8q.objectstorage.us-ashburn-1.oci.customer-oci.com/p/TnsSlhXanhhYGoGNhwI-Bo6PfaW0_3gVBVYvD6PnkBwqsEIvYIBVmOvbK8c-GTzI/n/idukzrqavn8q/b/Live-AI-Hub/o/Ticket_files/f101-ticket-ai-hub-2026-07-09-15-49.sql"
 
   apex_export_path = abspath(
     "${path.module}/f101-ticket-ai-hub-2026-07-09-15-49.sql"
@@ -217,6 +217,10 @@ resource "null_resource" "sqlcl_ticket_agent_runtime" {
     null_resource.sqlcl_tickets_seed,
     local_file.ticket_agent_runtime_sql
   ]
+
+  triggers = {
+    runtime_sql_sha256 = sha256(local_file.ticket_agent_runtime_sql.content)
+  }
 
   provisioner "local-exec" {
     command = <<-EOT

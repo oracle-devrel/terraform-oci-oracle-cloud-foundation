@@ -51,7 +51,9 @@ resource "oci_database_autonomous_database" "adw" {
 
   lifecycle {
     ignore_changes = [
-      db_tools_details
+      db_tools_details,
+      # OCI adds Oracle-Tags.CreatedBy/CreatedOn after creation.
+      defined_tags
     ]
   }
 }

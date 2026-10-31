@@ -9,6 +9,11 @@ resource "oci_apigateway_gateway" "this" {
 
   network_security_group_ids = var.network_security_group_ids
   defined_tags               = var.defined_tags
+
+  lifecycle {
+    # OCI adds system-defined Oracle-Tags after gateway creation.
+    ignore_changes = [defined_tags]
+  }
 }
 
 resource "oci_apigateway_deployment" "this" {
@@ -17,6 +22,12 @@ resource "oci_apigateway_deployment" "this" {
   gateway_id     = oci_apigateway_gateway.this.id
   display_name   = var.deployment_display_name
   defined_tags   = var.defined_tags
+
+  # OCI adds system-defined tags after creation. They are managed by OCI,
+  # not by this module, so they must not create perpetual Terraform drift.
+  lifecycle {
+    ignore_changes = [defined_tags]
+  }
 
   specification {
     logging_policies {

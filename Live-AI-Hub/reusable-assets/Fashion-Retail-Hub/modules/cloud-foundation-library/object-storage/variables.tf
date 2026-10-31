@@ -3,16 +3,16 @@
 
 
 variable "tenancy_ocid" {
-    type = string
+  type = string
 }
 
 variable "bucket_params" {
   type = map(object({
-    compartment_id   = string
-    name             = string
-    access_type      = string
-    storage_tier     = string
-    events_enabled   = bool
-    defined_tags     = map(string)
+    compartment_id = string
+    name           = string
+    access_type    = string
+    storage_tier   = string
+    events_enabled = bool
+    defined_tags   = map(string)
   }))
 }

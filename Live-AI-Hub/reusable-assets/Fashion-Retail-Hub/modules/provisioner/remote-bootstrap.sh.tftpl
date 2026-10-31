@@ -1,0 +1,242 @@
+#!/usr/bin/env bash
+set -eu
+
+SECRETS_FILE=/home/opc/remote-bootstrap-secrets.env
+if [ ! -r "$SECRETS_FILE" ]; then
+  echo "[ERROR] bootstrap secrets file is missing: $SECRETS_FILE" >&2
+  exit 2
+fi
+set -a
+. "$SECRETS_FILE"
+set +a
+rm -f "$SECRETS_FILE"
+
+DB_PASSWORD=$(printf '%s' "$DB_PASSWORD_B64" | base64 -d)
+ATP_DB_PASSWORD=$(printf '%s' "$ATP_DB_PASSWORD_B64" | base64 -d)
+COHUB_DB_PASSWORD=$(printf '%s' "$COHUB_DB_PASSWORD_B64" | base64 -d)
+ORACLE_MONGO_PASSWORD=$(printf '%s' "$ORACLE_MONGO_PASSWORD_B64" | base64 -d)
+MONGO_URI=$(printf '%s' "$MONGO_URI_B64" | base64 -d)
+MONGO_DB_NAME=$(printf '%s' "$MONGO_DB_NAME_B64" | base64 -d)
+unset DB_PASSWORD_B64 ATP_DB_PASSWORD_B64 COHUB_DB_PASSWORD_B64 ORACLE_MONGO_PASSWORD_B64 MONGO_URI_B64 MONGO_DB_NAME_B64
+export DB_PASSWORD ATP_DB_PASSWORD COHUB_DB_PASSWORD ORACLE_MONGO_PASSWORD MONGO_URI MONGO_DB_NAME
+
+LOG_FILE=/home/opc/fashion-retail-provisioner.log
+LOG_PIPE=/tmp/fashion-retail-provisioner.pipe
+rm -f "$LOG_PIPE"
+mkfifo "$LOG_PIPE"
+: > "$LOG_FILE"
+chmod 600 "$LOG_FILE"
+tee -a "$LOG_FILE" < "$LOG_PIPE" &
+exec > "$LOG_PIPE" 2>&1
+
+CURRENT_STEP='initialization'
+trap 'rc=$?; if [ "$rc" -eq 0 ]; then echo "[DONE] remote provisioning finished successfully"; else echo "[ERROR] remote provisioning failed: step=$CURRENT_STEP exit_code=$rc"; echo "[ERROR] diagnostic log: $LOG_FILE"; fi; rm -f "$LOG_PIPE" "$SECRETS_FILE"; exit "$rc"' 0
+
+echo '=== Remote provisioning started; detailed log: /home/opc/fashion-retail-provisioner.log ==='
+echo 'OCI user ocid length: ${oci_user_ocid_length}'
+echo 'OCI tenancy ocid length: ${oci_tenancy_ocid_length}'
+echo 'OCI fingerprint length: ${oci_fingerprint_length}'
+echo 'OCI private key length: ${oci_private_key_length}'
+
+CURRENT_STEP='preparing uploaded files'
+echo '[STEP] Preparing uploaded files'
+sudo chmod 700 /tmp/file_envs.sh
+sudo chmod 600 /home/opc/fashion-retail-app-2026-02-10-11-53.zip
+sh /tmp/file_envs.sh
+
+CURRENT_STEP='installing operating-system packages'
+echo '[STEP] Installing operating-system packages'
+sudo dnf -y install unzip python39 python39-pip firewalld oracle-instantclient-release-el8 oracle-instantclient-basic || sudo yum -y install unzip python39 python39-pip firewalld oracle-instantclient-basic
+
+CURRENT_STEP='configuring firewall'
+echo '[STEP] Configuring firewall'
+sudo systemctl enable --now firewalld || true
+ZONE=$(sudo firewall-cmd --get-active-zones 2>/dev/null | head -n 1)
+if [ -z "$ZONE" ]; then ZONE=public; fi
+echo "Using firewalld zone: $ZONE"
+sudo firewall-cmd --zone=$ZONE --permanent --add-port=5000/tcp || true
+sudo firewall-cmd --reload || true
+
+CURRENT_STEP='extracting database wallet'
+echo '[STEP] Extracting database wallet'
+mkdir -p /home/opc/wallet_${db_name}
+unzip -o /home/opc/wallet_${db_name}.zip -d /home/opc/wallet_${db_name}
+cat > /home/opc/wallet_${db_name}/sqlnet.ora <<'EOF'
+WALLET_LOCATION = (SOURCE = (METHOD = file) (METHOD_DATA = (DIRECTORY="/home/opc/wallet_${db_name}")))
+SSL_SERVER_DN_MATCH=yes
+EOF
+sudo rm -rf /home/opc/fashion-retail-app
+mkdir -p /home/opc/fashion-retail-app
+unzip -o /home/opc/fashion-retail-app-2026-02-10-11-53.zip -d /home/opc/fashion-retail-app
+
+CURRENT_STEP='creating application environment'
+echo '[STEP] Creating application environment'
+APP_DIR=/home/opc/fashion-retail-app/fashion-retail-app
+echo "APP_DIR=$APP_DIR"
+cat > "$APP_DIR/.env" <<EOF
+DOCUMENT_BACKEND=${mongo_mode}
+DB_ENV=${app_db_env}
+MONGO_URI=$MONGO_URI
+MONGO_DBNAME=$MONGO_DB_NAME
+ORACLE_USER=cohub
+ORACLE_PASSWORD=$COHUB_DB_PASSWORD
+ORACLE_DSN=${db_name}_tp
+ORACLE_WALLET_LOCATION=/home/opc/wallet_${db_name}
+TNS_ADMIN=/home/opc/wallet_${db_name}
+EOF
+cat > /home/opc/sync_mongo_atp_to_adw.env <<EOF
+export MONGO_URI='$MONGO_URI'
+export MONGO_DBNAME='$MONGO_DB_NAME'
+export ORACLE_USER='cohub'
+export ORACLE_PASSWORD='$COHUB_DB_PASSWORD'
+export ORACLE_DSN='${db_name}_tp'
+export ORACLE_WALLET_LOCATION='/home/opc/wallet_${db_name}'
+EOF
+
+CURRENT_STEP='creating Python virtual environment'
+echo '[STEP] Creating Python virtual environment'
+cd "$APP_DIR"
+if [ -d flask_session ]; then mv flask_session flask_session_local_backup_$(date +%s); fi
+rm -rf venv
+python3.9 -m venv venv
+
+CURRENT_STEP='installing Python dependencies'
+echo '[STEP] Installing Python dependencies'
+./venv/bin/python -m pip install --upgrade pip
+./venv/bin/python -m pip install 'Flask==2.0.3' 'Werkzeug==2.0.3' 'Flask-Session==0.4.0' 'pymongo[srv]==4.0.2' 'oracledb' 'python-dotenv' 'select_ai' 'Markdown' 'PyYAML'
+
+CURRENT_STEP='initializing ADW and ATP schemas'
+echo '[STEP] Initializing ADW and ATP schemas'
+sql -cloudconfig /home/opc/wallet_${db_name}.zip "ADMIN/$DB_PASSWORD@${conn_db}" @/home/opc/adw-co-hub-v0.01-admin-user.sql
+sql -cloudconfig /home/opc/wallet_${atp_db_name}.zip "ADMIN/$ATP_DB_PASSWORD@${conn_db_atp}" @/home/opc/co_install.sql
+
+CURRENT_STEP='initializing ATP CO schema'
+echo '[STEP] Initializing ATP CO schema'
+sql -cloudconfig /home/opc/wallet_${atp_db_name}.zip "CO/$ORACLE_MONGO_PASSWORD@${conn_db_atp}" @/home/opc/co_create.sql
+sql -cloudconfig /home/opc/wallet_${atp_db_name}.zip "CO/$ORACLE_MONGO_PASSWORD@${conn_db_atp}" @/home/opc/co_populate.sql
+
+CURRENT_STEP='loading customer profiles'
+echo '[STEP] Loading customer profiles'
+if [ "${mongo_mode}" = "oracle_api" ]; then
+  echo '=== Running ATP CO Mongo Setup ==='
+  sql -cloudconfig /home/opc/wallet_${atp_db_name}.zip "ADMIN/$ATP_DB_PASSWORD@${conn_db_atp}" @/home/opc/atp-co-mongo-setup.sql
+fi
+echo '=== Importing co-customer_profile.csv into Mongo-compatible backend ==='
+ls -lah /home/opc/co-customer_profile.csv
+if [ "${mongo_mode}" = "atlas" ] || [ "${mongo_mode}" = "oracle_api" ]; then
+  cd "$APP_DIR"
+  ./venv/bin/python - <<'PY'
+import csv
+import json
+import os
+from pymongo import MongoClient
+
+mongo_uri = os.environ['MONGO_URI']
+db_name = os.environ['MONGO_DB_NAME']
+csv_file = '/home/opc/co-customer_profile.csv'
+print('Connecting to Mongo-compatible backend...')
+client = MongoClient(mongo_uri, serverSelectionTimeoutMS=10000, connectTimeoutMS=10000, retryWrites=False)
+client.admin.command('ping')
+db = client[db_name]
+customer_profile = db['customer_profile']
+app_users = db['app_users']
+shopping_cart = db['shopping_cart']
+chat_history = db['chat_history']
+customer_profile.drop()
+app_users.delete_many({})
+shopping_cart.delete_many({})
+chat_history.delete_many({})
+docs = []
+users = []
+seen_emails = set()
+with open(csv_file, newline='', encoding='utf-8-sig') as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        if not row.get('DATA'):
+            continue
+        doc = json.loads(row['DATA'])
+        docs.append(doc)
+        customer_id = doc.get('customerId')
+        personal = doc.get('personalInfo', {}) or {}
+        email = personal.get('email')
+        full_name = personal.get('fullName')
+        if email and email not in seen_emails:
+            users.append({'email': email, 'full_name': full_name or email, 'password': 'user', 'customer_id': customer_id, 'is_active': 'Y'})
+            seen_emails.add(email)
+if docs:
+    customer_profile.insert_many(docs)
+    print(f'Inserted into customer_profile: {len(docs)}')
+else:
+    print('No documents found in DATA column')
+if users:
+    app_users.insert_many(users)
+    print(f'Inserted into app_users from customer profiles: {len(users)}')
+else:
+    print('No users generated from CSV')
+app_users.delete_many({'email': 'demo@demo.com'})
+app_users.insert_one({'email': 'demo@demo.com', 'full_name': 'Demo User', 'password': 'demo', 'customer_id': 1, 'is_active': 'Y'})
+print('Inserted demo user into app_users')
+shopping_cart.insert_one({'_bootstrap': True})
+shopping_cart.delete_one({'_bootstrap': True})
+chat_history.insert_one({'_bootstrap': True})
+chat_history.delete_one({'_bootstrap': True})
+print('customer_profile count =', customer_profile.count_documents({}))
+print('app_users count =', app_users.count_documents({}))
+print('shopping_cart count =', shopping_cart.count_documents({}))
+print('chat_history count =', chat_history.count_documents({}))
+print('sample profile =', customer_profile.find_one({}, {'customerId': 1, 'personalInfo.email': 1, 'personalInfo.fullName': 1}))
+print('sample app user =', app_users.find_one({}, {'email': 1, 'full_name': 1, 'customer_id': 1}))
+PY
+fi
+
+CURRENT_STEP='initializing COHUB catalog and AI SQL'
+echo '[STEP] Initializing COHUB catalog and AI SQL'
+sql -cloudconfig /home/opc/wallet_${db_name}.zip "cohub/$COHUB_DB_PASSWORD@${conn_db}" @/home/opc/cohub-create_tables_ddl.sql
+sql -cloudconfig /home/opc/wallet_${db_name}.zip "cohub/$COHUB_DB_PASSWORD@${conn_db}" @/home/opc/cohub-product_catalog.sql
+sql -cloudconfig /home/opc/wallet_${db_name}.zip "cohub/$COHUB_DB_PASSWORD@${conn_db}" @/home/opc/adw-co-hub-v0.01-cohub-user.sql
+if [ "${mongo_mode}" = "oracle_api" ]; then
+  echo '=== Syncing Mongo ATP profiles into ADW ==='
+  set -a
+  . /home/opc/sync_mongo_atp_to_adw.env
+  set +a
+  "$APP_DIR/venv/bin/python" /home/opc/sync_mongo_atp_to_adw.py
+  echo '=== Applying Oracle customer profile function ==='
+  sql -cloudconfig /home/opc/wallet_${db_name}.zip "cohub/$COHUB_DB_PASSWORD@${conn_db}" @/home/opc/adw_customer_profile_function_oracle.sql
+  echo '=== Applying Oracle AI profiles ==='
+  sql -cloudconfig /home/opc/wallet_${db_name}.zip "cohub/$COHUB_DB_PASSWORD@${conn_db}" @/home/opc/adw_ai_profiles_oracle.sql
+fi
+
+CURRENT_STEP='initializing analytics'
+echo '[STEP] Initializing analytics'
+if [ "${mongo_mode}" = "oracle_api" ]; then
+  echo '=== Creating ATP analytics table ==='
+  sql -cloudconfig /home/opc/wallet_${atp_db_name}.zip "CO/$ORACLE_MONGO_PASSWORD@${conn_db_atp}" @/home/opc/atp_customer_analytics_kpi.sql
+  echo '=== Loading ATP analytics data ==='
+  sql -cloudconfig /home/opc/wallet_${atp_db_name}.zip "CO/$ORACLE_MONGO_PASSWORD@${conn_db_atp}" @/home/opc/databricks-customer_analytics_kpi.sql
+  echo '=== Wiring ADW analytics over atp_co_link ==='
+  sql -cloudconfig /home/opc/wallet_${db_name}.zip "cohub/$COHUB_DB_PASSWORD@${conn_db}" @/home/opc/adw_analytics_oracle_api.sql
+fi
+
+CURRENT_STEP='checking database connectivity'
+echo '[STEP] Checking database connectivity'
+cd "$APP_DIR"
+./venv/bin/python db_connection.py
+
+CURRENT_STEP='starting application'
+echo '[STEP] Starting application'
+sudo pkill -f 'app.py' || true
+cd "$APP_DIR"
+nohup ./venv/bin/python -u ./app.py > app.log 2>&1 &
+sleep 3
+tail -n 200 app.log || true
+
+CURRENT_STEP='completed'
+echo '[STEP] Application startup commands completed'
+echo '=== Application deployment finished ==='
+echo 'You can now access the application in your browser.'
+echo 'URL: http://${host}:5000'
+echo 'Use one of the demo users populated from the database to sign in.'
+echo 'Example credentials:'
+echo '  Username: tammy.bryant@internalmail'
+echo '  Password: user'
+echo '=== Application is ready ==='

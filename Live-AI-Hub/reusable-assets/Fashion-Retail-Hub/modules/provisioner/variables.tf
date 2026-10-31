@@ -7,7 +7,12 @@ variable "host" {
 
 variable "private_key" {
   type      = string
-  sensitive = false
+  sensitive = true
+}
+
+variable "private_key_path" {
+  type        = string
+  description = "Local path to the generated SSH private key used by the visible bootstrap runner."
 }
 
 variable "atp_url" {
@@ -18,7 +23,12 @@ variable "atp_url" {
 variable "db_password" {
   type      = string
   default   = ""
-  sensitive = false
+  sensitive = true
+}
+
+variable "cohub_db_password" {
+  type      = string
+  sensitive = true
 }
 
 variable "conn_db" {
@@ -44,7 +54,7 @@ variable "atp_db_name" {
 variable "atp_db_password" {
   type      = string
   default   = ""
-  sensitive = false
+  sensitive = true
 }
 
 variable "conn_db_atp" {
@@ -79,6 +89,7 @@ variable "oci_fingerprint" {
 
 variable "oci_private_key_pem" {
   type      = string
+  sensitive = true
 }
 
 variable "objectstorage_region" {
@@ -114,7 +125,7 @@ variable "cart_summary_api_url" {
 variable "mongo_uri" {
   type      = string
   default   = ""
-  sensitive = false
+  sensitive = true
 }
 
 variable "mongo_db_name" {
@@ -140,7 +151,7 @@ variable "mongodb_username" {
 variable "mongodb_password" {
   type      = string
   default   = ""
-  sensitive = false
+  sensitive = true
 }
 
 variable "mongo_mode" {
@@ -151,6 +162,11 @@ variable "mongo_mode" {
 variable "oracle_mongo_url" {
   type    = string
   default = ""
+}
+
+variable "oracle_mongo_password" {
+  type      = string
+  sensitive = true
 }
 
 # Models

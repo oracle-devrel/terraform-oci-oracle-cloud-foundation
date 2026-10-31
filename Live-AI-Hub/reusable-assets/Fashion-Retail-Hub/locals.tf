@@ -33,7 +33,7 @@ data "oci_identity_region_subscriptions" "home_region_subscriptions" {
     values = [true]
   }
 }
- 
+
 locals {
   effective_oci_private_key_pem = (
     trimspace(var.oci_private_key_pem) != "" ? trimspace(var.oci_private_key_pem) :

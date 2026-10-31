@@ -4,8 +4,8 @@
 output "security_lists" {
   description = "The security list(s) created/managed."
   value = {
-    for i in oci_core_security_list.these:
-      i.display_name => i
+    for i in oci_core_security_list.these :
+    i.display_name => i
   }
 }
 
@@ -85,7 +85,7 @@ output "nsgs" {
 output "dhcp_options" {
   description = "DHCP options created."
   value = {
-    for i in oci_core_dhcp_options.these:
-      i.display_name => i
+    for i in oci_core_dhcp_options.these :
+    i.display_name => i
   }
 }

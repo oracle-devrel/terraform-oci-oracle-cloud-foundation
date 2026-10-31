@@ -2,8 +2,8 @@
 # All rights reserved. Licensed under the Universal Permissive License (UPL), Version 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 resource "local_file" "private_key" {
-  content  = module.keygen.OPCPrivateKey["private_key_pem"]
-  filename = "private_key.pem"
+  content         = module.keygen.OPCPrivateKey["private_key_pem"]
+  filename        = "private_key.pem"
   file_permission = 0600
 }
 
@@ -100,6 +100,11 @@ Example credentials:
 - Username: tammy.bryant@internalmail
 - Password: user
 EOT
+}
+
+output "provisioner_diagnostic_log" {
+  description = "Safe remote bootstrap log location and live inspection command. The log records steps and exit codes, not credentials."
+  value       = "Remote log: /home/opc/fashion-retail-provisioner.log | Live view: ssh -i ./private_key.pem -o StrictHostKeyChecking=no opc@${values(module.web-instance.all_public_ips)[0]} 'tail -n 200 -F /home/opc/fashion-retail-provisioner.log'"
 }
 
 output "generated_ssh_private_key_for_bastion" {

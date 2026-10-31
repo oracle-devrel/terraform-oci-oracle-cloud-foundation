@@ -4,8 +4,8 @@
 variable "adw_params" {
   type = map(object({
     compartment_id              = string
-	  compute_model               = string
-	  compute_count               = number
+    compute_model               = string
+    compute_count               = number
     size_in_tbs                 = number
     db_name                     = string
     db_workload                 = string
@@ -23,7 +23,7 @@ variable "adw_params" {
     database_management_status  = string
     nsg_ids                     = list(string)
     defined_tags                = map(string)
-    enable_mongodb_api = optional(bool)
-    whitelisted_ips = optional(list(string))
+    enable_mongodb_api          = optional(bool)
+    whitelisted_ips             = optional(list(string))
   }))
 }

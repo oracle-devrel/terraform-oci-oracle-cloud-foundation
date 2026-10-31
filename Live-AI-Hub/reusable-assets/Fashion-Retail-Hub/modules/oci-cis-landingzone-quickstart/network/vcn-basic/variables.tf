@@ -22,26 +22,26 @@ variable "drg_id" {
 
 variable "vcns" {
   description = "The VCNs."
-  type        = map(object({
+  type = map(object({
     compartment_id    = string,
     cidr              = string,
     dns_label         = string,
     is_create_igw     = bool,
     is_attach_drg     = bool,
     block_nat_traffic = bool,
-    subnets           = map(object({
-      compartment_id    = string,
-      vcn_id            = string,
+    subnets = map(object({
+      compartment_id      = string,
+      vcn_id              = string,
       availability_domain = string,
-      cidr              = string,
-      dns_label         = string,
-      private           = bool,
-      dhcp_options_id   = string,
-      security_list_ids = list(string),
-      defined_tags      = map(string),
-      freeform_tags     = map(string)
+      cidr                = string,
+      dns_label           = string,
+      private             = bool,
+      dhcp_options_id     = string,
+      security_list_ids   = list(string),
+      defined_tags        = map(string),
+      freeform_tags       = map(string)
     })),
-    defined_tags      = map(string),
-    freeform_tags     = map(string)
-  }))  
+    defined_tags  = map(string),
+    freeform_tags = map(string)
+  }))
 }

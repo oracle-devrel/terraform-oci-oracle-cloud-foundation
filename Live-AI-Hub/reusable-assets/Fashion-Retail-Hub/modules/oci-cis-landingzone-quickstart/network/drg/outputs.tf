@@ -12,8 +12,8 @@
 
 output "drgs_list" {
   value = {
-    for drg in oci_core_drg.this:
-      drg.display_name => drg.id
+    for drg in oci_core_drg.this :
+    drg.display_name => drg.id
   }
 }
 

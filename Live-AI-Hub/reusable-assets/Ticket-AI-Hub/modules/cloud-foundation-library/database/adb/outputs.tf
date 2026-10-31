@@ -54,7 +54,7 @@ value = oci_database_autonomous_database_wallet.autonomous_database_wallet["adw"
 }
 
 output "database_fully_qualified_name" {
-  value = lower(trimsuffix(trimprefix(join("\n", [for b in oci_database_autonomous_database.adw : b.connection_urls.0.graph_studio_url]), "https://"), "/graphstudio/?sso=true"))
+  value = lower(trimsuffix(trimprefix(join("\n", [for b in oci_database_autonomous_database.adw : b.connection_urls.0.sql_dev_web_url]), "https://"), "/ords/sql-developer"))
 }
 
 output "adw" {

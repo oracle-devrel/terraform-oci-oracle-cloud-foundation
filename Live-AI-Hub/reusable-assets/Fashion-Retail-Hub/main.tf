@@ -21,7 +21,6 @@ module "mongodb_atlas" {
 
 module "os" {
   source       = "./modules/cloud-foundation-library/object-storage"
-  depends_on   = [module.adb]
   tenancy_ocid = var.tenancy_ocid
   bucket_params = {
     for k, v in local.bucket_params : k => v if v.compartment_id != ""
@@ -204,8 +203,97 @@ data "oci_objectstorage_namespace" "this" {
   compartment_id = var.compartment_id
 }
 
+resource "null_resource" "enforce_private_object_storage_visibility" {
+  depends_on = [module.os]
+
+  # Terraform manages the bucket access_type as well. This explicit OCI CLI
+  # step also repairs buckets that were created public by an older deployment.
+  triggers = {
+    namespace         = data.oci_objectstorage_namespace.this.namespace
+    files_bucket_name = var.files_bucket_name
+    atp_bucket_name   = var.atp_creds_bucket_name
+    access_type       = "NoPublicAccess"
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      set -euo pipefail
+
+      NAMESPACE="${data.oci_objectstorage_namespace.this.namespace}"
+
+      for BUCKET in "${var.files_bucket_name}" "${var.atp_creds_bucket_name}"; do
+        echo "Enforcing private visibility for bucket: $BUCKET ..."
+        oci os bucket update \
+          --region "${var.region}" \
+          --namespace-name "$NAMESPACE" \
+          --bucket-name "$BUCKET" \
+          --public-access-type NoPublicAccess \
+          >/dev/null
+      done
+
+      echo "Object Storage buckets are private."
+    EOT
+  }
+}
+
+resource "null_resource" "empty_object_storage_buckets_before_destroy" {
+  # Empty both buckets before Terraform destroys the OCI bucket resources.
+  # This mirrors the FSI destroy ordering and also removes object versions
+  # and delete markers that would otherwise block bucket deletion.
+  depends_on = [module.os]
+
+  triggers = {
+    namespace         = data.oci_objectstorage_namespace.this.namespace
+    files_bucket_name = var.files_bucket_name
+    atp_bucket_name   = var.atp_creds_bucket_name
+    region            = var.region
+  }
+
+  provisioner "local-exec" {
+    when = destroy
+
+    command = <<-EOT
+      set -euo pipefail
+      command -v oci >/dev/null 2>&1 || {
+        echo "OCI CLI is required to empty Object Storage buckets before destroy." >&2
+        exit 127
+      }
+
+      for OCI_BUCKET_NAME in "$OCI_FILES_BUCKET_NAME" "$OCI_ATP_BUCKET_NAME"; do
+        echo "Emptying Object Storage bucket $OCI_BUCKET_NAME before destroy ..."
+
+        oci os object bulk-delete-versions \
+          --region "$OCI_REGION" \
+          --namespace-name "$OCI_NAMESPACE" \
+          --bucket-name "$OCI_BUCKET_NAME" \
+          --force >/dev/null
+
+        oci os object bulk-delete \
+          --region "$OCI_REGION" \
+          --namespace-name "$OCI_NAMESPACE" \
+          --bucket-name "$OCI_BUCKET_NAME" \
+          --force >/dev/null
+
+        echo "Emptied Object Storage bucket $OCI_BUCKET_NAME."
+      done
+    EOT
+
+    environment = {
+      OCI_FILES_BUCKET_NAME = self.triggers.files_bucket_name
+      OCI_ATP_BUCKET_NAME   = self.triggers.atp_bucket_name
+      OCI_NAMESPACE         = self.triggers.namespace
+      OCI_REGION            = self.triggers.region
+    }
+  }
+}
+
 resource "null_resource" "upload_wallet_to_object_storage" {
-  depends_on = [module.adb, module.os]
+  depends_on = [
+    module.adb,
+    module.os,
+    null_resource.enforce_private_object_storage_visibility,
+    null_resource.empty_object_storage_buckets_before_destroy,
+  ]
 
   provisioner "local-exec" {
     command = <<-EOT
@@ -241,7 +329,11 @@ resource "null_resource" "upload_wallet_to_object_storage" {
 }
 
 resource "null_resource" "upload_files_to_object_storage" {
-  depends_on = [module.os]
+  depends_on = [
+    module.os,
+    null_resource.enforce_private_object_storage_visibility,
+    null_resource.empty_object_storage_buckets_before_destroy,
+  ]
 
   provisioner "local-exec" {
     command = <<-EOT
@@ -283,7 +375,6 @@ module "provisioner" {
     module.keygen,
     module.web-instance,
     module.os,
-    module.cart_api_gateway,
     null_resource.upload_wallet_to_object_storage,
     null_resource.upload_files_to_object_storage,
     module.mongodb_atlas
@@ -291,8 +382,10 @@ module "provisioner" {
 
   host                  = module.web-instance.InstancePublicIPs[0]
   private_key           = module.keygen.OPCPrivateKey["private_key_pem"]
+  private_key_path      = "${path.root}/private_key.pem"
   atp_url               = module.adb.adw_sql_dev_web_urls
   db_password           = var.adw_db_password
+  cohub_db_password     = var.cohub_db_password
   db_name               = var.adw_db_name
   atp_db_name           = var.atp_db_name
   atp_db_password       = var.atp_db_password
@@ -330,7 +423,8 @@ module "provisioner" {
   mongodb_username = local.mongodb_username
   mongodb_password = local.mongodb_password
 
-  oracle_mongo_url = try(module.adb.mongo_db_urls["atp"], "")
+  oracle_mongo_url      = try(module.adb.mongo_db_urls["atp"], "")
+  oracle_mongo_password = var.oracle_mongo_password
 
   mongo_uri = (
     var.mongo_mode == "atlas" ? module.mongodb_atlas[0].mongodb_uri :

@@ -4,3 +4,10 @@
 .terraform
 *tfstate*
 *.pem
+terraform.tfvars
+*.auto.tfvars
+*.tfvars.json
+*.env
+wallet_*.zip
+modules/provisioner/*.generated.sql
+modules/provisioner/remote-bootstrap.sh
