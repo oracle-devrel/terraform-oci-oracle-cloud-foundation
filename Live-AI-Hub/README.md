@@ -27,6 +27,6 @@ More assets and reusable components will be added as the Live AI Hub evolves.
 Click one of the links below to start the corresponding demo video:
 
 - [Watch the Retail Hub - Live AI Hub demo](https://objectstorage.us-ashburn-1.oraclecloud.com/p/26EMYRIJ1V62pa3CeHKrVcF08cJMNy8nQ3JsCGk-Hc27cEUd5ORVvSX5TVw3koVK/n/idukzrqavn8q/b/Live-AI-Hub/o/Retail%20Hub%20-%20Live%20AI%20Hub%20demo%20-%201080p.mp4)
-- [Watch the Ticket Hub - Healthcare - Live AI Hub demo](https://objectstorage.us-ashburn-1.oraclecloud.com/p/lwON8_9DJJc-mHv2IAKrNiip4i0QRGW6a19tcYP1EPsV_EKVawcU8XLypX8HLmvK/n/idukzrqavn8q/b/Live-AI-Hub/o/Ticket%20Hub%20-%20Healthcare%20-%20Live%20AI%20Hub%20demo%20-%201080p.mp4)
+- [Watch the Ticket Hub - Healthcare - Live AI Hub demo](https://objectstorage.us-ashburn-1.oraclecloud.com/p/G3atMfvyQeHTg70syiMJIs8LM94ES4Us8dNzGAvPD5292fsEV2xyVxp57ASh8_Cr/n/idukzrqavn8q/b/Live-AI-Hub/o/Ticket%20Hub%20-%20Healthcare%20-%20Live%20AI%20Hub%20demo%20-%201080p.mp4)
 - [Watch the Ticket Hub - Telco - Live AI Hub demo](https://objectstorage.us-ashburn-1.oraclecloud.com/p/k8l12tUE_qcXBwkfTFR4pwU80AwClIVuBbPmlZpI_9I9x7w7JaDCzVBx7QAfHvww/n/idukzrqavn8q/b/Live-AI-Hub/o/Ticket%20Hub%20-%20Telco%20-%20Live%20AI%20Hub%20demo%20-%201080p.mp4)
 - [Watch the FSI Hub - Live AI Hub demo](https://objectstorage.us-ashburn-1.oraclecloud.com/p/HHimh9bsMqrhyY5naEr32DV1Envx9A_AKduFN9uQIV7aWOmQstM_lNHMdTfhDRci/n/idukzrqavn8q/b/Live-AI-Hub/o/FSI%20Hub%20-%20Live%20AI%20Hub%20demo%20-%201080p.mp4)
